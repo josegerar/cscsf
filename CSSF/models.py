@@ -1,6 +1,6 @@
 # Create your models here.
 from django.db import models
-from datetime import datetime
+from django.utils import timezone
 
 from CSSF.validators import *
 
@@ -9,7 +9,7 @@ class Categoria(models.Model):
     nombre = models.CharField(max_length=20, verbose_name="Nombre de la categoria", unique=True)
     descripcion = models.CharField(max_length=200, blank=True, null=True)
     is_active = models.BooleanField(default=True, editable=False)
-    fecha_creacion = models.DateTimeField(default=datetime.now, editable=False)
+    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.nombre
@@ -27,7 +27,7 @@ class Solicitante(models.Model):
     cedula = models.CharField(max_length=10, verbose_name="Numero de cedula", unique=True)
     telefono = models.CharField(max_length=10, blank=True, null=True, verbose_name="Numero de telefono")
     correo_electronico = models.CharField(max_length=150, verbose_name="Correo electronico", unique=True)
-    fecha_creacion = models.DateTimeField(default=datetime.now, editable=False)
+    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.nombre
@@ -42,7 +42,7 @@ class Solicitante(models.Model):
 class Solicitud(models.Model):
     id_solicitante = models.ForeignKey(Solicitante, on_delete=models.PROTECT)
     id_categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
-    fecha_solicitud = models.DateTimeField(default=datetime.now, editable=False)
+    fecha_solicitud = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.id
@@ -57,7 +57,7 @@ class Solicitud(models.Model):
 class Laboratorio(models.Model):
     id_solicitante = models.ForeignKey(Solicitante, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=100, verbose_name="Nombre de laboratorio", unique=True)
-    fecha_creacion = models.CharField(default=datetime.now, editable=False)
+    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.nombre
@@ -72,7 +72,7 @@ class Laboratorio(models.Model):
 class Facultad(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de facultad", unique=True)
     is_active = models.BooleanField(default=True, editable=False)
-    fecha_creacion = models.DateTimeField(default=datetime.now, editable=False)
+    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.nombre
@@ -131,8 +131,8 @@ class Entrega(models.Model):
     id_documento = models.ForeignKey(Documento, on_delete=models.PROTECT)
     id_ingreso_compras = models.ForeignKey(IngresoCompras, on_delete=models.PROTECT)
     id_laboratorio = models.ForeignKey(Laboratorio, on_delete=models.PROTECT)
-    fecha_solicitud_entrega = models.DateTimeField(datetime.now, editable=False)
-    fecha_entrega = models.DateTimeField(datetime.now, editable=False)
+    fecha_solicitud_entrega = models.DateTimeField(timezone.now, editable=False)
+    fecha_entrega = models.DateTimeField(timezone.now, editable=False)
 
     def __str__(self):
         return self.id

@@ -1,0 +1,10 @@
+{% extends 'indexprueba.html' %}
+
+{% block content %}
+    <a href="{% url 'cssfurls:vista1' %}">Vista 1</a>
+    <ul>
+        {% for fac in facultad %}
+            <li>{{ fac.id }} / {{ fac.nombre }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
