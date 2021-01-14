@@ -9,13 +9,24 @@ SQLITE = {
     }
 }
 
+# POSTGRESQL = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'scssf',
+#         'USER': 'postgres',
+#         'PASSWORD': '123456',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
+
 POSTGRESQL = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'scssf',
-        'USER': 'postgres',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
+        'NAME': 'dbvcn79q2e0c8',
+        'USER': 'mwlitggifsvotw',
+        'PASSWORD': 'mwlitggifsvotw',
+        'HOST': 'ec2-34-202-5-87.compute-1.amazonaws.com',
         'PORT': '5432'
     }
 }
