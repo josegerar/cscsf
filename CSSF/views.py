@@ -7,6 +7,12 @@ from CSSF.models import Categoria, Facultad
 def mainIndex(request):
     return render(request, 'index.html')
 
+def bodIndex(request):
+    return render(request, 'indexBod.html')
+
+def labIndex(request):
+    return render(request, 'indexLab.html')
+
 def myfirstview(request):
     data = {
         'name': 'Jose',
