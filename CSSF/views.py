@@ -8,10 +8,10 @@ def mainIndex(request):
     return render(request, 'rp/homerp.html')
 
 def bodIndex(request):
-    return render(request, 'bdg/indexbdg.html')
+    return render(request, 'bdg/homebdg.html')
 
 def labIndex(request):
-    return render(request, 'tl/indexLab.html')
+    return render(request, 'tl/hometl.html')
 
 def myfirstview(request):
     data = {
