@@ -8,7 +8,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CSCSF</title>
+    <title>CSCSF - {{ title }}</title>
 
     <link rel="apple-touch-icon" sizes="57x57" href="{% static 'img/uteq/apple-icon-57x57.png' %}">
     <link rel="apple-touch-icon" sizes="60x60" href="{% static 'img/uteq/apple-icon-60x60.png' %}">
@@ -35,6 +35,22 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{% static 'lib/adminlte-3.1.0-dist/plugins/fontawesome-free/css/all.min.css' %}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'lib/adminlte-3.1.0-dist/css/adminlte.min.css' %}">
+    <!-- Datatable https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.css -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.css"/>
+
+    <!-- REQUIRED SCRIPTS -->
+
+    <!-- jQuery -->
+    <script src="{% static 'lib/adminlte-3.1.0-dist/plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Datatable https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.js -->
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.js"></script>
+
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'lib/adminlte-3.1.0-dist/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'lib/adminlte-3.1.0-dist/js/adminlte.min.js' %}"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="{% static 'lib/adminlte-3.1.0-dist/js/demo.js' %}"></script>
 
 </head>
 <body class="hold-transition layout-top-nav">
@@ -65,16 +81,5 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <!-- /.control-sidebar -->
 {% include 'footer.html' %}
 <!-- ./wrapper -->
-
-<!-- REQUIRED SCRIPTS -->
-
-<!-- jQuery -->
-<script src="{% static 'lib/adminlte-3.1.0-dist/plugins/jquery/jquery.min.js' %}"></script>
-<!-- Bootstrap 4 -->
-<script src="{% static 'lib/adminlte-3.1.0-dist/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-<!-- AdminLTE App -->
-<script src="{% static 'lib/adminlte-3.1.0-dist/js/adminlte.min.js' %}"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="{% static 'lib/adminlte-3.1.0-dist/js/demo.js' %}"></script>
 </body>
 </html>

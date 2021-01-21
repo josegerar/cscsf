@@ -1,1 +1,108 @@
 {% extends 'rp/indexrp.html' %}
+
+{% block content %}
+    <div class="card card-default">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-{{ icontitle }}"></i>
+                {{ title }}
+            </h3>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="card">
+                        <div class="card-header">
+                            Filtros
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                                data-accordion="false">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="nav-icon fas fa-building"></i>
+                                        <p>
+                                            Laboratorio
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview" style="display: none;">
+                                        <li class="nav-item">
+                                            <a href="../charts/chartjs.html" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>ChartJS</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../charts/flot.html" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Flot</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../charts/inline.html" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Inline</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="../charts/uplot.html" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>uPlot</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-10">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="tblistadocompras" class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">First</th>
+                                        <th scope="col">Last</th>
+                                        <th scope="col">Handle</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <th scope="row">1</th>
+                                        <td>Mark</td>
+                                        <td>Otto</td>
+                                        <td>@mdo</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">2</th>
+                                        <td>Jacob</td>
+                                        <td>Thornton</td>
+                                        <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">3</th>
+                                        <td>Larry</td>
+                                        <td>the Bird</td>
+                                        <td>@twitter</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <script>
+                                $(document).ready(function () {
+                                    $('#tblistadocompras').DataTable();
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+{% endblock %}

@@ -8,7 +8,8 @@ def mainIndex(request):
                 "uriname": "Home"
             }
         ],
-        "pagetitle": "Representante Técnico"
+        "usertitle": "Representante Técnico",
+        "title": "Home"
     }
     return render(request, 'rp/homerp.html', data)
 
@@ -28,7 +29,8 @@ def listarmovimientoinventario(request):
                 "uriname": "Movimientos"
             }
         ],
-        "pagetitle": "Movimientos inventario"
+        "usertitle": "Representante Técnico",
+        "title": "Movimientos inventario"
     }
     return render(request, "rp/listarmovimientosinventario.html", data)
 
@@ -44,7 +46,8 @@ def listarstocksustancias(request):
                 "uriname": "Inventario"
             }
         ],
-        "pagetitle": "Inventario"
+        "usertitle": "Representante Técnico",
+        "title": "Inventario"
     }
     return render(request, "rp/listarstocksustancias.html", data)
 
@@ -64,7 +67,8 @@ def registrarcompra(request):
                 "uriname": "Registro"
             }
         ],
-        "pagetitle": "Registrar compra"
+        "usertitle": "Representante Técnico",
+        "title": "Registrar compra"
     }
     return render(request, "rp/registrocompras.html", data)
 
@@ -80,7 +84,9 @@ def listarcompras(request):
                 "uriname": "Compras"
             }
         ],
-        "pagetitle": "Compras registradas"
+        "usertitle": "Representante Técnico",
+        "title": "Compras registradas",
+        "icontitle": "store-alt"
     }
     return render(request, "rp/listarcompras.html", data)
 
@@ -100,7 +106,8 @@ def registrarsolicitidentregasustancias(request):
                 "uriname": "Registro"
             }
         ],
-        "pagetitle": "Registro entrega sustancias"
+        "usertitle": "Representante Técnico",
+        "title": "Registro entrega sustancias"
     }
     return render(request, "rp/solicitudentregasustancias.html", data)
 
@@ -116,6 +123,7 @@ def listarsolicitudesentregasustancias(request):
                 "uriname": "Solicitudes"
             }
         ],
-        "pagetitle": "Solicitudes resgistradas"
+        "usertitle": "Representante Técnico",
+        "title": "Solicitudes resgistradas"
     }
     return render(request, "rp/listarsolicitudesentregasustancias.html", data)
