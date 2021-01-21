@@ -5354,7 +5354,7 @@ var Editor_Editor = /*#__PURE__*/function () {
         return;
       }
 
-      var isTextChanged = rng.toString() !== linkText; // handle spaced urls from input
+      var isTextChanged = rng.toString() !== linkText; // handle spaced urlsUS from input
 
       if (typeof linkUrl === 'string') {
         linkUrl = linkUrl.trim();

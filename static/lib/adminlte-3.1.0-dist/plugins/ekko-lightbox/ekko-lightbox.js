@@ -472,7 +472,7 @@ var Lightbox = (function ($) {
 				var disableExternalCheck = this._$element.data('disableExternalCheck') || false;
 				this._toggleLoading(false);
 
-				// external urls are loading into an iframe
+				// external urlsUS are loading into an iframe
 				// local ajax can be loaded into the container itself
 				if (!disableExternalCheck && !this._isExternal(url)) {
 					$containerForElement.load(url, $.proxy(function () {

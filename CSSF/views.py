@@ -1,17 +1,8 @@
-# Create your views here.
+# Create your viewsUS here.
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
 from CSSF.models import Categoria, Facultad
-
-def mainIndex(request):
-    return render(request, 'rp/homerp.html')
-
-def bodIndex(request):
-    return render(request, 'bdg/homebdg.html')
-
-def labIndex(request):
-    return render(request, 'tl/hometl.html')
 
 def myfirstview(request):
     data = {
