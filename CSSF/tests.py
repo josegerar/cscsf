@@ -5,13 +5,24 @@ from CSSF.models import *
 from django.utils import timezone
 #import pytz
 
+
+data = {
+        "urls": [
+            {
+                "uridj": "rp:index",
+                "uriname": "Home"
+            }
+        ]
+    }
+print(len((data["urls"])))
+
 print(timezone.now())
 #print(datetime.now())
 
 #select
 #query = Documento.objects.all()
-query = Facultad.objects.all()
-print(query)
+#query = Facultad.objects.all()
+#print(query)
 #print("x")
 
 #insert

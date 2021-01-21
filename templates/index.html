@@ -42,10 +42,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {% block header %}
 
     {% endblock %}
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        {% include "contentheader.html" %}
+        {% block content %}
 
-    {% block content %}
-
-    {% endblock %}
+        {% endblock %}
+    </div>
+    <!-- /.content-wrapper -->
+    <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
 
