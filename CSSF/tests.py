@@ -10,8 +10,8 @@ print(timezone.now())
 
 #select
 #query = Documento.objects.all()
-#query = Categoria.objects.all()
-#print(query)
+query = Facultad.objects.all()
+print(query)
 #print("x")
 
 #insert
@@ -19,9 +19,9 @@ print(timezone.now())
 #c.nombre = "Docencia"
 #c.descripcion = "Solicitudes de proyetos de aula"
 #c.save()
-f = Facultad()
-f.nombre = "Ciencias de la ingenieria"
-f.save()
+#f = Facultad()
+#f.nombre = "Ciencias de la ingenieria"
+#f.save()
 
 #ediccion
 #obtener objecto mediante valor unico
@@ -37,5 +37,5 @@ f.save()
 #c.delete()
 
 #consultas personalizadas
-c = Categoria.objects.filter(nombre__startswith="d")
-print(c)
+#c = Categoria.objects.filter(nombre__startswith="d")
+#print(c)
