@@ -26,8 +26,8 @@
                         <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
                            aria-expanded="false" class="nav-link dropdown-toggle">Inventario</a>
                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                            <li><a href="#" class="dropdown-item">Movimientos </a></li>
-                            <li><a href="#" class="dropdown-item">Stock</a></li>
+                            <li><a href="{% url 'rp:movimientoinventario' %}" class="dropdown-item">Movimientos </a></li>
+                            <li><a href="{% url 'rp:inventario' %}" class="dropdown-item">Stock</a></li>
                         </ul>
                     </li>
                     </li>
@@ -48,9 +48,9 @@
                     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                        class="nav-link dropdown-toggle">Registrar</a>
                     <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                        <li><a href="#" class="dropdown-item">Compras</a></li>
-                        <li><a href="#" class="dropdown-item">Solicitud - entrega de sustancia</a></li>
-                        <li><a href="#" class="dropdown-item">Sustancias </a></li>
+                        <li><a href="{% url 'rp:registrocompras' %}" class="dropdown-item">Compras</a></li>
+                        <li><a href="{% url 'rp:entregasustancias' %}" class="dropdown-item">Solicitud - entrega de sustancia</a></li>
+                        <li><a href="{% url 'rp:inventario' %}" class="dropdown-item">Sustancias </a></li>
                         <li><a href="#" class="dropdown-item">Bodega</a></li>
                         <li><a href="#" class="dropdown-item">Laboratorio</a></li>
                         <li><a href="#" class="dropdown-item">Laboratoristas</a></li>
