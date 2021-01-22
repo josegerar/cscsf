@@ -1,8 +1,15 @@
 # Create your tests here.
 from app.wsgi import *
-from CSSF.models import *
+from cssf.models import *
 #from datetime import datetime
 from django.utils import timezone
+from django.contrib.auth.models import Group
+from django.contrib.auth import authenticate
+
+print(authenticate(username='admi', password='123456'))
+
+g = Group.objects.all()
+print(g)
 #import pytz
 
 

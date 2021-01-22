@@ -1,6 +1,6 @@
 from django.urls import path
 
-from CSSF.views.tl.views_tl import labIndex
+from cssf.views.tl.views_tl import labIndex
 
 app_name = "tl"
 

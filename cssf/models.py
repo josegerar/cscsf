@@ -1,9 +1,22 @@
 # Create your models here.
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
 
-from CSSF.validators import *
+from cssf.validators import *
 
+class User(AbstractUser):
+    cedula = models.CharField(max_length=10, verbose_name="Cedula", unique=True)
+    telefono = models.CharField(max_length=10, verbose_name="Telefono")
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = "Usuario"
+        verbose_name_plural = "Usuarios"
+        db_table = "auth_user"
+        ordering = ["id"]
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=20, verbose_name="Nombre de la categoria", unique=True)
@@ -20,28 +33,9 @@ class Categoria(models.Model):
         db_table = "categoria"
         ordering = ["id"]
 
-
-class Solicitante(models.Model):
-    nombre = models.CharField(max_length=25, verbose_name="Nombres del solicitante")
-    apellido = models.CharField(max_length=25, verbose_name="Apellidos del solicitante")
-    cedula = models.CharField(max_length=10, verbose_name="Numero de cedula", unique=True)
-    telefono = models.CharField(max_length=10, blank=True, null=True, verbose_name="Numero de telefono")
-    correo_electronico = models.CharField(max_length=150, verbose_name="Correo electronico", unique=True)
-    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = "Solicitante"
-        verbose_name_plural = "Solicitantes"
-        db_table = "solicitante"
-        ordering = ["id"]
-
-
 class Solicitud(models.Model):
-    id_solicitante = models.ForeignKey(Solicitante, on_delete=models.PROTECT)
-    id_categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
+    id_solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_solicitud = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
@@ -53,9 +47,7 @@ class Solicitud(models.Model):
         db_table = "solicitud"
         ordering = ["id"]
 
-
 class Laboratorio(models.Model):
-    id_solicitante = models.ForeignKey(Solicitante, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=100, verbose_name="Nombre de laboratorio", unique=True)
     fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
@@ -68,6 +60,20 @@ class Laboratorio(models.Model):
         db_table = "labratorio"
         ordering = ["id"]
 
+class TecnicoLaboratorio(models.Model):
+    id_tecnico = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE)
+    fecha_asignacion = models.DateTimeField(default=timezone.now, editable=False)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.id_tecnico.first_name + " - " + self.id_laboratorio.nombre
+
+    class Meta:
+        verbose_name = "TecnicoLaboratorio"
+        verbose_name_plural = "TecnicosLaboratorios"
+        db_table = "tecnico_laboratorio"
+        ordering = ["id"]
 
 class Facultad(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de facultad", unique=True)
@@ -82,7 +88,6 @@ class Facultad(models.Model):
         verbose_name_plural = "Facultades"
         db_table = "facultad"
         ordering = ["id"]
-
 
 class IngresoCompras(models.Model):
     id_facultad = models.ForeignKey(Facultad, on_delete=models.PROTECT)
@@ -99,8 +104,8 @@ class IngresoCompras(models.Model):
         ordering = ["id"]
 
 class SolicitanteCompra(models.Model):
-    id_solicitante = models.ForeignKey(Solicitante, on_delete=models.PROTECT)
-    id_ingreso_compra = models.ForeignKey(IngresoCompras, on_delete=models.PROTECT)
+    id_solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_ingreso_compra = models.ForeignKey(IngresoCompras, on_delete=models.CASCADE)
     tipo_sc = models.CharField(max_length=2, null=True, validators=[validate_solicitante_compra_tipo_sc])
 
     def __str__(self):
