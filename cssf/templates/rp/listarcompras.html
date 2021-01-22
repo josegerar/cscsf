@@ -1,5 +1,9 @@
 {% extends 'rp/indexrp.html' %}
 
+{% block head %}
+
+{% endblock %}
+
 {% block content %}
     <div class="card card-default">
         <div class="card-header">
@@ -28,30 +32,14 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview" style="display: none;">
-                                        <li class="nav-item">
-                                            <a href="../charts/chartjs.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>ChartJS</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="../charts/flot.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>Flot</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="../charts/inline.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>Inline</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="../charts/uplot.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>uPlot</p>
-                                            </a>
-                                        </li>
+                                        {% for laboratorio in laboratorios %}
+                                            <li class="nav-item">
+                                                <a href="../charts/chartjs.html" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>{{ laboratorio.nombre }}</p>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             </ul>

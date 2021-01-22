@@ -1,5 +1,8 @@
 from django.shortcuts import render
 
+from cssf.models import Laboratorio
+
+
 def mainIndex(request):
     data = {
         "urls": [
@@ -86,7 +89,8 @@ def listarcompras(request):
         ],
         "usertitle": "Representante Técnico",
         "title": "Compras registradas",
-        "icontitle": "store-alt"
+        "icontitle": "store-alt",
+        "laboratorios": Laboratorio.objects.all()
     }
     return render(request, "rp/listarcompras.html", data)
 
