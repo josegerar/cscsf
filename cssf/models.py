@@ -5,9 +5,13 @@ from django.contrib.auth.models import AbstractUser
 
 from cssf.validators import *
 
+
 class User(AbstractUser):
     cedula = models.CharField(max_length=10, verbose_name="Cedula", unique=True)
     telefono = models.CharField(max_length=10, verbose_name="Telefono")
+    is_representante = models.BooleanField(default=False)
+    is_laboratorista = models.BooleanField(default=False)
+    is_bodeguero = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
@@ -17,6 +21,23 @@ class User(AbstractUser):
         verbose_name_plural = "Usuarios"
         db_table = "auth_user"
         ordering = ["id"]
+
+
+class Persona(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombres"),
+    apellido = models.CharField(max_length=100, verbose_name="Apellidos")
+    cedula = models.CharField(max_length=100, verbose_name="Cedula", unique=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre + " " + self.apellido
+
+    class Meta:
+        verbose_name = "Persona"
+        verbose_name_plural = "Personas"
+        db_table = "persona"
+        ordering = ["id"]
+
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=20, verbose_name="Nombre de la categoria", unique=True)
@@ -33,19 +54,21 @@ class Categoria(models.Model):
         db_table = "categoria"
         ordering = ["id"]
 
+
 class Solicitud(models.Model):
     id_solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
     id_categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_solicitud = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
     class Meta:
         verbose_name = "Solicitud"
         verbose_name_plural = "Solicitudes"
         db_table = "solicitud"
         ordering = ["id"]
+
 
 class Laboratorio(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de laboratorio", unique=True)
@@ -59,6 +82,7 @@ class Laboratorio(models.Model):
         verbose_name_plural = "Laboratorios"
         db_table = "labratorio"
         ordering = ["id"]
+
 
 class TecnicoLaboratorio(models.Model):
     id_tecnico = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -75,6 +99,7 @@ class TecnicoLaboratorio(models.Model):
         db_table = "tecnico_laboratorio"
         ordering = ["id"]
 
+
 class Facultad(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de facultad", unique=True)
     is_active = models.BooleanField(default=True, editable=False)
@@ -89,27 +114,54 @@ class Facultad(models.Model):
         db_table = "facultad"
         ordering = ["id"]
 
-class IngresoCompras(models.Model):
-    id_facultad = models.ForeignKey(Facultad, on_delete=models.PROTECT)
-    nombre_proyecto = models.CharField(max_length=200, verbose_name="Nombre de proyecto")
-    convocatoria = models.IntegerField(blank=True, null=True, validators=[validate_compras_convocatoria])
+
+class Proveedor(models.Model):
+    nombre = models.CharField(max_length=150, verbose_name="Nombre de empresa")
+    ruc = models.CharField(max_length=13, verbose_name="Ruc", unique=True)
+    id_responsable_entrega = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                               related_name="responsable_entrega_proveedor")
+    id_transportista = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                         related_name="transportista_proveedor")
+    is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
-        return self.id
+        return self.nombre
 
     class Meta:
-        verbose_name = "IngresoCompra"
-        verbose_name_plural = "IngresosCompras"
-        db_table = "ingreso_compra"
+        verbose_name = "Proveedor"
+        verbose_name_plural = "Proveedores"
+        db_table = "proveedor"
         ordering = ["id"]
+
+
+class ComprasPublicas(models.Model):
+    id_empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+    llegada_bodega = models.DateField(default=timezone.now, verbose_name="Fecha llegada a bodega")
+    hora_llegada_bodega = models.TimeField(default=timezone.now,verbose_name="Hora llegada a bodega")
+    convocatoria = models.IntegerField(blank=True, null=True, validators=[validate_compras_convocatoria])
+    id_responsable_entrega = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                               related_name="responsable_entrega_compra")
+    id_transportista = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                         related_name="transportista_compra")
+    fecha_registro = models.DateTimeField(default=timezone.now, editable=False)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        verbose_name = "CompraPublica"
+        verbose_name_plural = "ComprasPublicas"
+        db_table = "compras_publicas"
+        ordering = ["id"]
+
 
 class SolicitanteCompra(models.Model):
     id_solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
-    id_ingreso_compra = models.ForeignKey(IngresoCompras, on_delete=models.CASCADE)
+    id_ingreso_compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE)
     tipo_sc = models.CharField(max_length=2, null=True, validators=[validate_solicitante_compra_tipo_sc])
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
     class Meta:
         verbose_name = "SolicitanteCompra"
@@ -117,14 +169,28 @@ class SolicitanteCompra(models.Model):
         db_table = "solicitante_compra"
         ordering = ["id"]
 
-class Documento(models.Model):
-    id_solicitud = models.ForeignKey(Solicitud, on_delete=models.PROTECT)
-    id_ingreso_compras = models.ForeignKey(IngresoCompras, on_delete=models.PROTECT)
-    url_documento = models.CharField(max_length=200, unique=True)
-    tipo_documento = models.CharField(max_length=100)
+class TipoDocumento(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre")
+    descripcion = models.CharField(max_length=300, verbose_name="Descripcion")
+    is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
-        return self.id
+        return str(self.nombre)
+
+    class Meta:
+        verbose_name = "TipoDocumento"
+        verbose_name_plural = "TipoDocumentos"
+        db_table = "tipo_documento"
+        ordering = ["id"]
+
+class Documento(models.Model):
+    id_solicitud = models.ForeignKey(Solicitud, on_delete=models.PROTECT, blank=True, null=True)
+    id_compra_publica = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT, blank=True, null=True)
+    id_tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, blank=True, null=True)
+    url_documento = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return str(self.id)
 
     class Meta:
         verbose_name = "Documento"
@@ -132,19 +198,19 @@ class Documento(models.Model):
         db_table = "documento"
         ordering = ["id"]
 
+
 class Entrega(models.Model):
     id_documento = models.ForeignKey(Documento, on_delete=models.PROTECT)
-    id_ingreso_compras = models.ForeignKey(IngresoCompras, on_delete=models.PROTECT)
+    id_ingreso_compras = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT)
     id_laboratorio = models.ForeignKey(Laboratorio, on_delete=models.PROTECT)
     fecha_solicitud_entrega = models.DateTimeField(timezone.now, editable=False)
     fecha_entrega = models.DateTimeField(timezone.now, editable=False)
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
     class Meta:
         verbose_name = "Entrega"
         verbose_name_plural = "Entregas"
         db_table = "entrega"
         ordering = ["id"]
-
