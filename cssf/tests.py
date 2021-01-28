@@ -6,24 +6,27 @@ from django.utils import timezone
 from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate
 
-print(authenticate(username='admi', password='123456'))
 
-g = Group.objects.all()
-print(g)
-#import pytz
+print()
 
-
-data = {
-        "urls": [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            }
-        ]
-    }
-print(len((data["urls"])))
-
-print(timezone.now())
+# print(authenticate(username='admi', password='123456'))
+#
+# g = Group.objects.all()
+# print(g)
+# #import pytz
+#
+#
+# data = {
+#         "urls": [
+#             {
+#                 "uridj": "rp:index",
+#                 "uriname": "Home"
+#             }
+#         ]
+#     }
+# print(len((data["urls"])))
+#
+# print(timezone.now())
 #print(datetime.now())
 
 #select

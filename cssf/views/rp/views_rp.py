@@ -1,6 +1,7 @@
 from django.shortcuts import render
+from django.views.generic import ListView
 
-from cssf.models import Laboratorio
+from cssf.models import *
 
 
 def mainIndex(request):
@@ -15,6 +16,7 @@ def mainIndex(request):
         "title": "Home"
     }
     return render(request, 'rp/homerp.html', data)
+
 
 def listarmovimientoinventario(request):
     data = {
@@ -37,6 +39,7 @@ def listarmovimientoinventario(request):
     }
     return render(request, "rp/listarmovimientosinventario.html", data)
 
+
 def listarstocksustancias(request):
     data = {
         "urls": [
@@ -53,6 +56,7 @@ def listarstocksustancias(request):
         "title": "Inventario"
     }
     return render(request, "rp/listarstocksustancias.html", data)
+
 
 def registrarcompra(request):
     data = {
@@ -75,6 +79,7 @@ def registrarcompra(request):
     }
     return render(request, "rp/registrocompras.html", data)
 
+
 def listarcompras(request):
     data = {
         "urls": [
@@ -93,6 +98,30 @@ def listarcompras(request):
         "laboratorios": Laboratorio.objects.all()
     }
     return render(request, "rp/listarcompras.html", data)
+
+
+class ListarComprasView(ListView):
+    model = ComprasPublicas
+    template_name = "rp/listarcompras.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['usertitle'] = "Representante Técnico"
+        context['title'] = "Compras registradas"
+        context['icontitle'] = "store-alt"
+        context['laboratorios'] = Laboratorio.objects.all()
+        context['urls'] = [
+            {
+                "uridj": "rp:index",
+                "uriname": "Home"
+            },
+            {
+                "uridj": "rp:compras",
+                "uriname": "Compras"
+            }
+        ]
+        return context
+
 
 def registrarsolicitidentregasustancias(request):
     data = {
@@ -114,6 +143,7 @@ def registrarsolicitidentregasustancias(request):
         "title": "Registro entrega sustancias"
     }
     return render(request, "rp/solicitudentregasustancias.html", data)
+
 
 def listarsolicitudesentregasustancias(request):
     data = {

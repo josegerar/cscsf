@@ -26,29 +26,25 @@
     <thead>
     <tr>
         <th scope="col">#</th>
-        <th scope="col">First</th>
-        <th scope="col">Last</th>
-        <th scope="col">Handle</th>
+        <th scope="col">Empresa</th>
+        <th scope="col">Llegada a bodega</th>
+        <th scope="col">Hora llegada</th>
+        <th scope="col">COnvocatoria</th>
+        <th scope="col">Responsable entrega</th>
+        <th scope="col">Transportista</th>
     </tr>
     </thead>
     <tbody>
-    <tr>
-        <th scope="row">1</th>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
-    </tr>
-    <tr>
-        <th scope="row">2</th>
-        <td>Jacob</td>
-        <td>Thornton</td>
-        <td>@fat</td>
-    </tr>
-    <tr>
-        <th scope="row">3</th>
-        <td>Larry</td>
-        <td>the Bird</td>
-        <td>@twitter</td>
-    </tr>
+    {% for compra in object_list %}
+        <tr>
+            <th scope="row">{{ compra.id }}</th>
+            <td>{{ compra.id_empresa.nombre }}</td>
+            <td>{{ compra.llegada_bodega }}</td>
+            <td>{{ compra.hora_llegada_bodega }}</td>
+            <td>{{ compra.convocatoria }}</td>
+            <td>{{ compra.id_responsable_entrega_compras.nombre }}</td>
+            <td>{{ compra.id_transportista_compras.nombre }}</td>
+        </tr>
+    {% endfor %}
     </tbody>
 {% endblock %}

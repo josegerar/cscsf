@@ -56,8 +56,8 @@ class Categoria(models.Model):
 
 
 class Solicitud(models.Model):
-    id_solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
-    id_categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    id_solicitante_solicitud = models.ForeignKey(User, on_delete=models.CASCADE, related_name="id_solicitante_solicitud")
+    id_categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name="id_categoria")
     fecha_solicitud = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
@@ -85,8 +85,8 @@ class Laboratorio(models.Model):
 
 
 class TecnicoLaboratorio(models.Model):
-    id_tecnico = models.ForeignKey(User, on_delete=models.CASCADE)
-    id_laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE)
+    id_tecnico = models.ForeignKey(User, on_delete=models.CASCADE, related_name="id_tecnico")
+    id_laboratorio_tecnico = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, related_name="id_laboratorio_tecnico")
     fecha_asignacion = models.DateTimeField(default=timezone.now, editable=False)
     is_active = models.BooleanField(default=True)
 
@@ -118,10 +118,10 @@ class Facultad(models.Model):
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre de empresa")
     ruc = models.CharField(max_length=13, verbose_name="Ruc", unique=True)
-    id_responsable_entrega = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                               related_name="responsable_entrega_proveedor")
-    id_transportista = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                         related_name="transportista_proveedor")
+    id_responsable_entrega_proveedor = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                               related_name="id_responsable_entrega_proveedor")
+    id_transportista_proveedor = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                         related_name="id_transportista_proveedor")
     is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
@@ -135,14 +135,14 @@ class Proveedor(models.Model):
 
 
 class ComprasPublicas(models.Model):
-    id_empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+    id_empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name="id_empresa")
     llegada_bodega = models.DateField(default=timezone.now, verbose_name="Fecha llegada a bodega")
     hora_llegada_bodega = models.TimeField(default=timezone.now,verbose_name="Hora llegada a bodega")
     convocatoria = models.IntegerField(blank=True, null=True, validators=[validate_compras_convocatoria])
-    id_responsable_entrega = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                               related_name="responsable_entrega_compra")
-    id_transportista = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                         related_name="transportista_compra")
+    id_responsable_entrega_compras = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                               related_name="id_responsable_entrega_compras")
+    id_transportista_compras = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
+                                         related_name="id_transportista_compras")
     fecha_registro = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
@@ -156,8 +156,8 @@ class ComprasPublicas(models.Model):
 
 
 class SolicitanteCompra(models.Model):
-    id_solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
-    id_ingreso_compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE)
+    id_solicitante_compra = models.ForeignKey(User, on_delete=models.CASCADE, related_name="id_solicitante_compra")
+    id_ingreso_compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE, related_name="id_ingreso_compra")
     tipo_sc = models.CharField(max_length=2, null=True, validators=[validate_solicitante_compra_tipo_sc])
 
     def __str__(self):
@@ -184,9 +184,9 @@ class TipoDocumento(models.Model):
         ordering = ["id"]
 
 class Documento(models.Model):
-    id_solicitud = models.ForeignKey(Solicitud, on_delete=models.PROTECT, blank=True, null=True)
-    id_compra_publica = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT, blank=True, null=True)
-    id_tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, blank=True, null=True)
+    id_solicitud = models.ForeignKey(Solicitud, on_delete=models.PROTECT, blank=True, null=True, related_name="id_solicitud")
+    id_compra_publica = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT, blank=True, null=True, related_name="id_compra_publica")
+    id_tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, blank=True, null=True, related_name="id_tipo_documento")
     url_documento = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
@@ -200,11 +200,11 @@ class Documento(models.Model):
 
 
 class Entrega(models.Model):
-    id_documento = models.ForeignKey(Documento, on_delete=models.PROTECT)
-    id_ingreso_compras = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT)
-    id_laboratorio = models.ForeignKey(Laboratorio, on_delete=models.PROTECT)
-    fecha_solicitud_entrega = models.DateTimeField(timezone.now, editable=False)
-    fecha_entrega = models.DateTimeField(timezone.now, editable=False)
+    id_documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name="id_documento")
+    id_ingreso_compras = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT, related_name="id_ingreso_compras")
+    id_laboratorio_entrega = models.ForeignKey(Laboratorio, on_delete=models.PROTECT, related_name="id_laboratorio_entrega")
+    fecha_solicitud_entrega = models.DateTimeField(default=timezone.now, editable=False)
+    fecha_entrega = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return str(self.id)
