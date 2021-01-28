@@ -33,7 +33,7 @@
                             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                                 data-accordion="false">
                                 {% block filtrostable %}
-                                
+
                                 {% endblock %}
                             </ul>
                         </div>
@@ -45,11 +45,17 @@
                             <div class="table-responsive">
                                 <table id="tblistado" class="table">
                                     {% block contenttable %}
-                                    
+
                                     {% endblock %}
                                 </table>
                             </div>
 
+                        </div>
+                        <div class="card-footer">
+                            <button id="btnfooter" class="btn btn-primary btn-flat">
+                                <i class="fas fa-plus"></i>
+                                Nuevo registro
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -65,6 +71,20 @@
             $('#tblistado').DataTable({
                 responsive: true,
                 autoWidth: false
+            });
+        });
+        $('#btnfooter').on('click', function (event) {
+            $.ajax({
+                'url': '{% url 'rp:compras' %}',
+                'type': 'POST',
+                'data': {'id': 6},
+                'dataType': 'json'
+            }).done(function (data) {
+                console.log(data)
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown)
+            }).always(function (data) {
+
             });
         });
     </script>

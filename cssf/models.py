@@ -80,7 +80,7 @@ class Laboratorio(models.Model):
     class Meta:
         verbose_name = "Laboratorio"
         verbose_name_plural = "Laboratorios"
-        db_table = "labratorio"
+        db_table = "laboratorio"
         ordering = ["id"]
 
 

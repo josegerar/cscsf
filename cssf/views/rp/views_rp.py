@@ -1,5 +1,9 @@
+from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from cssf.models import *
 
@@ -103,6 +107,22 @@ def listarcompras(request):
 class ListarComprasView(ListView):
     model = ComprasPublicas
     template_name = "rp/listarcompras.html"
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            lb = Laboratorio.objects.get(pk=request.POST['id'])
+            data["nombre"] = lb.nombre
+        except Exception as e:
+            data["error"] = str(e)
+        return JsonResponse(data)
+
+    def get_queryset(self):
+        return ComprasPublicas.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
