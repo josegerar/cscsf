@@ -1,5 +1,6 @@
 # Create your models here.
 from django.db import models
+from django.forms import model_to_dict
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
@@ -76,6 +77,10 @@ class Laboratorio(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def toJSON(self):
+        item = model_to_dict(self, exclude=[])
+        return item
 
     class Meta:
         verbose_name = "Laboratorio"

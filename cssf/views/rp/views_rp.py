@@ -115,8 +115,7 @@ class ListarComprasView(ListView):
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            lb = Laboratorio.objects.get(pk=request.POST['id'])
-            data["nombre"] = lb.nombre
+            data = Laboratorio.objects.get(pk=request.POST['id']).toJSON()
         except Exception as e:
             data["error"] = str(e)
         return JsonResponse(data)
