@@ -25,10 +25,10 @@ class User(AbstractUser):
 
 
 class Persona(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombres"),
+    nombre = models.CharField(max_length=100, verbose_name="Nombres", default="")
     apellido = models.CharField(max_length=100, verbose_name="Apellidos")
     cedula = models.CharField(max_length=100, verbose_name="Cedula", unique=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
         return self.nombre + " " + self.apellido

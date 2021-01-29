@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -17,17 +18,22 @@ class ComprasCreateView(CreateView):
         context['title'] = "Registrar compra"
         context['icontitle'] = "plus"
         context['urls'] = [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            },
-            {
-                "uridj": "rp:compras",
-                "uriname": "Compras"
-            },
-            {
-                "uridj": "rp:registrocompras",
-                "uriname": "Registro"
-            }
+            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('rp:compras'), "uriname": "Compras"},
+            {"uridj": reverse_lazy('rp:registrocompras'), "uriname": "Registro"}
         ]
+        context['url_create'] = reverse_lazy('rp:registrocompras')
+        context['url_list'] = reverse_lazy('rp:compras')
+        context['action'] = 'add'
         return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'add':
+                form = self.get_form()
+                data = form.save()
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data)

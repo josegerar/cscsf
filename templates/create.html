@@ -13,6 +13,7 @@
             <!-- /.card-header -->
             <div class="card-body">
                 {% csrf_token %}
+                <input type="hidden" name="action" value="{{ action }}"/>
                 {% for field in form.visible_fields %}
                     <div class="form-group">
                         {{ field.label_tag }}
@@ -52,9 +53,29 @@
                 Swal.fire({
                     icon: 'error',
                     title: '¡Error!',
-                    text: errors ,
+                    text: errors,
                 })
             {% endif %}
+            $('form').on('submit', function (event) {
+                event.preventDefault();
+                var parameters = $(this).serializeArray();
+                $.ajax({
+                    'url': '{{ url_create }}',
+                    'type': 'POST',
+                    'data': parameters,
+                    'dataType': 'json'
+                }).done(function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        location.href = '{{ url_list }}';
+                        return false;
+                    }
+                    message_error(data.error);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus + ": " + errorThrown);
+                }).always(function (data) {
+
+                });
+            });
         </script>
     </div>
 {% endblock %}

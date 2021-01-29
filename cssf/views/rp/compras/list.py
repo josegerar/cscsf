@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
@@ -32,13 +33,8 @@ class ComprasListView(ListView):
         context['icontitle'] = "store-alt"
         context['laboratorios'] = Laboratorio.objects.all()
         context['urls'] = [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            },
-            {
-                "uridj": "rp:compras",
-                "uriname": "Compras"
-            }
+            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('rp:compras'), "uriname": "Compras"}
         ]
+        context['create_url'] = reverse_lazy('rp:registrocompras')
         return context

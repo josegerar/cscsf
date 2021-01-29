@@ -1,0 +1,35 @@
+{% extends 'list.html' %}
+
+{% block header %}
+    {% include 'rp/header.html' %}
+{% endblock %}
+
+{% block filtrostable %}
+
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombres</th>
+        <th scope="col">Apellidos</th>
+        <th scope="col">Cedula</th>
+        <th scope="col">Opciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for personas in object_list %}
+        <tr>
+            <th scope="row">{{ personas.id }}</th>
+            <td>{{ personas.nombre }}</td>
+            <td>{{ personas.apellido }}</td>
+            <td>{{ personas.cedula }}</td>
+            <td>
+                <button type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
+                <button type="button" class="btn btn-primary"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+{% endblock %}

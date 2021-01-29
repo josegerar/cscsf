@@ -13,10 +13,7 @@ from cssf.models import *
 def mainIndex(request):
     data = {
         "urls": [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            }
+            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"}
         ],
         "usertitle": "Representante Técnico",
         "title": "Home"
@@ -27,18 +24,9 @@ def mainIndex(request):
 def listarmovimientoinventario(request):
     data = {
         "urls": [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            },
-            {
-                "uridj": "rp:inventario",
-                "uriname": "Inventario"
-            },
-            {
-                "uridj": "rp:movimientoinventario",
-                "uriname": "Movimientos"
-            }
+            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('rp:inventario'), "uriname": "Inventario"},
+            {"uridj": reverse_lazy('rp:movimientoinventario'), "uriname": "Movimientos"}
         ],
         "usertitle": "Representante Técnico",
         "title": "Movimientos inventario"
@@ -49,14 +37,8 @@ def listarmovimientoinventario(request):
 def listarstocksustancias(request):
     data = {
         "urls": [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            },
-            {
-                "uridj": "rp:inventario",
-                "uriname": "Inventario"
-            }
+            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('rp:inventario'), "uriname": "Inventario"}
         ],
         "usertitle": "Representante Técnico",
         "title": "Inventario"
@@ -64,45 +46,12 @@ def listarstocksustancias(request):
     return render(request, "rp/listarstocksustancias.html", data)
 
 
-def registrarcompra(request):
-    data = {
-        "urls": [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            },
-            {
-                "uridj": "rp:compras",
-                "uriname": "Compras"
-            },
-            {
-                "uridj": "rp:registrocompras",
-                "uriname": "Registro"
-            }
-        ],
-        "usertitle": "Representante Técnico",
-        "title": "Registrar compra"
-    }
-    return render(request, "rp/compras/create.html", data)
-
-
-
-
 def registrarsolicitidentregasustancias(request):
     data = {
         "urls": [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            },
-            {
-                "uridj": "rp:listadosolicitudes",
-                "uriname": "Solicitudes"
-            },
-            {
-                "uridj": "rp:entregasustancias",
-                "uriname": "Registro"
-            }
+            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('rp:listadosolicitudes'), "uriname": "Solicitudes"},
+            {"uridj": reverse_lazy('rp:entregasustancias'), "uriname": "Registro"}
         ],
         "usertitle": "Representante Técnico",
         "title": "Registro entrega sustancias"
@@ -113,14 +62,8 @@ def registrarsolicitidentregasustancias(request):
 def listarsolicitudesentregasustancias(request):
     data = {
         "urls": [
-            {
-                "uridj": "rp:index",
-                "uriname": "Home"
-            },
-            {
-                "uridj": "rp:listadosolicitudes",
-                "uriname": "Solicitudes"
-            }
+            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('rp:listadosolicitudes'), "uriname": "Solicitudes"}
         ],
         "usertitle": "Representante Técnico",
         "title": "Solicitudes resgistradas"

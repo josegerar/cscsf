@@ -1,9 +1,9 @@
 from django.forms import *
 
-from cssf.models import Proveedor
+from cssf.models import Persona
 
 
-class EmpresaForm(ModelForm):
+class PersonaForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -12,20 +12,25 @@ class EmpresaForm(ModelForm):
             form.field.widget.attrs['autocomplete'] = 'off'
 
     class Meta:
-        model = Proveedor
+        model = Persona
         fields = '__all__'
         widgets = {
             'nombre': TextInput(
                 attrs={
-                    'type': 'text',
-                    'placeholder': 'Ingrese el nombre de la empresa'
+                    'placeholder': 'Ingrese los nombres',
+                    'type': 'text'
                 }
             ),
-            'ruc': NumberInput(
+            'apellido': TextInput(
                 attrs={
-                    'type': 'number',
-                    'placeholder': 'Ingrese el RUC de la empresa',
-                    'minlength': 13
+                    'placeholder': 'Ingrese los apellidos',
+                    'type': 'text'
+                }
+            ),
+            'cedula': NumberInput(
+                attrs={
+                    'placeholder': 'Ingrese el numero de cedula',
+                    'type': 'number'
                 }
             )
         }

@@ -11,7 +11,7 @@
                         {% if forloop.last %}
                             <li class="breadcrumb-item active">{{ item.uriname }}</li>
                         {% else %}
-                            <li class="breadcrumb-item"><a href="{% url item.uridj %}">{{ item.uriname }}</a></li>
+                            <li class="breadcrumb-item"><a href="{{ item.uridj }}">{{ item.uriname }}</a></li>
                         {% endif %}
                     {% endfor %}
                 </ol>

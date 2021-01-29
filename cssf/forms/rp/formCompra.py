@@ -2,6 +2,7 @@ from django.forms import *
 
 from cssf.models import ComprasPublicas
 
+
 class ComprasForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -10,11 +11,10 @@ class ComprasForm(ModelForm):
             form.field.widget.attrs['class'] = 'form-control'
             form.field.widget.attrs['autocomplete'] = 'off'
 
-
     class Meta:
         model = ComprasPublicas
         fields = '__all__'
-        #exclude = ['id', 'fecha_registro']
+        # exclude = ['id', 'fecha_registro']
         widgets = {
             'convocatoria': NumberInput(
                 attrs={
@@ -33,3 +33,15 @@ class ComprasForm(ModelForm):
                 }
             )
         }
+
+    def save(self, commit=True):
+        data = {}
+        form = super()
+        try:
+            if form.is_valid():
+                form.save()
+            else:
+                data['error'] = form.errors
+        except Exception as e:
+            data['error'] = str(e)
+        return data
