@@ -1,0 +1,37 @@
+{% extends 'list.html' %}
+
+{% block header %}
+    {% include 'rp/header.html' %}
+{% endblock %}
+
+{% block filtrostable %}
+
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre empresa</th>
+        <th scope="col">Ruc</th>
+        <th scope="col">Responsable entrega</th>
+        <th scope="col">Transportista</th>
+        <th scope="col">Opciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for empresa in object_list %}
+        <tr>
+            <th scope="row">{{ empresa.id }}</th>
+            <td>{{ empresa.nombre }}</td>
+            <td>{{ empresa.ruc }}</td>
+            <td>{{ empresa.id_responsable_entrega_proveedor.nombre }}</td>
+            <td>{{ empresa.id_transportista_proveedor.nombre }}</td>
+            <td>
+                <button type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
+                <button type="button" class="btn btn-primary"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+{% endblock %}

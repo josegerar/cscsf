@@ -2,6 +2,8 @@ from django.urls import path
 
 from cssf.views.rp.compras.create import ComprasCreateView
 from cssf.views.rp.compras.list import ComprasListView
+from cssf.views.rp.empresa.create import EmpresaCreateView
+from cssf.views.rp.empresa.list import EmpresaListView
 from cssf.views.rp.views_rp import *
 
 app_name = "rp"
@@ -13,5 +15,7 @@ urlpatterns = [
     path('compras/', ComprasListView.as_view(), name="compras"),
     path('compras/registro/', ComprasCreateView.as_view(), name="registrocompras"),
     path('solicitudes/', listarsolicitudesentregasustancias, name="listadosolicitudes"),
-    path('solicitudes/registro/', registrarsolicitidentregasustancias, name="entregasustancias")
+    path('solicitudes/registro/', registrarsolicitidentregasustancias, name="entregasustancias"),
+    path('empresas/', EmpresaListView.as_view(), name="empresas"),
+    path('empresas/registro/', EmpresaCreateView.as_view(), name="registroempresa")
 ]

@@ -126,9 +126,11 @@ class Proveedor(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre de empresa")
     ruc = models.CharField(max_length=13, verbose_name="Ruc", unique=True)
     id_responsable_entrega_proveedor = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                                         related_name="id_responsable_entrega_proveedor")
+                                                         related_name="id_responsable_entrega_proveedor",
+                                                         verbose_name="Responsable entrega")
     id_transportista_proveedor = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                                   related_name="id_transportista_proveedor")
+                                                   related_name="id_transportista_proveedor",
+                                                   verbose_name="Transportista")
     is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):

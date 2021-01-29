@@ -83,7 +83,7 @@ def registrarcompra(request):
         "usertitle": "Representante Técnico",
         "title": "Registrar compra"
     }
-    return render(request, "rp/registrocompras.html", data)
+    return render(request, "rp/compras/create.html", data)
 
 
 

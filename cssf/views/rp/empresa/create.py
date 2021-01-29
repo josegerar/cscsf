@@ -1,20 +1,20 @@
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
-from cssf.forms.rp.formCompra import ComprasForm
-from cssf.models import ComprasPublicas, Laboratorio
+from cssf.forms.rp.formEmpresa import EmpresaForm
+from cssf.models import Proveedor
 
 
-class ComprasCreateView(CreateView):
-    model = ComprasPublicas
-    form_class = ComprasForm
-    template_name = 'rp/compras/create.html'
-    success_url = reverse_lazy('rp:compras')
+class EmpresaCreateView(CreateView):
+    model = Proveedor
+    form_class = EmpresaForm
+    template_name = 'rp/empresa/create.html'
+    success_url = reverse_lazy('rp:index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"
-        context['title'] = "Registrar compra"
+        context['title'] = "Registrar empresa"
         context['icontitle'] = "plus"
         context['urls'] = [
             {
@@ -22,11 +22,11 @@ class ComprasCreateView(CreateView):
                 "uriname": "Home"
             },
             {
-                "uridj": "rp:compras",
-                "uriname": "Compras"
+                "uridj": "rp:empresas",
+                "uriname": "Empresas"
             },
             {
-                "uridj": "rp:registrocompras",
+                "uridj": "rp:registroempresa",
                 "uriname": "Registro"
             }
         ]
