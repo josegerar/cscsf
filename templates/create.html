@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <div class="card card-default" style="margin-left: 10%; margin-right: 10%;">
+        <form method="post" action=".">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ icontitle }}"></i>
+                    {{ title }}
+                </h3>
+            </div>
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                {% csrf_token %}
+                {% for field in form.visible_fields %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary btn-flat">
+                    <i class="fas fa-save"></i>
+                    Guardar registro
+                </button>
+            </div>
+            <!-- /.card-body -->
+        </form>
+    </div>
+{% endblock %}
