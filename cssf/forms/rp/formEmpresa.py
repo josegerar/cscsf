@@ -1,4 +1,4 @@
-from django.forms import ModelForm
+from django.forms import *
 
 from cssf.models import Proveedor
 
@@ -14,3 +14,18 @@ class EmpresaForm(ModelForm):
     class Meta:
         model = Proveedor
         fields = '__all__'
+        widgets = {
+            'nombre': TextInput(
+                attrs={
+                    'type': 'text',
+                    'placeholder': 'Ingrese el nombre de la empresa'
+                }
+            ),
+            'ruc': NumberInput(
+                attrs={
+                    'type': 'number',
+                    'placeholder': 'Ingrese el RUC de la empresa',
+                    'minlength': 13
+                }
+            )
+        }

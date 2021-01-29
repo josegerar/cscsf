@@ -9,7 +9,7 @@ class EmpresaCreateView(CreateView):
     model = Proveedor
     form_class = EmpresaForm
     template_name = 'rp/empresa/create.html'
-    success_url = reverse_lazy('rp:index')
+    success_url = reverse_lazy('rp:registroempresa')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

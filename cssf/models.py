@@ -137,8 +137,8 @@ class Proveedor(models.Model):
         return self.nombre
 
     class Meta:
-        verbose_name = "Proveedor"
-        verbose_name_plural = "Proveedores"
+        verbose_name = "Empresa"
+        verbose_name_plural = "Empresas"
         db_table = "proveedor"
         ordering = ["id"]
 
