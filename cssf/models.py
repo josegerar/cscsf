@@ -24,7 +24,24 @@ class User(AbstractUser):
         ordering = ["id"]
 
 
+class TipoPersona(models.Model):
+    nombre = models.CharField(max_length=30, verbose_name="Tipo de persona", unique=True)
+    descripcion = models.CharField(max_length=200, verbose_name="Descripcion", blank=True, null=True)
+    is_active = models.BooleanField(default=True, editable=False)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "TipoPersona"
+        verbose_name_plural = "TipoPersonas"
+        db_table = "tipo_persona"
+        ordering = ["id"]
+
+
 class Persona(models.Model):
+    id_tipo_persona = models.ForeignKey(TipoPersona, on_delete=models.CASCADE, related_name="id_tipo_persona",
+                                        null=True, blank=True, verbose_name="Tipo de persona")
     nombre = models.CharField(max_length=100, verbose_name="Nombres", default="")
     apellido = models.CharField(max_length=100, verbose_name="Apellidos")
     cedula = models.CharField(max_length=100, verbose_name="Cedula", unique=True)
@@ -125,12 +142,6 @@ class Facultad(models.Model):
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre de empresa")
     ruc = models.CharField(max_length=13, verbose_name="Ruc", unique=True)
-    id_responsable_entrega_proveedor = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                                         related_name="id_responsable_entrega_proveedor",
-                                                         verbose_name="Responsable entrega")
-    id_transportista_proveedor = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                                   related_name="id_transportista_proveedor",
-                                                   verbose_name="Transportista")
     is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):

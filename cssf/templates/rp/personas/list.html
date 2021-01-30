@@ -12,6 +12,7 @@
     <thead>
     <tr>
         <th scope="col">#</th>
+        <th scope="col">Tipo</th>
         <th scope="col">Nombres</th>
         <th scope="col">Apellidos</th>
         <th scope="col">Cedula</th>
@@ -22,12 +23,17 @@
     {% for personas in object_list %}
         <tr>
             <th scope="row">{{ personas.id }}</th>
+            <td>{{ personas.id_tipo_persona.nombre }}</td>
             <td>{{ personas.nombre }}</td>
             <td>{{ personas.apellido }}</td>
             <td>{{ personas.cedula }}</td>
             <td>
-                <button type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
-                <button type="button" class="btn btn-primary"><i class="fas fa-trash-alt"></i></button>
+                <a href="{% url 'rp:actualizacionpersonas' personas.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'rp:eliminarpersonas' personas.id %}" type="button" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
             </td>
         </tr>
     {% endfor %}

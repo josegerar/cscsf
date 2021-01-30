@@ -5,4 +5,5 @@ from cssf.models import *
 
 admin.site.register(Categoria)
 admin.site.register(Laboratorio)
+admin.site.register(TipoPersona)
 admin.site.register(User, UserAdmin)

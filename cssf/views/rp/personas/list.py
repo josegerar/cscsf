@@ -16,8 +16,8 @@ class PersonaListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"
-        context['title'] = "Personas externas registradas"
-        context['icontitle'] = "store-alt"
+        context['title'] = "Personas"
+        context['icontitle'] = "user-friends"
         context['urls'] = [
             {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
             {"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"}

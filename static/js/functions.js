@@ -15,3 +15,12 @@ function message_error(obj) {
         'icon': 'error'
     });
 }
+
+function disableEnableForm(form, yesNo) {
+    var f = form, s, opacity;
+    s = f.style;
+    opacity = yesNo ? '40' : '100';
+    s.opacity = s.MozOpacity = s.KhtmlOpacity = opacity / 100;
+    s.filter = 'alpha(opacity=' + opacity + ')';
+    for (var i = 0; i < f.length; i++) f[i].disabled = yesNo;
+}

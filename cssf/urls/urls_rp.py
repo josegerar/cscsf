@@ -5,7 +5,9 @@ from cssf.views.rp.compras.list import ComprasListView
 from cssf.views.rp.empresa.create import EmpresaCreateView
 from cssf.views.rp.empresa.list import EmpresaListView
 from cssf.views.rp.personas.create import PersonaCreateView
+from cssf.views.rp.personas.delete import PersonasDeleteView
 from cssf.views.rp.personas.list import PersonaListView
+from cssf.views.rp.personas.update import PersonasUpdateView
 from cssf.views.rp.views_rp import *
 
 app_name = "rp"
@@ -22,4 +24,6 @@ urlpatterns = [
     path('empresas/registro/', EmpresaCreateView.as_view(), name="registroempresa"),
     path('personas/', PersonaListView.as_view(), name="personas"),
     path('personas/registro/', PersonaCreateView.as_view(), name="registropersonas"),
+    path('personas/update/<int:pk>/', PersonasUpdateView.as_view(), name="actualizacionpersonas"),
+    path('personas/delete/<int:pk>/', PersonasDeleteView.as_view(), name="eliminarpersonas"),
 ]
