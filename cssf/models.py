@@ -50,6 +50,11 @@ class Persona(models.Model):
     def __str__(self):
         return self.nombre + " " + self.apellido
 
+    def toJSON(self):
+        item = model_to_dict(self, exclude=['id_tipo_persona'])
+        item['tipo'] = self.id_tipo_persona.nombre
+        return item
+
     class Meta:
         verbose_name = "Persona"
         verbose_name_plural = "Personas"

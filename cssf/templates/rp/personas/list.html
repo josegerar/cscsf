@@ -1,5 +1,11 @@
 {% extends 'list.html' %}
 
+{% load static %}
+
+{% block head_list %}
+    <script src="{% static 'rp/personas/js/list.js' %}"></script>
+{% endblock %}
+
 {% block header %}
     {% include 'rp/header.html' %}
 {% endblock %}
@@ -20,22 +26,10 @@
     </tr>
     </thead>
     <tbody>
-    {% for personas in object_list %}
-        <tr>
-            <th scope="row">{{ personas.id }}</th>
-            <td>{{ personas.id_tipo_persona.nombre }}</td>
-            <td>{{ personas.nombre }}</td>
-            <td>{{ personas.apellido }}</td>
-            <td>{{ personas.cedula }}</td>
-            <td>
-                <a href="{% url 'rp:actualizacionpersonas' personas.id %}" class="btn btn-primary">
-                    <i class="fas fa-edit"></i>
-                </a>
-                <a href="{% url 'rp:eliminarpersonas' personas.id %}" type="button" class="btn btn-danger">
-                    <i class="fas fa-trash-alt"></i>
-                </a>
-            </td>
-        </tr>
-    {% endfor %}
+
     </tbody>
+{% endblock %}
+
+{% block script %}
+
 {% endblock %}
