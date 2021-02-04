@@ -32,16 +32,16 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="{% static 'lib/adminlte-3.1.0-dist/plugins/fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/fontawesome-free/css/all.css' %}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'lib/adminlte-3.1.0-dist/css/adminlte.min.css' %}">
 
     <!-- REQUIRED SCRIPTS -->
 
     <!-- jQuery -->
-    <script src="{% static 'lib/adminlte-3.1.0-dist/plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'lib/jquery-3.3.1-dist/jquery.min.js' %}"></script>
     <!-- Bootstrap 4 -->
-    <script src="{% static 'lib/adminlte-3.1.0-dist/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'lib/bootstrap-4.1.3-dist/js/bootstrap.bundle.min.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'lib/adminlte-3.1.0-dist/js/adminlte.min.js' %}"></script>
     <!-- AdminLTE for demo purposes -->
@@ -60,12 +60,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     {% endblock %}
     <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-        {% include "contentheader.html" %}
-        {% block content %}
+    {% block contentwrapper %}
+        <div class="content-wrapper">
+            {% block contentheader %}
+                {% include "contentheader.html" %}
+            {% endblock %}
 
-        {% endblock %}
-    </div>
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    {% endblock %}
     <!-- /.content-wrapper -->
     <!-- /.content -->
 </div>

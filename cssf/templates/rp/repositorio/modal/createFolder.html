@@ -1,0 +1,54 @@
+<div id="modalNewFolder" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form id="formNewFolder" method="post" action=".">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="newfolder"/>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva carpeta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nombrecarpeta">Nombre de carpeta:</label>
+                        <input type="text" class="form-control" id="nombrecarpeta" name="nombrecarpeta"
+                               placeholder="Ingrese el nombre de la carpeta">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </form>
+        <script>
+            $('#formNewFolder').on('submit', function (event) {
+                event.preventDefault();
+                var form = this;
+                var parameters = $(this).serializeArray();
+                disableEnableForm(form, true);
+                $.ajax({
+                    'url': window.location.pathname,
+                    'type': 'POST',
+                    'data': parameters,
+                    'dataType': 'json'
+                }).done(function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        listarArchivos(data);
+                        $('#modalNewFolder').modal('hide');
+                    } else {
+                        message_error(data.error);
+                    }
+                    disableEnableForm(form, false);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    message_error(errorThrown);
+                    disableEnableForm(form, false);
+                }).always(function (data) {
+
+                });
+            });
+        </script>
+    </div>
+</div>

@@ -43,12 +43,12 @@
     {% for compra in object_list %}
         <tr>
             <th scope="row">{{ compra.id }}</th>
-            <td>{{ compra.id_empresa.nombre }}</td>
+            <td>{{ compra.empresa.nombre }}</td>
             <td>{{ compra.llegada_bodega }}</td>
             <td>{{ compra.hora_llegada_bodega }}</td>
             <td>{{ compra.convocatoria }}</td>
-            <td>{{ compra.id_responsable_entrega_compras.nombre }}</td>
-            <td>{{ compra.id_transportista_compras.nombre }}</td>
+            <td>{{ compra.responsable_entrega.nombre }}</td>
+            <td>{{ compra.transportista.nombre }}</td>
         <td>
             <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></button>
             <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-trash-alt"></i></button>

@@ -15,7 +15,7 @@ class PersonaCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"
-        context['title'] = "Registrar personas externas"
+        context['title'] = "Registrar personas"
         context['icontitle'] = "plus"
         context['urls'] = [
             {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},

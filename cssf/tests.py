@@ -1,13 +1,23 @@
 # Create your tests here.
-from app.wsgi import *
-from cssf.models import *
+#from app.wsgi import *
+#from cssf.models import *
 #from datetime import datetime
-from django.utils import timezone
-from django.contrib.auth.models import Group
-from django.contrib.auth import authenticate
+#from django.utils import timezone
+#from django.contrib.auth.models import Group
+#from django.contrib.auth import authenticate
+from cssf.files.read import *
+from cssf.files.write import *
+from cssf.models import Repositorio
 
+#print(get_content_folder(path="\\static\\repository\\"))
+#create_folder(name_folder="papas", folder_parent="\\static\\repository\\")
 
-print()
+# u = User.objects.get(username = 'admin')
+# print(u.groups.all())
+#
+# p = Proveedor.objects.get(id=2)
+# print(p.id_empresa)
+
 
 # print(authenticate(username='admi', password='123456'))
 #
@@ -60,3 +70,5 @@ print()
 #consultas personalizadas
 #c = Categoria.objects.filter(nombre__startswith="d")
 #print(c)
+p = Repositorio.objects.filter(url__startswith=BASE_REPOSITORY)
+print(p)
