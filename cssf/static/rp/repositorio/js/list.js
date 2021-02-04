@@ -14,15 +14,19 @@ function sendData(data) {
         'data': data,
         'dataType': 'json'
     }).done(function (data) {
-        listarArchivos(data)
+        if (!data.hasOwnProperty('error')) {
+            listarArchivos(data.content, data.urlrepository);
+        } else {
+            message_error(data.error);
+        }
     }).fail(function (jqXHR, textStatus, errorThrown) {
-
+        message_error(errorThrown);
     }).always(function (data) {
 
     });
 }
 
-function listarArchivos(data) {
+function listarArchivos(data, urlRepository) {
     $.each(data, function (indexdata, itemdata) {
         var filas = $('#context-menu-file table tbody tr');
         var existe = false;
@@ -46,12 +50,16 @@ function listarArchivos(data) {
             if (itemdata.is_dir) {
                 imageicon.prop("class", 'fas fa-folder fa-2x');
             } else if (itemdata.is_file) {
-                imageicon.prop("class", "far fa-file fa-2x");
+                imageicon.prop("class", "far fa-file-pdf fa-2x");
             }
             colicon.append(imageicon);
             coliname.append(itemdata.nombre_real);
             fila.append(colicon).append(coliname);
-            fila.data("data", itemdata);
+            fila.data("data", {
+                'urlrepository': urlRepository,
+                'itemdata': itemdata
+            });
+            fila.dblclick(changeFolder);
             var cantidadFilas = $('#context-menu-file table tbody tr').length;
             if (cantidadFilas < cantfolder) {
                 $('#context-menu-file table tbody tr').eq(cantfolder).after(fila);
@@ -60,4 +68,9 @@ function listarArchivos(data) {
             }
         }
     });
+}
+
+function changeFolder() {
+    var data = $(this).data("data");
+    location.href = data.urlrepository + data.itemdata.id + '/';
 }

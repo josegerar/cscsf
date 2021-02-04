@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.urls import reverse_lazy
 from django.views.generic import ListView
 
 from cssf.models import Repositorio
@@ -22,12 +23,11 @@ class RepositorioListView(ListView):
                 rp.create_folder(request.POST['nombrecarpeta'], pk)
             elif action == 'newfile':
                 rp.create_file(request.FILES['file'], pk)
-                print(request.POST)
-                print(request.FILES)
-            data = []
-            obj = rp.get_content_folder(pk)
-            for i in obj:
-                data.append(i.toJSON())
+            data = {}
+            data['urlrepository'] = reverse_lazy('rp:repositorio')
+            data['content'] = []
+            for i in rp.get_content_folder(pk):
+                data['content'].append(i.toJSON())
         except Exception as e:
             data["error"] = str(e)
         return JsonResponse(data, safe=False)

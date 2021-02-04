@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css"
           href="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.css' %}">
     <script src="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.js' %}"></script>
-    <script src="{% static 'lib/jquery-contextmenu-dist/dist/jquery.ui.position.min.js' %}"></script>
+    <script src="{% static 'bootstrap-toasts/dist/bootstrap-toasts.js' %}"></script>
 {% endblock %}
 
 {% block header %}
@@ -21,7 +21,7 @@
             {% block contentheader %}
                 {% include "contentheader.html" %}
             {% endblock %}
-            <div id="context-menu-file" class="card" style="margin-left: 10%; margin-right: 10%; min-height: 72vh">
+            <div id="context-menu-file" class="card" style="overflow-y: scroll;margin-left: 10%; margin-right: 10%; min-height: 80vh; max-height: 80vh">
                 <table class="table table-hover">
                     <thead>
                     <tr>
@@ -36,6 +36,7 @@
             </div>
         </div>
     </div>
+    {% include 'rp/repositorio/modal/toastProgresBar.html' %}
 {% endblock %}
 {% block script %}
     <script src="{% static 'rp/repositorio/js/list.js' %}"></script>

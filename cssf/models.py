@@ -246,7 +246,8 @@ class Repositorio(models.Model):
             data = Repositorio.objects.filter(url=BASE_REPOSITORY)
         else:
             objfolder = Repositorio.objects.get(id=pk)
-            data = Repositorio.objects.filter(url=objfolder.url)
+            path = objfolder.url + objfolder.nombre_real + '\\'
+            data = Repositorio.objects.filter(url=path)
         return data
 
     def create_folder(self, folderName, pk):
@@ -274,8 +275,9 @@ class Repositorio(models.Model):
         if pk == None:
             folder_parent = BASE_REPOSITORY
         else:
-            objectroot = self.objects.get(pk=pk)
-            folder_parent = objectroot.url
+            objectroot = Repositorio.objects.get(pk=pk)
+            path = objectroot.url + objectroot.nombre_real + '\\'
+            folder_parent = path
         return folder_parent
 
     def toJSON(self):

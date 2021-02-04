@@ -34,5 +34,5 @@ urlpatterns = [
     path('personas/delete/<int:pk>/', PersonasDeleteView.as_view(), name="eliminarpersonas"),
 
     path('repositorio/', RepositorioListView.as_view(), name="repositorio"),
-    path('repositorio/<int:pk>/', RepositorioListView.as_view(), name="repositorio"),
+    path('repositorio/<int:pk>/', RepositorioListView.as_view(), name="repositorioid"),
 ]

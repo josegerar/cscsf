@@ -1,0 +1,22 @@
+{
+  "name": "cssf-proyect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josegerar/cscsf.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/josegerar/cscsf/issues"
+  },
+  "homepage": "https://github.com/josegerar/cscsf#readme",
+  "dependencies": {
+    "bootstrap-toasts": "0.0.13-beta"
+  }
+}
