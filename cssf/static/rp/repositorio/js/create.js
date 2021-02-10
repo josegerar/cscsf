@@ -11,7 +11,7 @@ $(function () {
             'dataType': 'json'
         }).done(function (data) {
             if (!data.hasOwnProperty('error')) {
-                listarArchivos(data.content, data.urlrepository);
+                proccessData(data);
                 $('#modalNewFolder').modal('hide');
             } else {
                 message_error(data.error);

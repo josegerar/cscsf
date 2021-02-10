@@ -8,6 +8,7 @@
           href="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.css' %}">
     <script src="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.js' %}"></script>
     <script src="{% static 'bootstrap-toasts/dist/bootstrap-toasts.js' %}"></script>
+    <script src="{% static 'rp/repositorio/js/fireEventsUrl.js' %}"></script>
 {% endblock %}
 
 {% block header %}
@@ -21,7 +22,8 @@
             {% block contentheader %}
                 {% include "contentheader.html" %}
             {% endblock %}
-            <div id="context-menu-file" class="card" style="overflow-y: scroll;margin-left: 10%; margin-right: 10%; min-height: 80vh; max-height: 80vh">
+            <div id="context-menu-file" class="card"
+                 style="overflow-y: scroll;margin-left: 10%; margin-right: 10%; min-height: 80vh; max-height: 80vh">
                 <table class="table table-hover">
                     <thead>
                     <tr>
@@ -36,11 +38,14 @@
             </div>
         </div>
     </div>
-    {% include 'rp/repositorio/modal/toastProgresBar.html' %}
+    <div id="toastContainer" class="position-absolute" style="bottom: 0; right: 0">
+
+    </div>
 {% endblock %}
 {% block script %}
     <script src="{% static 'rp/repositorio/js/list.js' %}"></script>
     <script src="{% static 'rp/repositorio/js/create.js' %}"></script>
     <script src="{% static 'rp/repositorio/js/uploadfile.js' %}"></script>
     <script src="{% static 'rp/repositorio/js/contextmenu.js' %}"></script>
+    <script src="{% static 'rp/repositorio/js/progressbar.js' %}"></script>
 {% endblock %}

@@ -8,7 +8,7 @@ $(function () {
                         uploadFile(file)
                     }
                 }
-                $(this).val('');
+
             }
         }
     });
@@ -17,12 +17,13 @@ $(function () {
         var ext = file.type;
         if (ext !== "application/pdf") {
             message_error("Tipo de archivo no permitido: " + ext);
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     function uploadFile(file) {
+        var toastProgressBar = createToast();
         var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
         var data = new FormData();
         if (csrfmiddlewaretoken.length > 0) {
@@ -40,18 +41,31 @@ $(function () {
             xhr: function () {
                 var xhr = new window.XMLHttpRequest();
                 xhr.upload.addEventListener("progress",
-                    uploadProgressHandler,
+                    function (event) {
+                        uploadProgressHandler(event, toastProgressBar)
+                    },
                     false
                 );
-                xhr.addEventListener("load", loadHandler, false);
-                xhr.addEventListener("error", errorHandler, false);
-                xhr.addEventListener("abort", abortHandler, false);
+                xhr.upload.addEventListener('loadstart',
+                    function (event) {
+                        uploadStartHandler(event, toastProgressBar, xhr, file);
+                    }, false
+                );
+                xhr.addEventListener("load", function (event) {
+                    loadHandler(event, toastProgressBar);
+                }, false);
+                xhr.addEventListener("error", function (event) {
+                    errorHandler(event, toastProgressBar)
+                }, false);
+                xhr.addEventListener("abort", function (event) {
+                    abortHandler(event, toastProgressBar)
+                }, false);
 
                 return xhr;
             }
         }).done(function (data) {
             if (!data.hasOwnProperty('error')) {
-                listarArchivos(data.content, data.urlrepository);
+                proccessData(data);
             } else {
                 message_error(data.error);
             }
@@ -62,26 +76,31 @@ $(function () {
         });
     }
 
-    function uploadProgressHandler(event) {
-        $("#loaded_n_total").html("Uploaded " + event.loaded + " bytes of " + event.total);
+    function uploadProgressHandler(event, toastProgressBar) {
         var percent = (event.loaded / event.total) * 100;
         var progress = Math.round(percent);
-        $("#uploadProgressBar").html(progress + " percent na ang progress");
-        $("#uploadProgressBar").css("width", progress + "%");
-        $("#status").html(progress + "% uploaded... please wait");
+        $(toastProgressBar).find('.progress-bar').css("width", progress + "%").attr('aria-valuenow', progress);
     }
 
-    function loadHandler(event) {
-        $("#status").html(event.target.responseText);
-        $("#uploadProgressBar").css("width", "0%");
+    function loadHandler(event, toastProgressBar) {
+        activeCloseToast(toastProgressBar, "Upload complete", false);
     }
 
-    function errorHandler(event) {
-        $("#status").html("Upload Failed");
+    function uploadStartHandler(event, toastProgressBar, xhr, file) {
+        $(toastProgressBar).find('.progress-bar').css("width", "0%").attr('aria-valuenow', 0);
+        $(toastProgressBar).find('strong').text(file.name);
+        $(toastProgressBar).find("button").on('click', function () {
+            xhr.abort();
+        });
+        $(toastProgressBar).toast('show');
     }
 
-    function abortHandler(event) {
-        $("#status").html("Upload Aborted");
+    function errorHandler(event, toastProgressBar) {
+        activeCloseToast(toastProgressBar, "Upload failed", true);
+    }
+
+    function abortHandler(event, toastProgressBar) {
+        activeCloseToast(toastProgressBar, "Upload aborted", true);
     }
 
 });

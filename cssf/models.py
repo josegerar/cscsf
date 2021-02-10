@@ -241,13 +241,24 @@ class Repositorio(models.Model):
         return str(self.url)
 
     def get_content_folder(self, pk):
-        data = []
+        path = None
         if pk == None:
-            data = Repositorio.objects.filter(url=BASE_REPOSITORY)
+            path = BASE_REPOSITORY
         else:
             objfolder = Repositorio.objects.get(id=pk)
             path = objfolder.url + objfolder.nombre_real + '\\'
-            data = Repositorio.objects.filter(url=path)
+        return self.get_content_folder_url(path)
+
+    def get_content_folder_url(self, path_url):
+        data = {}
+        data_folders = Repositorio.objects.filter(url=path_url).exclude(is_file=True)
+        data['folders'] = []
+        for i in data_folders:
+            data['folders'].append(i.toJSON())
+        data_files = Repositorio.objects.filter(url=path_url).exclude(is_dir=True)
+        data['files'] = []
+        for i in data_files:
+            data['files'].append(i.toJSON())
         return data
 
     def create_folder(self, folderName, pk):

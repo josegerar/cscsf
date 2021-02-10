@@ -1,11 +1,15 @@
 $(function () {
+    init();
+});
+
+function init() {
     var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
     var data = {}
     if (csrfmiddlewaretoken.length > 0) {
         data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
     }
     sendData(data);
-});
+}
 
 function sendData(data) {
     $.ajax({
@@ -15,7 +19,7 @@ function sendData(data) {
         'dataType': 'json'
     }).done(function (data) {
         if (!data.hasOwnProperty('error')) {
-            listarArchivos(data.content, data.urlrepository);
+            proccessData(data);
         } else {
             message_error(data.error);
         }
@@ -26,51 +30,53 @@ function sendData(data) {
     });
 }
 
-function listarArchivos(data, urlRepository) {
-    $.each(data, function (indexdata, itemdata) {
-        var filas = $('#context-menu-file table tbody tr');
-        var existe = false;
-        var cantfolder = 0;
-        $.each(filas, function (indexfila, itemfila) {
-            var datafila = $(itemfila).data("data");
-            if (datafila) {
-                if (datafila.id == itemdata.id) {
-                    existe = true;
-                }
-                if (datafila.is_dir) {
-                    cantfolder++;
-                }
-            }
-        });
-        if (!existe) {
-            var fila = $('<tr>');
-            var colicon = $('<td>');
-            var coliname = $('<td>', {style: 'cursor: default'});
-            var imageicon = $('<i>');
-            if (itemdata.is_dir) {
-                imageicon.prop("class", 'fas fa-folder fa-2x');
-            } else if (itemdata.is_file) {
-                imageicon.prop("class", "far fa-file-pdf fa-2x");
-            }
-            colicon.append(imageicon);
-            coliname.append(itemdata.nombre_real);
-            fila.append(colicon).append(coliname);
-            fila.data("data", {
-                'urlrepository': urlRepository,
-                'itemdata': itemdata
-            });
-            fila.dblclick(changeFolder);
-            var cantidadFilas = $('#context-menu-file table tbody tr').length;
-            if (cantidadFilas < cantfolder) {
-                $('#context-menu-file table tbody tr').eq(cantfolder).after(fila);
-            } else {
-                $('#context-menu-file table tbody').append(fila);
-            }
-        }
+function proccessData(data) {
+    var tbody = $('<tbody>');
+    $.each(data.folders, function (indexdata, itemdata) {
+        tbody.append(addRow(itemdata, data.urlrepository));
     });
+    $.each(data.files, function (indexdata, itemdata) {
+        tbody.append(addRow(itemdata, data.urlrepository));
+    });
+    $('#context-menu-file table tbody').html("").append(tbody.children());
+}
+
+function addRow(itemdata, urlRepository) {
+    var fila = $('<tr>');
+    var colicon = $('<td>');
+    var coliname = $('<td>', {style: 'cursor: default'});
+    var imageicon = $('<i>');
+    if (itemdata.is_dir) {
+        imageicon.prop("class", 'fas fa-folder fa-2x');
+    } else if (itemdata.is_file) {
+        imageicon.prop("class", "far fa-file-pdf fa-2x");
+    }
+    colicon.append(imageicon);
+    coliname.append(itemdata.nombre_real);
+    fila.append(colicon).append(coliname);
+    fila.data("data", {
+        'urlrepository': urlRepository,
+        'itemdata': itemdata
+    });
+    fila.dblclick(changeFolder);
+    return fila;
 }
 
 function changeFolder() {
     var data = $(this).data("data");
-    location.href = data.urlrepository + data.itemdata.id + '/';
+    history.pushState(data, null, window.location.origin + data.urlrepository + data.itemdata.id + '/');
 }
+
+window.addEventListener('locationchange', function (evt) {
+    var data = evt.data;
+    if (data) {
+        var itemData = data.itemdata;
+        if (itemData.is_dir) {
+            init();
+        } else if (itemData.is_file) {
+
+        }
+    } else {
+        init();
+    }
+});
