@@ -36,9 +36,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cssf.apps.CssfConfig',
 
     # apps
+    'core.homepage.apps.HomepageConfig',
+    'core.bodega.apps.BodegaConfig',
+    'core.representantetecnico.apps.RepresentantetecnicoConfig',
+    'core.tecnicolaboratorio.apps.TecnicolaboratorioConfig'
 ]
 
 MIDDLEWARE = [
@@ -75,7 +78,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = db.POSTGRESQL
-AUTH_USER_MODEL = 'cssf.User'
+AUTH_USER_MODEL = 'representantetecnico.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

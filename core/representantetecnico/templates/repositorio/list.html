@@ -1,0 +1,53 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block head %}
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.css' %}">
+    <script src="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.js' %}"></script>
+    <script src="{% static 'bootstrap-toasts/dist/bootstrap-toasts.js' %}"></script>
+    <script src="{% static 'repositorio/js/fireEventsUrl.js' %}"></script>
+{% endblock %}
+
+{% block header %}
+    {% include 'header.html' %}
+{% endblock %}
+{% block contentwrapper %}
+    <div class="content-wrapper">
+        {% csrf_token %}
+        {% include 'repositorio/modal/createFolder.html' %}
+        {% include 'repositorio/modal/viewFile.html' %}
+        <div>
+            {% block contentheader %}
+                {% include "contentheader.html" %}
+            {% endblock %}
+            <div id="context-menu-file" class="card"
+                 style="overflow-y: scroll;margin-left: 10%; margin-right: 10%; min-height: 80vh; max-height: 80vh">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 5%">T</th>
+                        <th scope="col" style="width: 95%">Nombre</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <input type="file" id="myFile" multiple size="50" style="display: none;" accept="application/pdf">
+            </div>
+        </div>
+    </div>
+    <div id="toastContainer" class="position-absolute" style="bottom: 0; right: 0">
+
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="{% static 'repositorio/js/list.js' %}"></script>
+    <script src="{% static 'repositorio/js/create.js' %}"></script>
+    <script src="{% static 'repositorio/js/uploadfile.js' %}"></script>
+    <script src="{% static 'repositorio/js/contextmenu.js' %}"></script>
+    <script src="{% static 'repositorio/js/progressbar.js' %}"></script>
+    <script src="{% static 'repositorio/js/viewFile.js' %}"></script>
+{% endblock %}

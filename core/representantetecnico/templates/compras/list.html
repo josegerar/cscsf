@@ -1,0 +1,59 @@
+{% extends 'list.html' %}
+
+{% block header %}
+    {% include 'header.html' %}
+{% endblock %}
+
+{% block filtrostable %}
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-building"></i>
+            <p>
+                Laboratorio
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview" style="display: none;">
+            {% for laboratorio in laboratorios %}
+                <li class="nav-item">
+                    <a href="../charts/chartjs.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{ laboratorio.nombre }}</p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Empresa</th>
+        <th scope="col">Llegada a bodega</th>
+        <th scope="col">Hora llegada</th>
+        <th scope="col">COnvocatoria</th>
+        <th scope="col">Responsable entrega</th>
+        <th scope="col">Transportista</th>
+        <th scope="col">Opciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for compra in object_list %}
+        <tr>
+            <th scope="row">{{ compra.id }}</th>
+            <td>{{ compra.empresa.nombre }}</td>
+            <td>{{ compra.llegada_bodega }}</td>
+            <td>{{ compra.hora_llegada_bodega }}</td>
+            <td>{{ compra.convocatoria }}</td>
+            <td>{{ compra.responsable_entrega.nombre }}</td>
+            <td>{{ compra.transportista.nombre }}</td>
+        <td>
+            <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></button>
+            <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-trash-alt"></i></button>
+        </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+{% endblock %}
