@@ -1,5 +1,7 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
 from core.representantetecnico.models import Repositorio
@@ -8,6 +10,10 @@ from core.representantetecnico.models import Repositorio
 class RepositorioListView(ListView):
     model = Repositorio
     template_name = "repositorio/list.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         data = {}

@@ -41,7 +41,11 @@ INSTALLED_APPS = [
     'core.homepage.apps.HomepageConfig',
     'core.bodega.apps.BodegaConfig',
     'core.representantetecnico.apps.RepresentantetecnicoConfig',
-    'core.tecnicolaboratorio.apps.TecnicolaboratorioConfig'
+    'core.tecnicolaboratorio.apps.TecnicolaboratorioConfig',
+    'core.login.apps.LoginConfig',
+
+    # external apps
+    'widget_tweaks'
 ]
 
 MIDDLEWARE = [
@@ -78,7 +82,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = db.POSTGRESQL
-AUTH_USER_MODEL = 'representantetecnico.User'
+AUTH_USER_MODEL = 'login.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -120,3 +124,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'node_modules')
 ]
+
+LOGIN_URL = '/'

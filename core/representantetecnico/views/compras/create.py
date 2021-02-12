@@ -1,5 +1,7 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 
 from core.representantetecnico.forms.formCompra import ComprasForm
@@ -12,6 +14,7 @@ class ComprasCreateView(CreateView):
     template_name = 'compras/create.html'
     success_url = reverse_lazy('rp:compras')
 
+    @method_decorator(login_required)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"

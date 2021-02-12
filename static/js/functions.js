@@ -1,4 +1,6 @@
 function message_error(obj) {
+    console.log(obj);
+    console.log("obj");
     var html = '';
     if (typeof (obj) === 'object') {
         html = '<ul style="text-align: left;">';

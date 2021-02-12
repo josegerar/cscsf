@@ -1,29 +1,14 @@
 # Create your models here.
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.forms import model_to_dict
 from django.utils import timezone
-from django.contrib.auth.models import AbstractUser
 
+from core.login.models import User
 from core.representantetecnico.files.read import *
 from core.representantetecnico.files.write import *
 from core.representantetecnico.validators import *
-
-
-class User(AbstractUser):
-    cedula = models.CharField(max_length=10, verbose_name="Cedula", unique=True)
-    telefono = models.CharField(max_length=10, verbose_name="Telefono")
-    is_representante = models.BooleanField(default=False)
-    is_laboratorista = models.BooleanField(default=False)
-    is_bodeguero = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.username
-
-    class Meta:
-        verbose_name = "Usuario"
-        verbose_name_plural = "Usuarios"
-        db_table = "auth_user"
-        ordering = ["id"]
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class TipoPersona(models.Model):
@@ -92,40 +77,6 @@ class Solicitud(models.Model):
         verbose_name = "Solicitud"
         verbose_name_plural = "Solicitudes"
         db_table = "solicitud"
-        ordering = ["id"]
-
-
-class Laboratorio(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre de laboratorio", unique=True)
-    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
-
-    def __str__(self):
-        return self.nombre
-
-    def toJSON(self):
-        item = model_to_dict(self, exclude=[])
-        return item
-
-    class Meta:
-        verbose_name = "Laboratorio"
-        verbose_name_plural = "Laboratorios"
-        db_table = "laboratorio"
-        ordering = ["id"]
-
-
-class TecnicoLaboratorio(models.Model):
-    tecnico = models.ForeignKey(User, on_delete=models.CASCADE)
-    laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE)
-    fecha_asignacion = models.DateTimeField(default=timezone.now, editable=False)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.id_tecnico.first_name + " - " + self.id_laboratorio.nombre
-
-    class Meta:
-        verbose_name = "TecnicoLaboratorio"
-        verbose_name_plural = "TecnicosLaboratorios"
-        db_table = "tecnico_laboratorio"
         ordering = ["id"]
 
 
@@ -257,22 +208,22 @@ class Repositorio(models.Model):
 
     def get_content_folder(self, pk):
         path = None
-        object = None
-        if pk == None:
+        object_act = None
+        if pk is None:
             path = BASE_REPOSITORY
         else:
-            object = Repositorio.objects.get(id=pk)
-            path = object.url + object.nombre_real + '\\'
-        return self.get_content_folder_url(path, object)
+            object_act = Repositorio.objects.get(id=pk)
+            path = object_act.url + object_act.nombre_real + '\\'
+        return self.get_content_folder_url(path, object_act)
 
-    def get_content_folder_url(self, path_url, object):
+    def get_content_folder_url(self, path_url, object_act):
         data = {}
-        if object != None:
-            data['object'] = object.toJSON();
-            if object.is_file == True:
-                path_url = object.url
+        if object_act is not None:
+            data['object'] = object_act.toJSON()
+            if object_act.is_file is True:
+                path_url = object_act.url
                 if path_url != BASE_REPOSITORY:
-                    path_parts = object.url.split("\\")
+                    path_parts = object_act.url.split("\\")
                     folder_name = path_parts[len(path_parts) - 2]
                     path_parent = rearm_url(path_parts, 2)
                     parent = Repositorio.objects.get(nombre_real=folder_name, url=path_parent)
@@ -287,11 +238,11 @@ class Repositorio(models.Model):
             data['files'].append(i.toJSON())
         return data
 
-    def create_folder(self, folderName, pk):
+    def create_folder(self, foldername, pk):
         folder_parent = self.get_folder_parent(pk)
-        create_folder(name_folder=folderName, folder_parent=folder_parent)
-        self.nombre_real = folderName
-        self.nombre_usuario = folderName
+        create_folder(name_folder=foldername, folder_parent=folder_parent)
+        self.nombre_real = foldername
+        self.nombre_usuario = foldername
         self.url = folder_parent
         self.folder = folder_parent
         self.is_dir = True
@@ -309,7 +260,7 @@ class Repositorio(models.Model):
 
     def get_folder_parent(self, pk):
         folder_parent = None
-        if pk == None:
+        if pk is None:
             folder_parent = BASE_REPOSITORY
         else:
             objectroot = Repositorio.objects.get(pk=pk)

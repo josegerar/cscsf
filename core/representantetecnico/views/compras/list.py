@@ -1,7 +1,7 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
 
 from core.representantetecnico.models import ComprasPublicas, Laboratorio
@@ -11,7 +11,7 @@ class ComprasListView(ListView):
     model = ComprasPublicas
     template_name = "compras/list.html"
 
-    @method_decorator(csrf_exempt)
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 

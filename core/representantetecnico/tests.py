@@ -1,5 +1,6 @@
 # Create your tests here.
 #no comentar la siguiente linea
+from app.wsgi import *
 #from cssf.models import *
 #from datetime import datetime
 #from django.utils import timezone
@@ -16,9 +17,10 @@ from django.contrib.auth import authenticate
 #
 # p = Proveedor.objects.get(id=2)
 # print(p.id_empresa)
+from core.representantetecnico.models import User
 
-
-print(authenticate(username='admin', password='123456'))
+print(authenticate(username='jgarcia', password='123456'))
+print(User.objects.all())
 #
 # g = Group.objects.all()
 # print(g)

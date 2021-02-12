@@ -1,5 +1,7 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView
 
 from core.representantetecnico.forms.formPersona import PersonaForm
@@ -12,6 +14,7 @@ class PersonasUpdateView(UpdateView):
     template_name = 'personas/create.html'
     success_url = reverse_lazy('rp:personas')
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)

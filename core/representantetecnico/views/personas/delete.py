@@ -1,5 +1,7 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView
 
 from core.representantetecnico.models import Persona
@@ -10,9 +12,10 @@ class PersonasDeleteView(DeleteView):
     template_name = 'personas/delete.html'
     success_url = reverse_lazy('rp:personas')
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return  super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         data = {}

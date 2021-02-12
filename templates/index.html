@@ -10,23 +10,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CSCSF - {{ title }}</title>
 
-    <link rel="apple-touch-icon" sizes="57x57" href="{% static 'img/uteq/apple-icon-57x57.png' %}">
-    <link rel="apple-touch-icon" sizes="60x60" href="{% static 'img/uteq/apple-icon-60x60.png' %}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'img/uteq/apple-icon-72x72.png' %}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/uteq/apple-icon-76x76.png' %}">
-    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'img/uteq/apple-icon-114x114.png' %}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'img/uteq/apple-icon-120x120.png' %}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'img/uteq/apple-icon-144x144.png' %}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'img/uteq/apple-icon-152x152.png' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/uteq/apple-icon-180x180.png' %}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'img/uteq/android-icon-192x192.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/uteq/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'img/uteq/favicon-96x96.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/uteq/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'img/uteq/manifest.json' %}">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="{% static 'img/uteq/ms-icon-144x144.png' %}">
-    <meta name="theme-color" content="#ffffff">
+    {% include 'faviconlinks.html' %}
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
@@ -39,9 +23,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- REQUIRED SCRIPTS -->
 
     <!-- jQuery -->
-<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
 
-<!-- Popper -->
+    <!-- Popper -->
     <script src="{% static 'lib/popper-1.14.3-dist/umd/popper.min.js' %}"></script>
 
     <!-- Bootstrap 4 -->
@@ -79,16 +63,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-
-<!-- Control Sidebar -->
-<aside class="control-sidebar control-sidebar-dark">
-    <!-- Control sidebar content goes here -->
-    <div class="p-3">
-        <h5>Title</h5>
-        <p>Sidebar content</p>
-    </div>
-</aside>
-<!-- /.control-sidebar -->
 {% include 'footer.html' %}
 <!-- ./wrapper -->
 {% block script %}
