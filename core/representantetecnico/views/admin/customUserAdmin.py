@@ -1,9 +1,8 @@
 from django.contrib.auth.admin import UserAdmin
+from django.utils.translation import gettext_lazy as _
 
 from core.representantetecnico.forms.customUserChangeForm import CustomUserChangeForm
 from core.representantetecnico.forms.customUserCreationForm import CustomUserCreationForm
-
-from django.utils.translation import gettext, gettext_lazy as _
 
 
 class CustomUserAdmin(UserAdmin):
