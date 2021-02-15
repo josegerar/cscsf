@@ -1,51 +1,48 @@
-{% extends 'tl/indexLab.html' %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
 
-{% block content %}
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-
-        <!-- Main content -->
+    <!-- Main content -->
     <div class="content">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-6">
-              <div class="card card-primary card-outline">
-                    <div class="card-header">
-                        <h5 class="card-title m-0">Movimiento de Inventario</h5>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h5 class="card-title m-0">Movimiento de Inventario</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Visualizar movimientos de inventario</p>
+                            <a href="{% url 'tl:movimientoinv' %}" class="btn btn-primary">ir</a>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text">Visualizar movimientos de inventario</p>
-                        <a href="{% url 'tl:movimientoinv' %}" class="btn btn-primary">ir</a>
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h5 class="card-title m-0">Stock de sustancias</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Visualizar stock de sutancias.</p>
+                            <a href="{% url 'tl:stockinv' %}" class="btn btn-primary">ir</a>
+                        </div>
                     </div>
-              </div>
-              <div class="card card-primary card-outline">
-                    <div class="card-header">
-                        <h5 class="card-title m-0">Stock de sustancias</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Visualizar stock de sutancias.</p>
-                        <a href="{% url 'tl:stockinv' %}" class="btn btn-primary">ir</a>
-                    </div>
-              </div>
-          </div>
+                </div>
 
-          <!-- /.col-md-6 -->
-          <div class="col-lg-6">
-              <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h5 class="card-title m-0">Entrega de informes</h5>
+                <!-- /.col-md-6 -->
+                <div class="col-lg-6">
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h5 class="card-title m-0">Entrega de informes</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Entrega de informes acerca del uso de sustancias dentro de un
+                                laboratotio.</p>
+                            <a href="{% url 'tl:informes' %}" class="btn btn-primary">ir</a>
+                        </div>
+                    </div><!-- /.card -->
                 </div>
-                <div class="card-body">
-                    <p class="card-text">Entrega de informes acerca del uso de sustancias dentro de un laboratotio.</p>
-                    <a href="{% url 'tl:informes' %}" class="btn btn-primary">ir</a>
-                </div>
-            </div><!-- /.card -->
-          </div>
-          <!-- /.col-md-6 -->
-        </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
+                <!-- /.col-md-6 -->
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
     </div>
-    </div>
-    <!-- /.content -->
-{% endblock %}
+</div>
+<!-- /.content -->

@@ -17,6 +17,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="{% static 'lib/fontawesome-free/css/all.css' %}">
+    <!-- Jquery confirm -->
+    <link rel="stylesheet" href="{% static 'lib/jquery-confirm-v3.3.4/jquery-confirm.min.css' %}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'lib/adminlte-3.1.0-dist/css/adminlte.min.css' %}">
 
@@ -24,10 +26,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <!-- jQuery -->
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
-
     <!-- Popper -->
     <script src="{% static 'lib/popper-1.14.3-dist/umd/popper.min.js' %}"></script>
-
     <!-- Bootstrap 4 -->
     <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
     <!-- AdminLTE App -->
@@ -36,8 +36,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="{% static 'lib/adminlte-3.1.0-dist/js/demo.js' %}"></script>
     <!-- sweetalert2  -->
     <script src="{% static 'lib/sweetalert2-9.10.0/sweetalert2.all.min.js' %}"></script>
+    <!-- Jquery confirm -->
+    <script src="{% static 'lib/jquery-confirm-v3.3.4/jquery-confirm.min.js' %}"></script>
+
     <!-- fucntions  -->
     <script src="{% static 'js/functions.js' %}"></script>
+
     {% block head %}
 
     {% endblock %}
@@ -48,8 +52,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     {% endblock %}
     <!-- Content Wrapper. Contains page content -->
-    {% block contentwrapper %}
-        <div class="content-wrapper">
+    <div class="content-wrapper" style="padding-top: 4em">
+        {% block contentwrapper %}
             {% block contentheader %}
                 {% include "contentheader.html" %}
             {% endblock %}
@@ -57,14 +61,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
             {% block content %}
 
             {% endblock %}
-        </div>
-    {% endblock %}
+        {% endblock %}
+    </div>
     <!-- /.content-wrapper -->
     <!-- /.content -->
+
 </div>
-<!-- /.content-wrapper -->
+<!-- /.footer -->
 {% include 'footer.html' %}
-<!-- ./wrapper -->
+<!-- ./footer -->
 {% block script %}
 
 {% endblock %}

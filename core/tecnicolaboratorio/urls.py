@@ -5,7 +5,6 @@ from core.tecnicolaboratorio.views.views_tl import labIndex, entregasustanciatl,
 app_name = "tl"
 
 urlpatterns = [
-    path('index/', labIndex, name="index"),
     path('registrar/entrega/', entregasustanciatl, name="entregasustancias"),
     path('registrar/informes/', informestl, name="informes"),
     path('inventario/movimiento/', movimientotl, name="movimientoinv"),

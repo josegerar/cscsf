@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 
 
 class HomeView(TemplateView):
-    template_name = "home.html"
+    template_name = "homerp.html"
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

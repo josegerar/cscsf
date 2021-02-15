@@ -11,83 +11,62 @@
     <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
     <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
     {% block head_list %}
-    
+
     {% endblock %}
 {% endblock %}
 
-{% block content %}
-    <div class="card card-default">
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-{{ icontitle }}"></i>
-                {{ title }}
-            </h3>
-        </div>
-        <!-- /.card-header -->
-        <div class="card-body">
-            <div class="row">
-                <div class="col-sm-2">
-                    <div class="card">
-                        <div class="card-header">
-                            Filtros
-                        </div>
-                        <div class="card-body">
-                            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                                data-accordion="false">
-                                {% block filtrostable %}
 
-                                {% endblock %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-10">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="tblistado" class="table">
-                                    {% block contenttable %}
+{% block content %}
+    <div class="content">
+        <div class="card card-default">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ icontitle }}"></i>
+                    {{ title }}
+                </h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <div class="card">
+                            <div class="card-header">
+                                Filtros
+                            </div>
+                            <div class="card-body">
+                                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                                    data-accordion="false">
+                                    {% block filtrostable %}
 
                                     {% endblock %}
-                                </table>
+                                </ul>
                             </div>
-
                         </div>
-                        <div class="card-footer">
-                            <a href="{{ create_url }}" class="btn btn-primary btn-flat">
-                                <i class="fas fa-plus"></i>
-                                Nuevo registro
-                            </a>
+                    </div>
+                    <div class="col-sm-10">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="tblistado" class="table">
+                                        {% block contenttable %}
+
+                                        {% endblock %}
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div class="card-footer">
+                                {% csrf_token %}
+                                <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+                                    <i class="fas fa-plus"></i>
+                                    Nuevo registro
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- /.card-body -->
         </div>
-        <!-- /.card-body -->
     </div>
-{% endblock %}
-
-{% block script %}
-    <script>
-        $(function () {
-            $('#tblistado').DataTable({
-                responsive: true,
-                autoWidth: false
-            });
-        });
-        $('#btnfooter').on('click', function (event) {
-            $.ajax({
-                'url': '{% url 'rp:compras' %}',
-                'type': 'POST',
-                'data': {'id': 1},
-                'dataType': 'json'
-            }).done(function (data) {
-                console.log(data)
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.log(errorThrown)
-            }).always(function (data) {
-
-            });
-        });
-    </script>
 {% endblock %}

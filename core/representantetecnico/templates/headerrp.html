@@ -1,8 +1,8 @@
 {% load static %}
 <!-- Navbar -->
-<nav class="main-header navbar fixed-top navbar-expand-md navbar-light navbar-white">
+<nav class="main-header navbar navbar-fixed-top fixed-top navbar-expand-md navbar-light navbar-white">
     <div class="container">
-        <a href="{% url 'rp:index' %}" class="navbar-brand">
+        <a href="{% url 'dashboard' %}" class="navbar-brand">
             <img src="{% static 'img/uteq/logoUTEQoriginal1.png' %}" alt="AdminLTE Logo"
                  class="brand-image img-circle elevation-3" style="opacity: .8">
             <span class="brand-text font-weight-light">CSCSF</span>
@@ -17,7 +17,7 @@
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a href="{% url 'rp:index' %}" class="nav-link">Home</a>
+                    <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
                 </li>
                 <!-- Repositorio-->
                 <li class="nav-item">

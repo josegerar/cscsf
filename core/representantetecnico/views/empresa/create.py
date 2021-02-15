@@ -1,20 +1,21 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 
 from core.representantetecnico.forms.formEmpresa import EmpresaForm
+from core.representantetecnico.mixins import IsTechnicalRepresentative
 from core.representantetecnico.models import Proveedor
 
 
-class EmpresaCreateView(CreateView):
+class EmpresaCreateView(LoginRequiredMixin, IsTechnicalRepresentative, CreateView):
     model = Proveedor
     form_class = EmpresaForm
     template_name = 'empresa/create.html'
     success_url = reverse_lazy('rp:empresas')
 
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 

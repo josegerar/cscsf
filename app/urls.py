@@ -16,10 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.conf import settings
+from django.conf.urls.static import static
+
+from core.base.views import DashBoard
+
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin"),
-    path('rp/', include("core.representantetecnico.urls")),
-    path('tl/', include("core.tecnicolaboratorio.urls")),
-    path('bdg/', include("core.bodega.urls")),
-    path('', include('core.login.urls'))
+    path('', include("core.representantetecnico.urls")),
+    path('', include("core.tecnicolaboratorio.urls")),
+    path('', include("core.bodega.urls")),
+    path('', include('core.login.urls')),
+    path('dashboard/', DashBoard.as_view(), name="dashboard")
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

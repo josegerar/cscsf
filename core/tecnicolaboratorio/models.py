@@ -2,10 +2,10 @@ from django.db import models
 from django.forms import model_to_dict
 from django.utils import timezone
 
-from core.login.models import User
+from core.login.models import User, BaseModel
 
 
-class Laboratorio(models.Model):
+class Laboratorio(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de laboratorio", unique=True)
     fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
@@ -23,7 +23,7 @@ class Laboratorio(models.Model):
         ordering = ["id"]
 
 
-class TecnicoLaboratorio(models.Model):
+class TecnicoLaboratorio(BaseModel):
     tecnico = models.ForeignKey(User, on_delete=models.CASCADE)
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE)
     fecha_asignacion = models.DateTimeField(default=timezone.now, editable=False)

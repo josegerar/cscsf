@@ -1,11 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+
+from app.settings import MEDIA_URL, STATIC_URL
+from core.base.models import BaseModel
 
 
-class User(AbstractUser):
+class User(AbstractUser, BaseModel):
     cedula = models.CharField(max_length=10, verbose_name="Cedula", unique=True)
     telefono = models.CharField(max_length=10, verbose_name="Telefono", null=True, blank=True)
+    imagen = models.ImageField(upload_to="users/%Y/%m/%d", null=True, blank=True)
     is_representative = models.BooleanField(
         _('Es representante técnico'),
         default=False,
@@ -44,6 +48,12 @@ class User(AbstractUser):
             grocer_profile = self.grocerprofile
         return grocer_profile
 
+    def get_imagen(self):
+        if self.imagen:
+            return '{}{}'.format(MEDIA_URL, self.imagen)
+        else:
+            return '{}{}'.format(STATIC_URL, 'img/user.png')
+
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
@@ -51,7 +61,7 @@ class User(AbstractUser):
         ordering = ["id"]
 
 
-class RepresentativeProfile(models.Model):
+class RepresentativeProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     name_profile = models.CharField(max_length=64, default="representante tecnico")
@@ -66,7 +76,7 @@ class RepresentativeProfile(models.Model):
         ordering = ["id"]
 
 
-class LaboratoryWorkerProfile(models.Model):
+class LaboratoryWorkerProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     name_profile = models.CharField(max_length=64, default="tecnico laboratorista")
@@ -81,7 +91,7 @@ class LaboratoryWorkerProfile(models.Model):
         ordering = ["id"]
 
 
-class GrocerProfile(models.Model):
+class GrocerProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     name_profile = models.CharField(max_length=64, default="bodeguero")

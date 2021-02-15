@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils import timezone
 
+from core.login.models import BaseModel
 
-class TipoPresentacion(models.Model):
+
+class TipoPresentacion(BaseModel):
     nombre = models.CharField(max_length=10, verbose_name="Nombre de tipo de presentacion")
     descripcion = models.CharField(max_length=10, verbose_name="Descripción de tipo de presentacion")
 
@@ -16,7 +18,7 @@ class TipoPresentacion(models.Model):
         ordering = ["id"]
 
 
-class Sustancia(models.Model):
+class Sustancia(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de sustancia", unique=True)
     cantidad = models.IntegerField(default=0, verbose_name="Cantidad actal de sustancias")
     tipo_presentacion = models.ForeignKey(TipoPresentacion, on_delete=models.CASCADE,
@@ -32,7 +34,7 @@ class Sustancia(models.Model):
         ordering = ["id"]
 
 
-class Inventario(models.Model):
+class Inventario(BaseModel):
     sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Sustancia")
     cantidad_movimiento = models.IntegerField(default=0, verbose_name="Cantidad movimiento")
     fecha_movimiento = models.DateField(default=timezone.now)

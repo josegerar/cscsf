@@ -1,8 +1,15 @@
 {% extends 'index.html' %}
+{% load static %}
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link href="{% static 'lib/select2-4.0.13/css/select2-bootstrap4.min.css' %}" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{% static 'lib/select2-4.0.13/js/i18n/es.js' %}"></script>
+{% endblock %}
 
 {% block content %}
     <div class="card card-default" style="margin-left: 10%; margin-right: 10%;">
-        <form method="post" action=".">
+        <form method="post" action="." enctype="multipart/form-data">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-{{ icontitle }}"></i>
@@ -20,19 +27,6 @@
                         {{ field }}
                     </div>
                 {% endfor %}
-                {% if form.errors %}
-                    <div class="alert alert-danger alert-dismissible">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                        <h5><i class="icon fas fa-ban"></i> A ocurrido un error al intentar guardar el registro</h5>
-                        <ul>
-                            {% for field in form %}
-                                {% for error in field.errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary btn-flat">
@@ -43,6 +37,12 @@
             <!-- /.card-body -->
         </form>
         <script>
+            $(function () {
+                $('.select2').select2({
+                    'theme': 'bootstrap4',
+                    'language': 'es'
+                });
+            });
             {% if form.errors %}
                 var errors = '';
                 {% for field in form %}
@@ -58,27 +58,17 @@
             {% endif %}
             $('form').on('submit', function (event) {
                 event.preventDefault();
-                var form = this;
-                var parameters = $(this).serializeArray();
+                const form = this;
+                const parameters = new FormData(form);
                 disableEnableForm(form, true);
-                $.ajax({
-                    'url': window.location.pathname,
-                    'type': 'POST',
-                    'data': parameters,
-                    'dataType': 'json'
-                }).done(function (data) {
-                    if (!data.hasOwnProperty('error')) {
+                submit_with_ajax(
+                    window.location.pathname, parameters
+                    , 'Confirmación'
+                    , '¿Estas seguro de realizar la siguiente acción?'
+                    , function (data) {
                         location.href = '{{ url_list }}';
-                    } else{
-                        message_error(data.error);
-                        disableEnableForm(form, false);
                     }
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    message_error(errorThrown);
-                    disableEnableForm(form, false);
-                }).always(function (data) {
-
-                });
+                );
             });
         </script>
     </div>

@@ -26,3 +26,52 @@ function disableEnableForm(form, yesNo) {
     s.filter = 'alpha(opacity=' + opacity + ')';
     for (var i = 0; i < f.length; i++) f[i].disabled = yesNo;
 }
+
+function submit_with_ajax(url, parameters, title, content, callback) {
+    $.confirm({
+        theme: 'material',
+        title: title,
+        icon: 'fa fa-info',
+        content: content,
+        columnClass: 'medium',
+        typeAnimated: true,
+        cancelButtonClass: 'btn-primary',
+        draggable: true,
+        dragWindowBorder: false,
+        buttons: {
+            info: {
+                text: "Si",
+                btnClass: 'btn-primary',
+                action: function () {
+                    $.ajax({
+                        'url': url,
+                        'type': 'POST',
+                        'data': parameters,
+                        'dataType': 'json',
+                        'processData': false,
+                        'contentType': false
+                    }).done(function (data) {
+                        if (!data.hasOwnProperty('error')) {
+                            callback(data);
+                        } else {
+                            message_error(data.error);
+                            disableEnableForm(form, false);
+                        }
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        message_error(errorThrown);
+                        disableEnableForm(form, false);
+                    }).always(function (data) {
+
+                    });
+                }
+            },
+            danger: {
+                text: "No",
+                btnClass: 'btn-red',
+                action: function () {
+
+                }
+            },
+        }
+    });
+}

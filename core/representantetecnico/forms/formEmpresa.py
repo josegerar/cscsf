@@ -25,7 +25,9 @@ class EmpresaForm(ModelForm):
                 attrs={
                     'type': 'number',
                     'placeholder': 'Ingrese el RUC de la empresa',
-                    'minlength': 13
+                    'type': 'text',
+                    'minlength': 13,
+                    'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57'
                 }
             )
         }

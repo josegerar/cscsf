@@ -1,4 +1,9 @@
 $(function () {
+    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
+    var data = {'action': 'searchdata'}
+    if (csrfmiddlewaretoken.length > 0) {
+        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
+    }
     $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
@@ -7,9 +12,7 @@ $(function () {
         'ajax': {
             'url': window.location.pathname,
             'type': 'POST',
-            'data': {
-                'action': 'searchdata'
-            },
+            'data': data,
             'dataSrc': ''
         },
         'columns': [

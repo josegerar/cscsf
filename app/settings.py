@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'core.representantetecnico.apps.RepresentantetecnicoConfig',
     'core.tecnicolaboratorio.apps.TecnicolaboratorioConfig',
     'core.login.apps.LoginConfig',
+    'core.base.apps.BaseConfig',
 
     # external apps
     'widget_tweaks'
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'crum.CurrentRequestUserMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -126,3 +128,11 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_URL = '/'
+
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+LOGOUT_REDIRECT_URL = '/'
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')

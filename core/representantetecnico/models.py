@@ -1,17 +1,16 @@
-# Create your models here.
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.forms import model_to_dict
 from django.utils import timezone
 
-from core.login.models import User
+from core.login.models import User, BaseModel
 from core.representantetecnico.files.read import *
 from core.representantetecnico.files.write import *
 from core.representantetecnico.validators import *
 from core.tecnicolaboratorio.models import Laboratorio
 
 
-class TipoPersona(models.Model):
+class TipoPersona(BaseModel):
     nombre = models.CharField(max_length=30, verbose_name="Tipo de persona", unique=True)
     descripcion = models.CharField(max_length=200, verbose_name="Descripcion", blank=True, null=True)
     is_active = models.BooleanField(default=True, editable=False)
@@ -26,20 +25,23 @@ class TipoPersona(models.Model):
         ordering = ["id"]
 
 
-class Persona(models.Model):
+class Persona(BaseModel):
     tipo_persona = models.ForeignKey(TipoPersona, on_delete=models.CASCADE,
                                      null=True, blank=True, verbose_name="Tipo de persona")
     nombre = models.CharField(max_length=100, verbose_name="Nombres", default="")
     apellido = models.CharField(max_length=100, verbose_name="Apellidos")
-    cedula = models.CharField(max_length=100, verbose_name="Cedula", unique=True)
+    cedula = models.CharField(max_length=10, verbose_name="Cedula", unique=True)
     is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
         return self.nombre + " " + self.apellido
 
     def toJSON(self):
-        item = model_to_dict(self)
-        item['tipo'] = self.tipo_persona.nombre
+        item = model_to_dict(self, exclude=['tipo_persona'])
+        if self.tipo_persona is not None:
+            item['tipo'] = self.tipo_persona.nombre
+        else:
+            item['tipo'] = ""
         return item
 
     class Meta:
@@ -49,7 +51,7 @@ class Persona(models.Model):
         ordering = ["id"]
 
 
-class Categoria(models.Model):
+class Categoria(BaseModel):
     nombre = models.CharField(max_length=20, verbose_name="Nombre de la categoria", unique=True)
     descripcion = models.CharField(max_length=200, blank=True, null=True)
     is_active = models.BooleanField(default=True, editable=False)
@@ -65,7 +67,7 @@ class Categoria(models.Model):
         ordering = ["id"]
 
 
-class Solicitud(models.Model):
+class Solicitud(BaseModel):
     solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_solicitud = models.DateTimeField(default=timezone.now, editable=False)
@@ -80,7 +82,7 @@ class Solicitud(models.Model):
         ordering = ["id"]
 
 
-class Facultad(models.Model):
+class Facultad(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de facultad", unique=True)
     is_active = models.BooleanField(default=True, editable=False)
     fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
@@ -95,7 +97,7 @@ class Facultad(models.Model):
         ordering = ["id"]
 
 
-class Proveedor(models.Model):
+class Proveedor(BaseModel):
     nombre = models.CharField(max_length=150, verbose_name="Nombre de empresa")
     ruc = models.CharField(max_length=13, verbose_name="Ruc", unique=True)
     is_active = models.BooleanField(default=True, editable=False)
@@ -110,7 +112,7 @@ class Proveedor(models.Model):
         ordering = ["id"]
 
 
-class ComprasPublicas(models.Model):
+class ComprasPublicas(BaseModel):
     empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Empresa", null=True, blank=True)
     llegada_bodega = models.DateField(default=timezone.now, verbose_name="Fecha llegada a bodega")
     hora_llegada_bodega = models.TimeField(default=timezone.now, verbose_name="Hora llegada a bodega")
@@ -120,6 +122,8 @@ class ComprasPublicas(models.Model):
     transportista = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
                                       verbose_name="Transportista", related_name="transportista")
     fecha_registro = models.DateTimeField(default=timezone.now, editable=False)
+    guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True, blank=True)
+    factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
@@ -131,7 +135,7 @@ class ComprasPublicas(models.Model):
         ordering = ["id"]
 
 
-class SolicitanteCompra(models.Model):
+class SolicitanteCompra(BaseModel):
     solicitante_compra = models.ForeignKey(User, on_delete=models.CASCADE)
     ingreso_compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE)
     tipo_sc = models.CharField(max_length=2, null=True, validators=[validate_solicitante_compra_tipo_sc])
@@ -146,7 +150,7 @@ class SolicitanteCompra(models.Model):
         ordering = ["id"]
 
 
-class TipoDocumento(models.Model):
+class TipoDocumento(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     descripcion = models.CharField(max_length=300, verbose_name="Descripcion")
     is_active = models.BooleanField(default=True, editable=False)
@@ -161,7 +165,7 @@ class TipoDocumento(models.Model):
         ordering = ["id"]
 
 
-class Documento(models.Model):
+class Documento(BaseModel):
     solicitud = models.ForeignKey(Solicitud, on_delete=models.PROTECT, blank=True, null=True)
     compra_publica = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT, blank=True, null=True)
     tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, blank=True, null=True)
@@ -177,7 +181,7 @@ class Documento(models.Model):
         ordering = ["id"]
 
 
-class Entrega(models.Model):
+class Entrega(BaseModel):
     documento = models.ForeignKey(Documento, on_delete=models.PROTECT)
     ingreso_compras = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT)
     laboratorio_entrega = models.ForeignKey(Laboratorio, on_delete=models.PROTECT)
@@ -194,7 +198,7 @@ class Entrega(models.Model):
         ordering = ["id"]
 
 
-class Repositorio(models.Model):
+class Repositorio(BaseModel):
     nombre_usuario = models.CharField(max_length=500, verbose_name="Nombre archivo(usuario)")
     nombre_real = models.CharField(max_length=500, verbose_name="Nombre archivo(real)")
     url = models.CharField(max_length=500, verbose_name="Ruta archivo")

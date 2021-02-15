@@ -2,7 +2,7 @@
 <!-- Navbar -->
 <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
     <div class="container">
-        <a href="../../index3.html" class="navbar-brand">
+        <a href="{% url 'dashboard' %}" class="navbar-brand">
             <img src="{% static 'lib/adminlte-3.1.0-dist/img/logoUTEQoriginal1.png' %}" alt="AdminLTE Logo"
                  class="brand-image img-circle elevation-3" style="opacity: .8">
             <span class="brand-text font-weight-light">CSCSF</span>
@@ -17,7 +17,7 @@
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a href="{% url 'tl:index' %}" class="nav-link">Home</a>
+                    <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
                 </li>
                 <!-- Informes mensuales-->
                 <ul class="navbar-nav">
@@ -37,7 +37,8 @@
                     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                        class="nav-link dropdown-toggle">Registrar</a>
                     <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                        <li><a href="{% url 'tl:entregasustancias' %}" class="dropdown-item">Entrega de sustancias</a></li>
+                        <li><a href="{% url 'tl:entregasustancias' %}" class="dropdown-item">Entrega de sustancias</a>
+                        </li>
                         <li><a href="{% url 'tl:informes' %}" class="dropdown-item">Informes</a></li>
                     </ul>
                 </li>
