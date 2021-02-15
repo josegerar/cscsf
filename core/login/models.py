@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -28,6 +28,18 @@ class User(AbstractUser, BaseModel):
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+        group = None
+        if self.is_grocer is True:
+            group = Group.objects.get(name__iexact='bodega')
+        elif self.is_laboratory_worker is True:
+            group = Group.objects.get(name__iexact='laboratorio')
+        elif self.is_representative is True:
+            group = Group.objects.get(name__iexact='representante')
+        if group is not None:
+            self.groups.add(group)
 
     # Obtenemos los perfiles de cada usuario acorde a su tipo
     def get_representative_profile(self):

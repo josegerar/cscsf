@@ -73,5 +73,21 @@ scratch. This page gets rid of all links and provides the needed markup only.
 {% block script %}
 
 {% endblock %}
+
+<script type="application/javascript">
+    {% if messages %}
+        let html_messages = '<p>';
+        {% for message in messages %}
+            html_messages += '{{ message }}<br>';
+        {% endfor %}
+        html_messages += '</p>';
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            html: html_messages,
+        })
+    {% endif %}
+</script>
+
 </body>
 </html>

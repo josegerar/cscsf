@@ -18,8 +18,6 @@ from core.representantetecnico.views.sustancia.list import SustanciaListView
 app_name = "rp"
 
 urlpatterns = [
-    path('index/', HomeView.as_view(), name="index"),
-
     path('inventario/', SustanciaListView.as_view(), name="inventario"),
     path('inventario/movimientos/', InventarioListView.as_view(), name="movimientoinventario"),
 
