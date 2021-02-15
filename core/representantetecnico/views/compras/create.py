@@ -9,7 +9,8 @@ from core.representantetecnico.models import ComprasPublicas
 
 
 class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
-    permission_required = ('representantetecnico.add_compraspublicas',)#appname.action(add, change, delete view)_table
+    # appname.action(add, change, delete view)_table
+    permission_required = ('representantetecnico.add_compraspublicas',)
     model = ComprasPublicas
     form_class = ComprasForm
     template_name = 'compras/create.html'
