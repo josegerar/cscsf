@@ -4,16 +4,16 @@ from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.forms.formPersona import PersonaForm
-from core.representantetecnico.models import Persona
+from core.representantetecnico.forms.formCompra import ComprasForm
+from core.representantetecnico.models import ComprasPublicas
 
 
-class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
-    permission_required = ('representantetecnico.change_persona',)
-    model = Persona
-    form_class = PersonaForm
-    template_name = 'personas/create.html'
-    success_url = reverse_lazy('rp:personas')
+class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
+    permission_required = ('representantetecnico.change_compraspublicas',)
+    model = ComprasPublicas
+    form_class = ComprasForm
+    template_name = 'compras/create.html'
+    success_url = reverse_lazy('rp:compras')
     url_redirect = success_url
 
     def dispatch(self, request, *args, **kwargs):
@@ -23,14 +23,14 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"
-        context['title'] = "Actualizar personas"
+        context['title'] = "Actualizar compra"
         context['icontitle'] = "edit"
         context['url_list'] = self.success_url
         context['action'] = 'edit'
         context['urls'] = [
             {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
-            {"uridj": self.success_url, "uriname": "Personas"},
-            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"}
+            {"uridj": self.success_url, "uriname": "Compras"},
+            {"uridj": reverse_lazy('rp:registrocompras'), "uriname": "Registro"}
         ]
         return context
 

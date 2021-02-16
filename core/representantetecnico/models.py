@@ -3,6 +3,7 @@ from django.db import models
 from django.forms import model_to_dict
 from django.utils import timezone
 
+from app.settings import MEDIA_URL, STATIC_URL
 from core.login.models import User, BaseModel
 from core.representantetecnico.files.read import *
 from core.representantetecnico.files.write import *
@@ -68,12 +69,24 @@ class Categoria(BaseModel):
 
 
 class Solicitud(BaseModel):
-    solicitante = models.ForeignKey(User, on_delete=models.CASCADE)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    fecha_solicitud = models.DateTimeField(default=timezone.now, editable=False)
+    solicitante = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Solicitud")
+    laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio", null=True)
+    nombre_proyecto = models.CharField(max_length=150, verbose_name="Nombre de proyecto", null=True)
+    documento_solicitud = models.FileField(upload_to='solicitud/%Y/%m/%d', null=True, blank=True)
+    is_autorized = models.BooleanField(default=False, verbose_name="Autorizada", null=True)
+    fecha_autorizacion = models.DateTimeField(editable=False, null=True)
 
     def __str__(self):
         return str(self.id)
+
+    def save(self, *args, **kwargs):
+        if self.is_autorized is True:
+            if self.fecha_autorizacion is not None:
+                self.fecha_autorizacion = timezone.now()
+        else:
+            if self.fecha_autorizacion is not None:
+                self.fecha_autorizacion = None
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Solicitud"
@@ -105,6 +118,10 @@ class Proveedor(BaseModel):
     def __str__(self):
         return self.nombre
 
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
+
     class Meta:
         verbose_name = "Empresa"
         verbose_name_plural = "Empresas"
@@ -127,6 +144,24 @@ class ComprasPublicas(BaseModel):
 
     def __str__(self):
         return str(self.id)
+
+    def toJSON(self):
+        item = {'id': self.id, 'empresa': self.empresa.nombre, 'llegada_bodega': self.llegada_bodega,
+                'hora_llegada_bodega': self.hora_llegada_bodega, 'convocatoria': self.convocatoria,
+                'responsable_entrega': self.responsable_entrega.__str__(),
+                'transportista': self.transportista.__str__(),
+                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura()}
+        return item
+
+    def get_guia_transporte(self):
+        if self.guia_transporte:
+            return '{}{}'.format(MEDIA_URL, self.guia_transporte)
+        return ''
+
+    def get_factura(self):
+        if self.factura:
+            return '{}{}'.format(MEDIA_URL, self.factura)
+        return ''
 
     class Meta:
         verbose_name = "CompraPublica"

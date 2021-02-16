@@ -1,35 +1,33 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 
+from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.forms.formPersona import PersonaForm
 from core.representantetecnico.models import Persona
 
 
-class PersonaCreateView(CreateView):
+class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
+    permission_required = ('representantetecnico.add_persona',)
     model = Persona
     form_class = PersonaForm
     template_name = 'personas/create.html'
     success_url = reverse_lazy('rp:personas')
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    url_redirect = success_url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"
         context['title'] = "Registrar personas"
         context['icontitle'] = "plus"
+        context['url_list'] = self.success_url
+        context['action'] = 'add'
         context['urls'] = [
-            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
-            {"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"},
+            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": self.success_url, "uriname": "Personas"},
             {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"}
         ]
-        context['url_list'] = reverse_lazy('rp:personas')
-        context['action'] = 'add'
         return context
 
     def post(self, request, *args, **kwargs):

@@ -75,3 +75,36 @@ function submit_with_ajax(url, parameters, title, content, callback) {
         }
     });
 }
+
+function update_datatable(datatable, url, data) {
+    $.ajax({
+        'url': url,
+        'type': 'POST',
+        'data': data,
+        'dataType': 'json'
+    }).done(function (response) {
+        console.log(response)
+        if (!response.hasOwnProperty('error')) {
+            if (response.length > 0) {
+                datatable.clear();
+                datatable.rows.add(response).draw();
+            }
+        } else {
+            message_error(response.error);
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        message_error(errorThrown);
+    }).always(function (data) {
+
+    });
+}
+
+function get_tag_url_document(data, comment) {
+    let html = '';
+    if (data && data.length > 0) {
+        html += '<a href="' + data + '">' + comment + '</a>'
+    } else {
+        html += 'Documento no registrado';
+    }
+    return html
+}

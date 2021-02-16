@@ -7,6 +7,6 @@ app_name = "bdg"
 urlpatterns = [
     path('registrar/compras/', ingresarcomprabdg, name="ingresocompras"),
     path('registrar/entrega/', entregasustanciabdg, name="entragasustancias"),
-    path('inventario/movimiento/', movimientobdg, name="movimientoinv"),
-    path('inventario/stock/', stockbdg, name="stockinv")
+    path('movimientosinventario/movimiento/', movimientobdg, name="movimientoinv"),
+    path('movimientosinventario/stock/', stockbdg, name="stockinv")
 ]

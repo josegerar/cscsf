@@ -1,5 +1,7 @@
 {% extends 'list.html' %}
 
+{% load static %}
+
 {% block header %}
     {% include 'headerrp.html' %}
 {% endblock %}
@@ -42,30 +44,9 @@
     </tr>
     </thead>
     <tbody>
-    {% for compra in object_list %}
-        <tr>
-            <th scope="row">{{ compra.id }}</th>
-            <td>{{ compra.empresa.nombre }}</td>
-            <td>{{ compra.llegada_bodega }}</td>
-            <td>{{ compra.hora_llegada_bodega }}</td>
-            <td>{{ compra.convocatoria }}</td>
-            <td>{{ compra.responsable_entrega.nombre }}</td>
-            <td>{{ compra.transportista.nombre }}</td>
-            <td>
-                {% if compra.factura %}
-                    <a href="/media/{{ compra.factura }}" target="_blank">Ver</a>
-                {% endif %}
-            </td>
-            <td>
-                {% if compra.guia_transporte %}
-                    <a href="/media/{{ compra.guia_transporte }}" target="_blank">Ver</a>
-                {% endif %}
-            </td>
-        <td>
-            <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></button>
-            <button type="button" class="btn btn-primary btn-sm"><i class="fas fa-trash-alt"></i></button>
-        </td>
-        </tr>
-    {% endfor %}
+
     </tbody>
+{% endblock %}
+{% block script %}
+    <script src="{% static 'compras/js/list.js' %}"></script>
 {% endblock %}

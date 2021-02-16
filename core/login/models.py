@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
+from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
 
 from app.settings import MEDIA_URL, STATIC_URL
@@ -28,6 +29,16 @@ class User(AbstractUser, BaseModel):
 
     def __str__(self):
         return self.username
+
+    def toJSON(self):
+        return model_to_dict(self)
+
+    @staticmethod
+    def get_choices_user():
+        choices = [('', '---------')]
+        choices += [(o.id, str('{} {} {}'.format(str(o.first_name), str(o.last_name), str(o.cedula)))) for o in
+                    User.objects.all()]
+        return choices
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.

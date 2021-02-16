@@ -9,7 +9,7 @@ from core.representantetecnico.models import ComprasPublicas
 
 
 class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
-    # appname.action(add, change, delete view)_table
+    # appname.action(add, change, delete, view)_table
     permission_required = ('representantetecnico.add_compraspublicas',)
     model = ComprasPublicas
     form_class = ComprasForm
@@ -17,21 +17,17 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
     success_url = reverse_lazy('rp:compras')
     url_redirect = success_url
 
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"
         context['title'] = "Registrar compra"
         context['icontitle'] = "plus"
-        context['url_create'] = reverse_lazy('rp:registrocompras')
         context['url_list'] = self.success_url
         context['action'] = 'add'
         context['urls'] = [
             {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Compras"},
-            {"uridj": context['url_create'], "uriname": "Registro"}
+            {"uridj": reverse_lazy('rp:registrocompras'), "uriname": "Registro"}
         ]
         return context
 

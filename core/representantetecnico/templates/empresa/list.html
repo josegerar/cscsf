@@ -1,5 +1,7 @@
 {% extends 'list.html' %}
 
+{% load static %}
+
 {% block header %}
     {% include 'headerrp.html' %}
 {% endblock %}
@@ -18,16 +20,9 @@
     </tr>
     </thead>
     <tbody>
-    {% for empresa in object_list %}
-        <tr>
-            <th scope="row">{{ empresa.id }}</th>
-            <td>{{ empresa.nombre }}</td>
-            <td>{{ empresa.ruc }}</td>
-            <td>
-                <button type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
-                <button type="button" class="btn btn-primary"><i class="fas fa-trash-alt"></i></button>
-            </td>
-        </tr>
-    {% endfor %}
     </tbody>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'empresa/js/list.js' %}"></script>
 {% endblock %}

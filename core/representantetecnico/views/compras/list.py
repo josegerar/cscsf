@@ -1,31 +1,30 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
-from core.representantetecnico.mixins import IsTechnicalRepresentative
+from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.models import ComprasPublicas, Laboratorio
 
 
-class ComprasListView(LoginRequiredMixin, IsTechnicalRepresentative, ListView):
+class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
+    permission_required = ('representantetecnico.view_compraspublicas', 'tecnicolaboratorio.view_laboratorio',)
     model = ComprasPublicas
     template_name = "compras/list.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            data = Laboratorio.objects.get(pk=request.POST['id']).toJSON()
+            action = request.POST['action']
+            if action == 'searchdata':
+                data = []
+                for i in ComprasPublicas.objects.all():
+                    data.append(i.toJSON())
+            else:
+                data['error'] = 'Ha ocurrido un error'
         except Exception as e:
             data["error"] = str(e)
-        return JsonResponse(data)
-
-    def get_queryset(self):
-        return ComprasPublicas.objects.all()
+        return JsonResponse(data, safe=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -33,9 +32,9 @@ class ComprasListView(LoginRequiredMixin, IsTechnicalRepresentative, ListView):
         context['title'] = "Compras registradas"
         context['icontitle'] = "store-alt"
         context['laboratorios'] = Laboratorio.objects.all()
+        context['create_url'] = reverse_lazy('rp:registrocompras')
         context['urls'] = [
-            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
             {"uridj": reverse_lazy('rp:compras'), "uriname": "Compras"}
         ]
-        context['create_url'] = reverse_lazy('rp:registrocompras')
         return context

@@ -4,14 +4,14 @@ from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import Persona
+from core.representantetecnico.models import ComprasPublicas, Proveedor
 
 
-class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
-    permission_required = ('representantetecnico.delete_persona',)
-    model = Persona
-    template_name = 'personas/delete.html'
-    success_url = reverse_lazy('rp:personas')
+class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
+    permission_required = ('representantetecnico.delete_proveedor',)
+    model = Proveedor
+    template_name = 'empresa/delete.html'
+    success_url = reverse_lazy('rp:empresas')
     url_redirect = success_url
 
     def dispatch(self, request, *args, **kwargs):
@@ -29,12 +29,12 @@ class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, De
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['usertitle'] = "Representante Técnico"
-        context['title'] = "Eliminar personas"
+        context['title'] = "Eliminar empresa"
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url
         context['urls'] = [
             {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
-            {"uridj": self.success_url, "uriname": "Personas"},
-            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"}
+            {"uridj": self.success_url, "uriname": "Empresas"},
+            {"uridj": reverse_lazy('rp:registroempresa'), "uriname": "Registro"}
         ]
         return context

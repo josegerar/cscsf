@@ -42,6 +42,11 @@ class Inventario(BaseModel):
     def __str__(self):
         return str(self.id)
 
+    def toJSON(self):
+        inv = {'id': self.id, 'sustancia': self.sustancia.nombre, 'cantidad': self.cantidad_movimiento,
+               'fecha': str(self.fecha_movimiento)}
+        return inv
+
     class Meta:
         verbose_name = "Inventario"
         verbose_name_plural = "Inventarios"

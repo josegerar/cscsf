@@ -1,32 +1,35 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 
+from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.forms.formSolicitud import SolicitudForm
 from core.representantetecnico.models import Solicitud
 
 
-class SustanciaCreateView(CreateView):
+class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
+    permission_required = ('representantetecnico.add_persona',)
     model = Solicitud
     form_class = SolicitudForm
-    template_name = "solicitudentregasustancias.html"
-    success_url = reverse_lazy("rp:listadosolicitudes")
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    template_name = "solicitud/create.html"
+    success_url = reverse_lazy("rp:solicitudes")
+    url_redirect = success_url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['urls'] = [
-            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
-            {"uridj": reverse_lazy('rp:listadosolicitudes'), "uriname": "Solicitudes"},
-            {"uridj": reverse_lazy('rp:entregasustancias'), "uriname": "Registro"}
-        ]
         context['usertitle'] = "Representante Técnico"
-        context['title'] = "Registro entrega sustancias"
+        context['title'] = "Registro solicitudes de entrega sustancias"
+        context['icontitle'] = "plus"
+        context['url_list'] = self.success_url
+        context['action'] = 'add'
+        context['urls'] = [
+            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": self.success_url, "uriname": "Solicitudes"},
+            {"uridj": reverse_lazy('rp:registrosolicitud'), "uriname": "Registro"}
+        ]
         return context
 
     def post(self, request, *args, **kwargs):

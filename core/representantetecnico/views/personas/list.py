@@ -1,23 +1,16 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
 
+from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.models import Persona
 
 
-class PersonaListView(ListView):
+class PersonaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
+    permission_required = ('representantetecnico.view_persona',)
     model = Persona
     template_name = "personas/list.html"
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return Persona.objects.all()
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -38,9 +31,9 @@ class PersonaListView(ListView):
         context['usertitle'] = "Representante Técnico"
         context['title'] = "Personas"
         context['icontitle'] = "user-friends"
+        context['create_url'] = reverse_lazy('rp:registropersonas')
         context['urls'] = [
-            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
+            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
             {"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"}
         ]
-        context['create_url'] = reverse_lazy('rp:registropersonas')
         return context

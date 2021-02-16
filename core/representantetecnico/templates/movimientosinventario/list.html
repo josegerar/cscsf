@@ -6,6 +6,10 @@
     {% include 'headerrp.html' %}
 {% endblock %}
 
+{% block head_list %}
+    <script src="{% static 'movimientoinventario/js/list.js' %}"></script>
+{% endblock %}
+
 {% block filtrostable %}
 
 {% endblock %}
@@ -14,11 +18,9 @@
     <thead>
     <tr>
         <th scope="col">#</th>
-        <th scope="col">Tipo</th>
-        <th scope="col">Nombres</th>
-        <th scope="col">Apellidos</th>
-        <th scope="col">Cedula</th>
-        <th scope="col">Opciones</th>
+        <th scope="col">Sustancia</th>
+        <th scope="col">Cantidad</th>
+        <th scope="col">Fecha</th>
     </tr>
     </thead>
     <tbody>
@@ -27,5 +29,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'personas/js/list.js' %}"></script>
+
 {% endblock %}
