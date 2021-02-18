@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.forms.formCompra import ComprasForm
 from core.representantetecnico.models import ComprasPublicas
@@ -28,9 +29,9 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
         context['url_list'] = self.success_url
         context['action'] = 'edit'
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Compras"},
-            {"uridj": reverse_lazy('rp:registrocompras'), "uriname": "Registro"}
+            {"uridj": reverse_lazy('rp:registrocompras'), "uriname": "Edicción"}
         ]
         return context
 

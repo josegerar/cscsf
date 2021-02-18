@@ -1,4 +1,156 @@
-{% extends 'create.html' %}
+{% extends 'list.html' %}
+
+{% load static %}
+
+{% block head_list %}
+    <link href="{% static 'lib/jquery-ui-1.12.1/jquery-ui.min.css' %}" rel="stylesheet"/>
+    <script src="{% static 'lib/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link href="{% static 'lib/select2-4.0.13/css/select2-bootstrap4.min.css' %}" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{% static 'lib/select2-4.0.13/js/i18n/es.js' %}"></script>
+
+    <script src="{% static 'lib/moment-2.25.3/moment-with-locales.js' %}"></script>
+    <script src="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <link href="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.css' %}" rel="stylesheet"/>
+
+    <script src="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.js' %}"></script>
+    <link href="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.css' %}" rel="stylesheet"/>
+
+    <script src="{% static 'compras/js/create.js' %}"></script>
+{% endblock %}
+
 {% block header %}
     {% include 'headerrp.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="card card-default">
+            <form method="post" action="." enctype="multipart/form-data">
+                <input type="hidden" name="action" value="{{ action }}"/>
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-{{ icontitle }}"></i>
+                        {{ title }}
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias a ingresar
+                                    </h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Buscador de sustancias:</label>
+                                        <div class="input-group">
+                                            <input name="search"
+                                                   placeholder="Ingrese el nombre de la sustancia a buscar"
+                                                   autocomplete="off" type="text" class="form-control">
+                                            <span class="input-group-append">
+                                            <button type="button" class="btn btn-danger btn-flat">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <button rel="removeall" type="button" class="btn btn-danger btn-xs btn-flat">
+                                        Eliminar todas las sustancias
+                                    </button>
+                                    <hr>
+                                    <table id="tblistado" class="table">
+                                        <thead>
+                                        <th scope="col">Eliminar</th>
+                                        <th scope="col">Sustancia</th>
+                                        <th scope="col">Cantidad</th>
+                                        <th scope="col">Tipo de presentación</th>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-atom"></i> Datos de la compra</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Proveedor:</label>
+                                        {{ form.empresa }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Fecha de llegada a bodega:</label>
+                                        <div class="input-group date" id="llegada_bodega" data-target-input="nearest">
+                                            {{ form.llegada_bodega }}
+                                            <div class="input-group-append" data-target="#llegada_bodega"
+                                                 data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Hora de llegada a bodega:</label>
+                                        <div class="input-group date" id="hora_llegada_bodega"
+                                             data-target-input="nearest">
+                                            {{ form.hora_llegada_bodega }}
+                                            <div class="input-group-append" data-target="#hora_llegada_bodega"
+                                                 data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label>N° convocatoria:</label>
+                                        {{ form.convocatoria }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Responable de entrega:</label>
+                                        {{ form.responsable_entrega }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Trasportista:</label>
+                                        {{ form.transportista }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Guia de transporte:</label>
+                                        {{ form.guia_transporte }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Factura:</label>
+                                        {{ form.factura }}
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-flat">
+                        <i class="fas fa-save"></i>
+                        Guardar registro
+                    </button>
+                    <a href="{{ url_list }}" class="btn btn-primary btn-danger">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}

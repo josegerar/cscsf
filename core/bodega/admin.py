@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from core.bodega.models import *
+
+admin.site.register(TipoPresentacion)
+admin.site.register(TipoMovimientoInventario)

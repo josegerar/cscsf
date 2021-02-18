@@ -3,8 +3,9 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import ComprasPublicas, Proveedor
+from core.representantetecnico.models import Proveedor
 
 
 class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
@@ -33,8 +34,8 @@ class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Empresas"},
-            {"uridj": reverse_lazy('rp:registroempresa'), "uriname": "Registro"}
+            {"uridj": reverse_lazy('rp:registroempresa'), "uriname": "Eliminar"}
         ]
         return context

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.forms.formPersona import PersonaForm
 from core.representantetecnico.models import Persona
@@ -28,9 +29,9 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
         context['url_list'] = self.success_url
         context['action'] = 'edit'
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Personas"},
-            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"}
+            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Edicción"}
         ]
         return context
 

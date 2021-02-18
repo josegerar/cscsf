@@ -14,6 +14,7 @@
 {% block header %}
     {% include 'headerrp.html' %}
 {% endblock %}
+
 {% block contentwrapper %}
     <div class="content-wrapper">
         {% csrf_token %}
@@ -21,7 +22,22 @@
         {% include 'repositorio/modal/viewFile.html' %}
         <div>
             {% block contentheader %}
-                {% include "contentheader.html" %}
+                <!-- Content Header (Page header) -->
+                <div class="content-header">
+                    <div class="container">
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <h5 class="m-0"> Representante tecnico <small>CSCSF-UTEQ</small></h5>
+                            </div><!-- /.col -->
+                            <div class="col-sm-6">
+                                <ol class="breadcrumb float-sm-right">
+                                    <li class="breadcrumb-item active">Home</li>
+                                </ol>
+                            </div><!-- /.col -->
+                        </div><!-- /.row -->
+                    </div><!-- /.container-fluid -->
+                </div>
+                <!-- /.content-header -->
             {% endblock %}
             <div id="context-menu-file" class="card"
                  style="overflow-y: scroll;margin-left: 10%; margin-right: 10%; min-height: 80vh; max-height: 80vh">

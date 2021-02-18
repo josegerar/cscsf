@@ -3,12 +3,13 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.models import ComprasPublicas, Laboratorio
 
 
 class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
-    permission_required = ('representantetecnico.view_compraspublicas', 'tecnicolaboratorio.view_laboratorio',)
+    permission_required = ('representantetecnico.view_compraspublicas',)
     model = ComprasPublicas
     template_name = "compras/list.html"
 
@@ -34,7 +35,7 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
         context['laboratorios'] = Laboratorio.objects.all()
         context['create_url'] = reverse_lazy('rp:registrocompras')
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": reverse_lazy('rp:compras'), "uriname": "Compras"}
         ]
         return context

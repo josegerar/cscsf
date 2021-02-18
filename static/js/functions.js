@@ -1,7 +1,5 @@
 function message_error(obj) {
-    console.log(obj);
-    console.log("obj");
-    var html = '';
+    let html = '';
     if (typeof (obj) === 'object') {
         html = '<ul style="text-align: left;">';
         $.each(obj, function (key, value) {
@@ -19,15 +17,15 @@ function message_error(obj) {
 }
 
 function disableEnableForm(form, yesNo) {
-    var f = form, s, opacity;
+    let f = form, s, opacity;
     s = f.style;
     opacity = yesNo ? '40' : '100';
     s.opacity = s.MozOpacity = s.KhtmlOpacity = opacity / 100;
     s.filter = 'alpha(opacity=' + opacity + ')';
-    for (var i = 0; i < f.length; i++) f[i].disabled = yesNo;
+    for (let i = 0; i < f.length; i++) f[i].disabled = yesNo;
 }
 
-function submit_with_ajax(url, parameters, title, content, callback) {
+function submit_with_ajax(url, parameters, title, content, callback, cancelOrError) {
     $.confirm({
         theme: 'material',
         title: title,
@@ -55,11 +53,11 @@ function submit_with_ajax(url, parameters, title, content, callback) {
                             callback(data);
                         } else {
                             message_error(data.error);
-                            disableEnableForm(form, false);
+                            cancelOrError()
                         }
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         message_error(errorThrown);
-                        disableEnableForm(form, false);
+                        cancelOrError();
                     }).always(function (data) {
 
                     });
@@ -69,7 +67,7 @@ function submit_with_ajax(url, parameters, title, content, callback) {
                 text: "No",
                 btnClass: 'btn-red',
                 action: function () {
-
+                    cancelOrError();
                 }
             },
         }
@@ -102,9 +100,39 @@ function update_datatable(datatable, url, data) {
 function get_tag_url_document(data, comment) {
     let html = '';
     if (data && data.length > 0) {
-        html += '<a href="' + data + '">' + comment + '</a>'
+        html += '<a target="_blank" href="' + data + '">' + comment + '</a>'
     } else {
-        html += 'Documento no registrado';
+        html += 'No registrado';
     }
     return html
+}
+
+function confirm_action(title, content, callback) {
+    $.confirm({
+        theme: 'material',
+        title: title,
+        icon: 'fa fa-info',
+        content: content,
+        columnClass: 'medium',
+        typeAnimated: true,
+        cancelButtonClass: 'btn-primary',
+        draggable: true,
+        dragWindowBorder: false,
+        buttons: {
+            info: {
+                text: "Si",
+                btnClass: 'btn-primary',
+                action: function () {
+                    callback();
+                }
+            },
+            danger: {
+                text: "No",
+                btnClass: 'btn-red',
+                action: function () {
+
+                }
+            },
+        }
+    });
 }

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from core.login.models import GrocerProfile, LaboratoryWorkerProfile, RepresentativeProfile, User
-from core.representantetecnico.views.admin.customUserAdmin import CustomUserAdmin
+from core.login.views.customUserAdmin import CustomUserAdmin
 
 
 @admin.register(User)

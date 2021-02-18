@@ -3,7 +3,7 @@
 <nav class="main-header navbar navbar-fixed-top fixed-top navbar-expand-md navbar-light navbar-white">
     <div class="container">
         <a href="{% url 'dashboard' %}" class="navbar-brand">
-            <img src="{% static 'img/uteq/logoUTEQoriginal1.png' %}" alt="AdminLTE Logo"
+            <img src="{% static 'img/uteq/logoUTEQoriginal1.png' %}" alt="UTEQ Logo"
                  class="brand-image img-circle elevation-3" style="opacity: .8">
             <span class="brand-text font-weight-light">CSCSF</span>
         </a>
@@ -30,9 +30,12 @@
                         <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
                            aria-expanded="false" class="nav-link dropdown-toggle">Inventario</a>
                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                            <li><a href="{% url 'rp:movimientoinventario' %}" class="dropdown-item">Movimientos </a>
+                            <li>
+                                <a href="{% url 'rp:movimientoinventario' %}" class="dropdown-item">Movimientos </a>
                             </li>
-                            <li><a href="{% url 'rp:inventario' %}" class="dropdown-item">Stock</a></li>
+                            <li>
+                                <a href="{% url 'rp:sustancias' %}" class="dropdown-item">Stock</a>
+                            </li>
                         </ul>
                     </li>
                     </li>
@@ -40,11 +43,11 @@
                         <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
                            aria-expanded="false" class="nav-link dropdown-toggle">Informes</a>
                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                            <li><a href="#" class="dropdown-item">Biotecnología </a></li>
-                            <li><a href="#" class="dropdown-item">Rumiologia</a></li>
-                            <li><a href="#" class="dropdown-item">Química</a></li>
-                            <li><a href="#" class="dropdown-item">Bromatología</a></li>
-                            <li><a href="#" class="dropdown-item">Todos</a></li>
+                            <li><a href="{% url 'rp:sustancias' %}" class="dropdown-item">Sustancias </a></li>
+                            <li><a href="{% url 'rp:personas' %}" class="dropdown-item">Personas</a></li>
+                            <li><a href="{% url 'rp:compras' %}" class="dropdown-item">Compras publicas</a></li>
+                            <li><a href="{% url 'rp:empresas' %}" class="dropdown-item">Proveedores</a></li>
+                            <li><a href="{% url 'rp:laboratorios' %}" class="dropdown-item">Laboratorios</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -56,26 +59,11 @@
                         <li><a href="{% url 'rp:registrocompras' %}" class="dropdown-item">Compras</a></li>
                         <li><a href="{% url 'rp:registrosolicitud' %}" class="dropdown-item">Solicitud - entrega de
                             sustancia</a></li>
-                        <li><a href="{% url 'rp:inventario' %}" class="dropdown-item">Sustancias </a></li>
+                        <li><a href="{% url 'rp:registrosustancias' %}" class="dropdown-item">Sustancias </a></li>
                         <li><a href="#" class="dropdown-item">Bodega</a></li>
-                        <li><a href="#" class="dropdown-item">Laboratorio</a></li>
+                        <li><a href="{% url 'rp:registrolaboratorio' %}" class="dropdown-item">Laboratorio</a></li>
                         <li><a href="{% url 'rp:registropersonas' %}" class="dropdown-item">Personas</a></li>
                         <li><a href="{% url 'rp:registroempresa' %}" class="dropdown-item">Empresa</a></li>
-                        <li class="dropdown-divider"></li>
-
-                        <!-- Level two dropdown-->
-                        <li class="dropdown-submenu dropdown-hover">
-                            <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-                               aria-expanded="false" class="dropdown-item dropdown-toggle">Usuarios</a>
-                            <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
-                                <li>
-                                    <a tabindex="-1" href="#" class="dropdown-item">Bodeguero/a</a>
-                                </li>
-
-                                <li><a href="#" class="dropdown-item">Técnico Laboratorista</a></li>
-                            </ul>
-                        </li>
-                        <!-- End Level two -->
                     </ul>
                 </li>
             </ul>

@@ -1,0 +1,28 @@
+{% extends 'list.html' %}
+
+{% load static %}
+
+{% block header %}
+    {% include 'headerrp.html' %}
+{% endblock %}
+
+{% block filtrostable %}
+
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Responsable</th>
+        <th scope="col">Opciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'laboratorios/js/list.js' %}"></script>
+{% endblock %}

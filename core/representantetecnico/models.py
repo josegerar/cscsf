@@ -4,6 +4,7 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from app.settings import MEDIA_URL, STATIC_URL
+from core.bodega.models import Sustancia
 from core.login.models import User, BaseModel
 from core.representantetecnico.files.read import *
 from core.representantetecnico.files.write import *
@@ -20,8 +21,8 @@ class TipoPersona(BaseModel):
         return self.nombre
 
     class Meta:
-        verbose_name = "TipoPersona"
-        verbose_name_plural = "TipoPersonas"
+        verbose_name = "Tipo de persona"
+        verbose_name_plural = "Tipos de Personas"
         db_table = "tipo_persona"
         ordering = ["id"]
 
@@ -69,7 +70,7 @@ class Categoria(BaseModel):
 
 
 class Solicitud(BaseModel):
-    solicitante = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Solicitud")
+    solicitante = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Solicitante")
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio", null=True)
     nombre_proyecto = models.CharField(max_length=150, verbose_name="Nombre de proyecto", null=True)
     documento_solicitud = models.FileField(upload_to='solicitud/%Y/%m/%d', null=True, blank=True)
@@ -81,12 +82,36 @@ class Solicitud(BaseModel):
 
     def save(self, *args, **kwargs):
         if self.is_autorized is True:
-            if self.fecha_autorizacion is not None:
+            if self.fecha_autorizacion is None:
                 self.fecha_autorizacion = timezone.now()
         else:
             if self.fecha_autorizacion is not None:
                 self.fecha_autorizacion = None
         super().save(*args, **kwargs)
+
+    def toJSON(self):
+        item = {
+            'id': self.id,
+            'solicitante': '{} {} {}'.format(str(self.solicitante.first_name), str(self.solicitante.last_name),
+                                             str(self.solicitante.cedula)),
+            'laboratorio': self.laboratorio.nombre,
+            'proyecto': self.nombre_proyecto,
+            'documento': self.get_doc_solicitud(),
+            'autorizacion': self.get_autorizacion(),
+            'fecha_autorizacion': self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        return item
+
+    def get_doc_solicitud(self):
+        if self.documento_solicitud:
+            return '{}{}'.format(MEDIA_URL, self.documento_solicitud)
+        return ''
+
+    def get_autorizacion(self):
+        if self.is_autorized is True:
+            return 'Autorizado'
+        else:
+            return 'No autorizado'
 
     class Meta:
         verbose_name = "Solicitud"
@@ -130,7 +155,7 @@ class Proveedor(BaseModel):
 
 
 class ComprasPublicas(BaseModel):
-    empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Empresa", null=True, blank=True)
+    empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Empresa", null=True)
     llegada_bodega = models.DateField(default=timezone.now, verbose_name="Fecha llegada a bodega")
     hora_llegada_bodega = models.TimeField(default=timezone.now, verbose_name="Hora llegada a bodega")
     convocatoria = models.IntegerField(blank=True, null=True, validators=[validate_compras_convocatoria])
@@ -138,7 +163,6 @@ class ComprasPublicas(BaseModel):
                                             verbose_name="Responsable entrega", related_name="responsable_entrega")
     transportista = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
                                       verbose_name="Transportista", related_name="transportista")
-    fecha_registro = models.DateTimeField(default=timezone.now, editable=False)
     guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True, blank=True)
     factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True, blank=True)
 
@@ -164,9 +188,24 @@ class ComprasPublicas(BaseModel):
         return ''
 
     class Meta:
-        verbose_name = "CompraPublica"
-        verbose_name_plural = "ComprasPublicas"
+        verbose_name = "Compra Publica"
+        verbose_name_plural = "Compras Publicas"
         db_table = "compras_publicas"
+        ordering = ["id"]
+
+
+class ComprasPublicasDetalle(BaseModel):
+    compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE, verbose_name="Compra")
+    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Sustancia")
+    cantidad = models.IntegerField(verbose_name="cantidad")
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        verbose_name = "Compra Publica Detalle"
+        verbose_name_plural = "Compras Publicas Detalles"
+        db_table = "detalle_compra_publica"
         ordering = ["id"]
 
 
@@ -179,8 +218,8 @@ class SolicitanteCompra(BaseModel):
         return str(self.id)
 
     class Meta:
-        verbose_name = "SolicitanteCompra"
-        verbose_name_plural = "SolicitantesCompras"
+        verbose_name = "Solicitante Compra"
+        verbose_name_plural = "Solicitantes Compras"
         db_table = "solicitante_compra"
         ordering = ["id"]
 
@@ -194,8 +233,8 @@ class TipoDocumento(BaseModel):
         return str(self.nombre)
 
     class Meta:
-        verbose_name = "TipoDocumento"
-        verbose_name_plural = "TipoDocumentos"
+        verbose_name = "Tipo de Documento"
+        verbose_name_plural = "Tipos de Documentos"
         db_table = "tipo_documento"
         ordering = ["id"]
 

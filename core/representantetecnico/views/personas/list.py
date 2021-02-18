@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.models import Persona
 
@@ -33,7 +34,7 @@ class PersonaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
         context['icontitle'] = "user-friends"
         context['create_url'] = reverse_lazy('rp:registropersonas')
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"}
         ]
         return context

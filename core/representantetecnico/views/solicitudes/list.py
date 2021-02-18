@@ -1,25 +1,40 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
+from app.settings import LOGIN_REDIRECT_URL
+from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.models import Solicitud
 
 
-class SolicitudListView(ListView):
+class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
+    permission_required = ('representantetecnico.view_solicitud',)
     model = Solicitud
-    template_name = "listarsolicitudesentregasustancias.html"
+    template_name = "solicitud/list.html"
 
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'searchdata':
+                data = []
+                for i in Solicitud.objects.all():
+                    data.append(i.toJSON())
+            else:
+                data['error'] = 'Ha ocurrido un error'
+        except Exception as e:
+            data["error"] = str(e)
+        return JsonResponse(data, safe=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['urls'] = [
-            {"uridj": reverse_lazy('rp:index'), "uriname": "Home"},
-            {"uridj": reverse_lazy('rp:listadosolicitudes'), "uriname": "Solicitudes"}
-        ]
         context['usertitle'] = "Representante Técnico"
-        context['title'] = "Solicitudes resgistradas"
+        context['title'] = "Solicitudes registradas"
+        context['icontitle'] = "store-alt"
+        context['create_url'] = reverse_lazy('rp:registrosolicitud')
+        context['urls'] = [
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
+            {"uridj": reverse_lazy('rp:solicitudes'), "uriname": "Solicitudes"}
+        ]
         return context

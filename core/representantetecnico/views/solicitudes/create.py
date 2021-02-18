@@ -1,17 +1,16 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.forms.formSolicitud import SolicitudForm
 from core.representantetecnico.models import Solicitud
 
 
-class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
-    permission_required = ('representantetecnico.add_persona',)
+class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
+    permission_required = ('representantetecnico.add_solicitud',)
     model = Solicitud
     form_class = SolicitudForm
     template_name = "solicitud/create.html"
@@ -26,7 +25,7 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
         context['url_list'] = self.success_url
         context['action'] = 'add'
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Solicitudes"},
             {"uridj": reverse_lazy('rp:registrosolicitud'), "uriname": "Registro"}
         ]

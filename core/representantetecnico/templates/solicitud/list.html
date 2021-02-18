@@ -1,0 +1,32 @@
+{% extends 'list.html' %}
+
+{% load static %}
+
+{% block header %}
+    {% include 'headerrp.html' %}
+{% endblock %}
+
+{% block filtrostable %}
+
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Solicitante</th>
+        <th scope="col">Laboratorio</th>
+        <th scope="col">Proyecto</th>
+        <th scope="col">Documento</th>
+        <th scope="col">Autorización</th>
+        <th scope="col">Fecha autorización</th>
+        <th scope="col">Opciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'solicitud/js/list.js' %}"></script>
+{% endblock %}

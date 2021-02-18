@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.models import Persona
 
@@ -33,8 +34,8 @@ class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, De
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Personas"},
-            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"}
+            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Eliminar"}
         ]
         return context

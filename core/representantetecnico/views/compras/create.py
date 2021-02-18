@@ -1,16 +1,24 @@
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
+from core.bodega.models import Sustancia, Inventario, TipoMovimientoInventario
 from core.representantetecnico.forms.formCompra import ComprasForm
-from core.representantetecnico.models import ComprasPublicas
+from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle
 
 
 class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
     # appname.action(add, change, delete, view)_table
-    permission_required = ('representantetecnico.add_compraspublicas',)
+    permission_required = (
+        'representantetecnico.add_compraspublicas',
+        'representantetecnico.add_compraspublicasdetalle',
+    )
     model = ComprasPublicas
     form_class = ComprasForm
     template_name = 'compras/create.html'
@@ -25,7 +33,7 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
         context['url_list'] = self.success_url
         context['action'] = 'add'
         context['urls'] = [
-            {"uridj": reverse_lazy('dashboard'), "uriname": "Home"},
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Compras"},
             {"uridj": reverse_lazy('rp:registrocompras'), "uriname": "Registro"}
         ]
@@ -35,11 +43,37 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
         data = {}
         try:
             action = request.POST['action']
-            if action == 'add':
+            if action == 'search_substance':
+                data = []
+                substances = Sustancia.objects.filter(nombre__icontains=request.POST['term'])[0:10]
+                for i in substances:
+                    substance = i.toJSON()
+                    substance['value'] = i.nombre
+                    data.append(substance)
+            elif action == 'add':
                 form = self.get_form()
-                data = form.save()
+                if form.is_valid():
+                    compra = form.instance
+                    if compra is not None:
+                        with transaction.atomic():
+                            sustancias = json.loads(request.POST['sustancias'])
+                            tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='add')
+                            compra.save()
+
+                            for i in sustancias:
+                                det = ComprasPublicasDetalle()
+                                det.sustancia_id = i['id']
+                                det.compra_id = compra.id
+                                det.cantidad = float(i['cantidad'])
+                                det.save()
+
+                                inv = Inventario()
+                                inv.sustancia_id = det.sustancia_id
+                                inv.cantidad_movimiento = det.cantidad
+                                inv.tipo_movimiento_id = tipo_movimiento.id
+                                inv.save()
             else:
                 data['error'] = 'No ha realizado ninguna accion'
         except Exception as e:
             data['error'] = str(e)
-        return JsonResponse(data)
+        return JsonResponse(data, safe=False)
