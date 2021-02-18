@@ -7,15 +7,20 @@ class SustanciaForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for form in self.visible_fields():
-            form.field.widget.attrs['class'] = 'form-control'
-            if form.widget_type == 'select':
-                form.field.widget.attrs['class'] = form.field.widget.attrs.get('class', '') + ' select2'
-            form.field.widget.attrs['autocomplete'] = 'off'
 
     class Meta:
         model = Sustancia
         fields = '__all__'
+        widgets = {
+            'nombre': TextInput(attrs={
+                'class': 'form-control',
+                'autocomplete': 'off',
+                'autofocus': 'true'
+            }),
+            'descripcion': TextInput(attrs={
+                'class': 'form-control'
+            })
+        }
 
     def save(self, commit=True):
         data = {}

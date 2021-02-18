@@ -12,13 +12,12 @@ $(function () {
         'columns': [
             {'data': 'id'},
             {'data': 'nombre'},
-            {'data': 'cantidad'},
-            {'data': 'tipo_presentacion.nombre'},
+            {'data': 'descripcion'},
             {'data': 'id'}
         ],
         'columnDefs': [
             {
-                'targets': [4],
+                'targets': [3],
                 'orderable': false,
                 'render': function (data, type, row) {
                     let buttons = '<a href="/sustancias/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';

@@ -5,9 +5,9 @@ from django.utils import timezone
 from core.login.models import BaseModel
 
 
-class TipoPresentacion(BaseModel):
-    nombre = models.CharField(max_length=10, verbose_name="Nombre de tipo de presentacion")
-    descripcion = models.CharField(max_length=10, verbose_name="Descripción de tipo de presentacion", blank=True,
+class UnidadMedida(BaseModel):
+    nombre = models.CharField(max_length=10, verbose_name="Nombre de unidad de medida")
+    descripcion = models.CharField(max_length=10, verbose_name="Descripción", blank=True,
                                    null=True)
 
     def __str__(self):
@@ -15,6 +15,29 @@ class TipoPresentacion(BaseModel):
 
     def toJSON(self):
         item = model_to_dict(self)
+        return item
+
+    class Meta:
+        verbose_name = "Unidad de medida"
+        verbose_name_plural = "Unidades de medida"
+        db_table = "unidad_medida"
+        ordering = ["id"]
+
+
+class TipoPresentacion(BaseModel):
+    nombre = models.CharField(max_length=10, verbose_name="Nombre de tipo de presentacion")
+    descripcion = models.CharField(max_length=10, verbose_name="Descripción de tipo de presentacion", blank=True,
+                                   null=True)
+    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, verbose_name="Unidad de medida",
+                                      null=True)
+    volumen = models.DecimalField(default=0, verbose_name="Volumen", max_digits=5, decimal_places=2, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+    def toJSON(self):
+        item = model_to_dict(self, exclude=['unidad_medida'])
+        item['unidad_medida'] = self.unidad_medida.toJSON()
         return item
 
     class Meta:
@@ -26,22 +49,41 @@ class TipoPresentacion(BaseModel):
 
 class Sustancia(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de sustancia", unique=True)
-    cantidad = models.DecimalField(default=0, verbose_name="Cantidad", max_digits=5, decimal_places=2)
-    tipo_presentacion = models.ForeignKey(TipoPresentacion, on_delete=models.CASCADE,
-                                          verbose_name="TIpo de presentacion")
+    descripcion = models.CharField(max_length=200, verbose_name="Descripción de la sustancia", blank=True,
+                                   null=True)
 
     def __str__(self):
         return self.nombre
 
     def toJSON(self):
-        inv = {'id': self.id, 'nombre': self.nombre, 'cantidad': self.cantidad,
-               'tipo_presentacion': self.tipo_presentacion.toJSON()}
+        inv = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion}
         return inv
 
     class Meta:
         verbose_name = "Sustancia"
         verbose_name_plural = "Sustancias"
         db_table = "sustancia"
+        ordering = ["id"]
+
+
+class StockSustancia(BaseModel):
+    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Sustancia")
+    cantidad = models.DecimalField(default=0, verbose_name="Cantidad presentacion", max_digits=9,
+                                   decimal_places=4)
+    presentacion = models.ForeignKey(TipoPresentacion, on_delete=models.CASCADE, verbose_name="Tipo de presentacion")
+
+    def __str__(self):
+        return '{} {} {}'.format(self.sustancia.nombre, self.cantidad, self.presentacion.nombre)
+
+    def toJSON(self):
+        inv = {'id': self.id, 'sustancia': self.sustancia.toJSON(), 'cantidad': self.cantidad,
+               'presentacion': self.presentacion.toJSON()}
+        return inv
+
+    class Meta:
+        verbose_name = "Stock de sustancia"
+        verbose_name_plural = "Stock de sustancias"
+        db_table = "stock_sustancia"
         ordering = ["id"]
 
 
@@ -64,9 +106,10 @@ class TipoMovimientoInventario(BaseModel):
 
 
 class Inventario(BaseModel):
-    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Sustancia")
-    cantidad_movimiento = models.DecimalField(default=0, verbose_name="Cantidad movimiento", max_digits=5,
-                                              decimal_places=2)
+    sustancia_stock = models.ForeignKey(StockSustancia, on_delete=models.CASCADE, verbose_name="Stock de sustancia",
+                                        null=True)
+    cantidad_movimiento = models.DecimalField(default=0, verbose_name="Cantidad movimiento", max_digits=9,
+                                              decimal_places=4)
     tipo_movimiento = models.ForeignKey(TipoMovimientoInventario, on_delete=models.CASCADE,
                                         verbose_name="Tipo de movimiento de inventario", null=True)
 
@@ -74,7 +117,7 @@ class Inventario(BaseModel):
         return str(self.id)
 
     def toJSON(self):
-        item = {'id': self.id, 'sustancia': self.sustancia.toJSON(), 'cantidad': self.cantidad_movimiento,
+        item = {'id': self.id, 'sustancia_stock': self.sustancia_stock.toJSON(), 'cantidad': self.cantidad_movimiento,
                 'tipo_movimiento': self.tipo_movimiento.toJSON()}
         return item
 
