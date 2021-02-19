@@ -45,7 +45,6 @@ const compra = {
         );
     },
     verify_send_data: function (callback, error) {
-        console.log(this.data.sustancias.length)
         if (this.data.sustancias.length === 0) {
             error();
         } else {
@@ -55,6 +54,9 @@ const compra = {
 };
 
 $(function () {
+    //token csrf django
+    const csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
     //activar datatable a detalle de sustancias
     let tblistado = $('#tblistado').DataTable({
         'responsive': true,
@@ -146,22 +148,15 @@ $(function () {
     //activar el autocomplete en el buscador
     $('input[name="search"]').autocomplete({
         source: function (request, response) {
-            let csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-            let data = {'action': 'search_substance', 'term': request.term}
-            if (csrfmiddlewaretoken.length > 0) {
-                data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-            }
-            $.ajax({
-                url: window.location.pathname,
-                type: 'POST',
-                data: data,
-                dataType: 'json',
-                success: function (data, textStatus, jqXHR) {
+            let data = new FormData();
+            data.append('action', 'search_substance');
+            data.append('term', request.term);
+            send_petition_server('POST', data, window.location.pathname, csrfmiddlewaretoken)
+                .then(data => {
                     response(data);
-                }
-            });
+                });
         },
-        delay: 500,
+        delay: 400,
         minLength: 1,
         select: function (event, ui) {
             event.preventDefault();
@@ -177,14 +172,15 @@ $(function () {
         compra.verify_send_data(function () {
             let parameters = new FormData(form);
             parameters.append('sustancias', JSON.stringify(compra.data.sustancias));
-            //disableEnableForm(form, true);
-            console.log(parameters);
+            disableEnableForm(form, true);
             submit_with_ajax(
                 window.location.pathname, parameters
                 , 'Confirmación'
                 , '¿Estas seguro de realizar la siguiente acción?'
                 , function (data) {
                     location.href = '/dashboard/';
+                }, function () {
+                    disableEnableForm(form, false);
                 }
             );
         }, function () {

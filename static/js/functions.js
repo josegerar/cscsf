@@ -136,3 +136,16 @@ function confirm_action(title, content, callback) {
         }
     });
 }
+
+async function send_petition_server(method = 'POST', formdata = new FormData(), url = '', csrfmiddlewaretoken = '') {
+    // Opciones por defecto estan marcadas con un *
+    const response = await fetch(url, {
+        method: method, // *GET, POST, PUT, DELETE, etc.
+        mode: 'same-origin', // no-cors, *cors, same-origin
+        headers: {
+            'X-CSRFToken': csrfmiddlewaretoken
+        },
+        body: formdata // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+}
