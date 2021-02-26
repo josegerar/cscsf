@@ -13,18 +13,17 @@ $(function () {
             {'data': 'id'},
             {'data': 'nombre'},
             {'data': 'descripcion'},
-            {'data': 'cantidad'},
-            {'data': 'cupo_autorizado'},
-            {'data': 'unidad_medida.nombre'},
+            {'data': 'direccion'},
+            {'data': 'responsable'},
             {'data': 'id'}
         ],
         'columnDefs': [
             {
-                'targets': [6],
+                'targets': [5],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    let buttons = '<a href="/sustancias/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                    buttons += '<a href="/sustancias/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
+                    var buttons = '<a href="/bodegas/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
+                    buttons += '<a href="/bodegas/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
                     return buttons
                 }
             }

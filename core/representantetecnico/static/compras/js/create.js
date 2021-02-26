@@ -5,17 +5,24 @@ const compra = {
         sustancias: []
     },
     add_sustancia: function (item) {
-        item.cantidad = 1;
+        item.cantidad_ingreso = 0.0001;
+        item.cantidad = parseFloat(item.cantidad);
+        item.cupo_autorizado = parseFloat(item.cupo_autorizado);
         let exist = false;
         $.each(this.data.sustancias, function (index, value) {
             if (item.id === value.id) {
-                value.cantidad += item.cantidad;
+                value.cantidad_ingreso += item.cantidad_ingreso;
                 exist = true;
                 return false;
             }
         });
         if (!exist) {
-            this.data.sustancias.push(item);
+            if (item.cantidad_ingreso + item.cantidad > item.cupo_autorizado) {
+                message_error("La sustancia " + item.nombre
+                    + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
+            } else {
+                this.data.sustancias.push(item);
+            }
         }
         this.list_sustancia();
     },
@@ -23,11 +30,8 @@ const compra = {
         this.datatable.clear();
         this.datatable.rows.add(this.data.sustancias).draw();
     },
-    update_cantidad_sustancia: function (new_cant, index) {
-        let cantidad = parseFloat(new_cant)
-        if (cantidad) {
-            this.data.sustancias[index].cantidad = cantidad;
-        }
+    update_cantidad_sustancia: function (nueva_cantidad, index) {
+        this.data.sustancias[index].cantidad_ingreso = nueva_cantidad;
     },
     delete_sustancia: function (index) {
         this.data.sustancias.splice(index, 1);
@@ -58,15 +62,18 @@ $(function () {
     const csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     //activar datatable a detalle de sustancias
-    let tblistado = $('#tblistado').DataTable({
+    //asignar datable a objeto manejador de datos de la compra
+    compra.datatable = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
         'columns': [
             {'data': 'id'},
             {'data': 'nombre'},
+            {'data': 'cantidad_ingreso'},
             {'data': 'cantidad'},
-            {'data': 'tipo_presentacion.nombre'}
+            {'data': 'cupo_autorizado'},
+            {'data': 'unidad_medida.nombre'}
         ],
         'columnDefs': [
             {
@@ -87,15 +94,16 @@ $(function () {
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
             $(row).find('input[name="cantidad"]').TouchSpin({
                 'verticalbuttons': true,
-                'min': 1.00,
-                'initval': 1.00,
+                'min': 0.0001,
+                'initval': 0.0001,
                 'step': 0.1,
-                'decimals': 2,
-                'verticalupclass': 'glyphicon glyphicon-plus',
-                'verticaldownclass': 'glyphicon glyphicon-minus'
+                'max': data.cupo_autorizado - data.cantidad,
+                'forcestepdivisibility': 'none',
+                'decimals': 4
             });
             $(row).find('input[name="cantidad"]').on('change', function (event) {
-                compra.update_cantidad_sustancia($(this).val(), dataIndex);
+                let nueva_cantidad = parseFloat($(this).val());
+                compra.update_cantidad_sustancia(nueva_cantidad, dataIndex);
             });
             $(row).find('a[rel="remove"]').on('click', function (event) {
                 confirm_action(
@@ -108,9 +116,6 @@ $(function () {
             });
         }
     });
-
-    //asignar datable a objeto manejador de datos de la compra
-    compra.datatable = tblistado;
 
     //activar plugin select2 a los select del formulario
     $('.select2').select2({
@@ -127,8 +132,11 @@ $(function () {
 
     //activar plugin datetimepicker para las horas
     $('#hora_llegada_bodega').datetimepicker({
-        format: 'h:mm:ss',
-        'locale': 'es'
+        format: 'HH:mm:ss',
+        locale: 'es',
+        use24hours: true,
+        disabledHours: [0, 1, 2, 3, 4, 5, 6, 7, 18, 19, 20, 21, 22, 23, 24],
+        enabledHours: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
     });
 
     ////activar plugin TouchSpin para la convocatoria
@@ -145,8 +153,13 @@ $(function () {
         compra.delete_all_sustancias();
     });
 
+    //evento para limpiar el cuadro de busqueda de sustancias
+    $('button[rel="cleansearch"]').on('click', function (event) {
+        $('input[name="search"]').val("");
+    });
+
     //activar el autocomplete en el buscador
-    $('input[name="search"]').autocomplete({
+    $('input[name="search"]').focus().autocomplete({
         source: function (request, response) {
             let data = new FormData();
             data.append('action', 'search_substance');
@@ -178,7 +191,7 @@ $(function () {
                 , 'Confirmación'
                 , '¿Estas seguro de realizar la siguiente acción?'
                 , function (data) {
-                    location.href = '/dashboard/';
+                    location.href = '/compras/';
                 }, function () {
                     disableEnableForm(form, false);
                 }

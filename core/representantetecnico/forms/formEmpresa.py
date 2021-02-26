@@ -15,21 +15,16 @@ class EmpresaForm(ModelForm):
         model = Proveedor
         fields = '__all__'
         widgets = {
-            'nombre': TextInput(
-                attrs={
-                    'type': 'text',
-                    'placeholder': 'Ingrese el nombre de la empresa'
-                }
-            ),
-            'ruc': NumberInput(
-                attrs={
-                    'type': 'number',
-                    'placeholder': 'Ingrese el RUC de la empresa',
-                    'type': 'text',
-                    'minlength': 13,
-                    'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57'
-                }
-            )
+            'nombre': TextInput(attrs={
+                'type': 'text',
+                'placeholder': 'Ingrese el nombre de la empresa'
+            }),
+            'ruc': NumberInput(attrs={
+                'placeholder': 'Ingrese el RUC de la empresa',
+                'type': 'text',
+                'minlength': 13,
+                'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57'
+            })
         }
 
     def save(self, commit=True):

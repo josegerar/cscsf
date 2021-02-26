@@ -44,7 +44,7 @@
                            aria-expanded="false" class="nav-link dropdown-toggle">Informes</a>
                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                             <li><a href="{% url 'rp:sustancias' %}" class="dropdown-item">Sustancias </a></li>
-                            <li><a href="{% url 'rp:personas' %}" class="dropdown-item">Personas</a></li>
+                            <li><a href="{% url 'rp:personas' %}" class="dropdown-item">Investigadores</a></li>
                             <li><a href="{% url 'rp:compras' %}" class="dropdown-item">Compras publicas</a></li>
                             <li><a href="{% url 'rp:empresas' %}" class="dropdown-item">Proveedores</a></li>
                             <li><a href="{% url 'rp:laboratorios' %}" class="dropdown-item">Laboratorios</a></li>
@@ -60,9 +60,9 @@
                         <li><a href="{% url 'rp:registrosolicitud' %}" class="dropdown-item">Solicitud - entrega de
                             sustancia</a></li>
                         <li><a href="{% url 'rp:registrosustancias' %}" class="dropdown-item">Sustancias </a></li>
-                        <li><a href="#" class="dropdown-item">Bodega</a></li>
+                        <li><a href="{% url 'rp:registrobodega' %}" class="dropdown-item">Bodega</a></li>
                         <li><a href="{% url 'rp:registrolaboratorio' %}" class="dropdown-item">Laboratorio</a></li>
-                        <li><a href="{% url 'rp:registropersonas' %}" class="dropdown-item">Personas</a></li>
+                        <li><a href="{% url 'rp:registropersonas' %}" class="dropdown-item">Investigador</a></li>
                         <li><a href="{% url 'rp:registroempresa' %}" class="dropdown-item">Empresa</a></li>
                     </ul>
                 </li>

@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import model_to_dict
 from django.utils import timezone
 
-from app.settings import MEDIA_URL, STATIC_URL
+from app.settings import MEDIA_URL
 from core.bodega.models import Sustancia
 from core.login.models import User, BaseModel
 from core.representantetecnico.files.read import *
@@ -159,23 +159,27 @@ class ComprasPublicas(BaseModel):
     llegada_bodega = models.DateField(default=timezone.now, verbose_name="Fecha llegada a bodega")
     hora_llegada_bodega = models.TimeField(default=timezone.now, verbose_name="Hora llegada a bodega")
     convocatoria = models.IntegerField(blank=True, null=True, validators=[validate_compras_convocatoria])
-    responsable_entrega = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                            verbose_name="Responsable entrega", related_name="responsable_entrega")
-    transportista = models.ForeignKey(Persona, on_delete=models.CASCADE, blank=True, null=True,
-                                      verbose_name="Transportista", related_name="transportista")
-    guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True, blank=True)
-    factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True, blank=True)
+    pedido_compras_publicas = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
+    guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
+    factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self):
-        item = {'id': self.id, 'empresa': self.empresa.nombre, 'llegada_bodega': self.llegada_bodega,
-                'hora_llegada_bodega': self.hora_llegada_bodega, 'convocatoria': self.convocatoria,
-                'responsable_entrega': self.responsable_entrega.__str__(),
-                'transportista': self.transportista.__str__(),
+        item = {'id': self.id, 'llegada_bodega': self.llegada_bodega, 'hora_llegada_bodega': self.hora_llegada_bodega,
+                'convocatoria': self.convocatoria, 'pedido_compras_publicas': self.get_pedido_compras_publicas(),
                 'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura()}
+        if self.empresa is not None:
+            item['empresa'] = self.empresa.toJSON()
+        else:
+            item['empresa'] = Proveedor().toJSON()
         return item
+
+    def get_pedido_compras_publicas(self):
+        if self.pedido_compras_publicas:
+            return '{}{}'.format(MEDIA_URL, self.pedido_compras_publicas)
+        return ''
 
     def get_guia_transporte(self):
         if self.guia_transporte:

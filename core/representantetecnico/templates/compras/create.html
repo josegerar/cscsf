@@ -17,8 +17,6 @@
 
     <script src="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.js' %}"></script>
     <link href="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.css' %}" rel="stylesheet"/>
-
-    <script src="{% static 'compras/js/create.js' %}"></script>
 {% endblock %}
 
 {% block header %}
@@ -54,7 +52,7 @@
                                                    placeholder="Ingrese el nombre de la sustancia a buscar"
                                                    autocomplete="off" type="text" class="form-control">
                                             <span class="input-group-append">
-                                            <button type="button" class="btn btn-danger btn-flat">
+                                            <button type="button" rel="cleansearch" class="btn btn-danger btn-flat">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </span>
@@ -67,10 +65,12 @@
                                     <hr>
                                     <table id="tblistado" class="table">
                                         <thead>
-                                        <th scope="col">Eliminar</th>
+                                        <th scope="col">Accion</th>
                                         <th scope="col">Sustancia</th>
-                                        <th scope="col">Cantidad</th>
-                                        <th scope="col">Tipo de presentación</th>
+                                        <th scope="col">Cantidad ingreso</th>
+                                        <th scope="col">Cantidad actual</th>
+                                        <th scope="col">Cupo autorizado</th>
+                                        <th scope="col">Unidad de medida</th>
                                         </thead>
                                     </table>
                                 </div>
@@ -117,12 +117,8 @@
                                         {{ form.convocatoria }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Responable de entrega:</label>
-                                        {{ form.responsable_entrega }}
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Trasportista:</label>
-                                        {{ form.transportista }}
+                                        <label>Pedido de compras publicas:</label>
+                                        {{ form.pedido_compras_publicas }}
                                     </div>
                                     <div class="form-group">
                                         <label>Guia de transporte:</label>
@@ -153,4 +149,9 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'compras/js/create.js' %}"></script>
+
 {% endblock %}

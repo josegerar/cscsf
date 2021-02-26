@@ -31,7 +31,7 @@ class User(AbstractUser, BaseModel):
         return self.username
 
     def toJSON(self):
-        return model_to_dict(self)
+        return model_to_dict(self, exclude=['imagen', 'groups'])
 
     @staticmethod
     def get_choices_user():

@@ -1,13 +1,39 @@
 from django.db import models
 from django.forms import model_to_dict
-from django.utils import timezone
 
-from core.login.models import BaseModel
+from core.login.models import BaseModel, User
+
+
+class Bodega(BaseModel):
+    nombre = models.CharField(max_length=20, verbose_name="Nombre")
+    descripcion = models.CharField(max_length=200, verbose_name="Descripción", blank=True, null=True)
+    direccion = models.CharField(max_length=200, verbose_name="Direccion", blank=True, null=True)
+    responsable = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Responsable", null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre
+
+    def toJSON(self):
+        item = model_to_dict(self, exclude=['responsable'])
+        if self.responsable is not None:
+            item['responsable'] = str(
+                '{} {} {}'.format(str(self.responsable.first_name), str(self.responsable.last_name),
+                                  str(self.responsable.cedula)))
+        else:
+            item['responsable'] = None
+        return item
+
+    class Meta:
+        verbose_name = "Bodega"
+        verbose_name_plural = "Bodegas"
+        db_table = "bodega"
+        ordering = ["id"]
 
 
 class UnidadMedida(BaseModel):
-    nombre = models.CharField(max_length=10, verbose_name="Nombre de unidad de medida")
-    descripcion = models.CharField(max_length=10, verbose_name="Descripción", blank=True,
+    nombre = models.CharField(max_length=20, verbose_name="Nombre de unidad de medida")
+    simbolo = models.CharField(max_length=5, verbose_name="Simbolo de la unidad de medida", null=True)
+    descripcion = models.CharField(max_length=200, verbose_name="Descripción", blank=True,
                                    null=True)
 
     def __str__(self):
@@ -24,66 +50,32 @@ class UnidadMedida(BaseModel):
         ordering = ["id"]
 
 
-class TipoPresentacion(BaseModel):
-    nombre = models.CharField(max_length=10, verbose_name="Nombre de tipo de presentacion")
-    descripcion = models.CharField(max_length=10, verbose_name="Descripción de tipo de presentacion", blank=True,
-                                   null=True)
+class Sustancia(BaseModel):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre de sustancia", unique=True)
     unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, verbose_name="Unidad de medida",
                                       null=True)
-    volumen = models.DecimalField(default=0, verbose_name="Volumen", max_digits=5, decimal_places=2, null=True)
+    descripcion = models.CharField(max_length=200, verbose_name="Descripción de la sustancia", blank=True,
+                                   null=True)
+    cantidad = models.DecimalField(default=0, verbose_name="Cantidad actual", max_digits=9,
+                                   decimal_places=4)
+    cupo_autorizado = models.DecimalField(default=0, verbose_name="Cupo autorizado", max_digits=9,
+                                          decimal_places=4)
 
     def __str__(self):
         return self.nombre
 
     def toJSON(self):
         item = model_to_dict(self, exclude=['unidad_medida'])
-        item['unidad_medida'] = self.unidad_medida.toJSON()
+        if self.unidad_medida is not None:
+            item['unidad_medida'] = self.unidad_medida.toJSON()
+        else:
+            item['unidad_medida'] = UnidadMedida().toJSON()
         return item
-
-    class Meta:
-        verbose_name = "Tipo de presentacion"
-        verbose_name_plural = "Tipo de presentaciones"
-        db_table = "tipo_presentacion"
-        ordering = ["id"]
-
-
-class Sustancia(BaseModel):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre de sustancia", unique=True)
-    descripcion = models.CharField(max_length=200, verbose_name="Descripción de la sustancia", blank=True,
-                                   null=True)
-
-    def __str__(self):
-        return self.nombre
-
-    def toJSON(self):
-        inv = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion}
-        return inv
 
     class Meta:
         verbose_name = "Sustancia"
         verbose_name_plural = "Sustancias"
         db_table = "sustancia"
-        ordering = ["id"]
-
-
-class StockSustancia(BaseModel):
-    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Sustancia")
-    cantidad = models.DecimalField(default=0, verbose_name="Cantidad presentacion", max_digits=9,
-                                   decimal_places=4)
-    presentacion = models.ForeignKey(TipoPresentacion, on_delete=models.CASCADE, verbose_name="Tipo de presentacion")
-
-    def __str__(self):
-        return '{} {} {}'.format(self.sustancia.nombre, self.cantidad, self.presentacion.nombre)
-
-    def toJSON(self):
-        inv = {'id': self.id, 'sustancia': self.sustancia.toJSON(), 'cantidad': self.cantidad,
-               'presentacion': self.presentacion.toJSON()}
-        return inv
-
-    class Meta:
-        verbose_name = "Stock de sustancia"
-        verbose_name_plural = "Stock de sustancias"
-        db_table = "stock_sustancia"
         ordering = ["id"]
 
 
@@ -106,8 +98,8 @@ class TipoMovimientoInventario(BaseModel):
 
 
 class Inventario(BaseModel):
-    sustancia_stock = models.ForeignKey(StockSustancia, on_delete=models.CASCADE, verbose_name="Stock de sustancia",
-                                        null=True)
+    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Stock de sustancia", null=True)
+    bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, verbose_name="Bodega", null=True)
     cantidad_movimiento = models.DecimalField(default=0, verbose_name="Cantidad movimiento", max_digits=9,
                                               decimal_places=4)
     tipo_movimiento = models.ForeignKey(TipoMovimientoInventario, on_delete=models.CASCADE,
@@ -117,8 +109,20 @@ class Inventario(BaseModel):
         return str(self.id)
 
     def toJSON(self):
-        item = {'id': self.id, 'sustancia_stock': self.sustancia_stock.toJSON(), 'cantidad': self.cantidad_movimiento,
-                'tipo_movimiento': self.tipo_movimiento.toJSON()}
+        item = {'id': self.id, 'cantidad': self.cantidad_movimiento,
+                'fecha': self.date_creation.strftime("%Y-%m-%d %H:%M:%S")}
+        if self.sustancia is not None:
+            item['sustancia'] = self.sustancia.toJSON()
+        else:
+            item['sustancia'] = Sustancia().toJSON()
+        if self.tipo_movimiento is not None:
+            item['tipo_movimiento'] = self.tipo_movimiento.toJSON()
+        else:
+            item['tipo_movimiento'] = TipoMovimientoInventario().toJSON()
+        if self.bodega is not None:
+            item['bodega'] = self.bodega.toJSON()
+        else:
+            item['bodega'] = Bodega().toJSON()
         return item
 
     class Meta:

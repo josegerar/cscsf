@@ -48,9 +48,8 @@ class ComprasForm(ModelForm):
                 'class': 'form-control select2',
                 'style': 'width: 100%'
             }),
-            'transportista': Select(attrs={
-                'class': 'form-control select2',
-                'style': 'width: 100%'
+            'pedido_compras_publicas': FileInput(attrs={
+                'class': 'form-control',
             }),
             'guia_transporte': FileInput(attrs={
                 'class': 'form-control',

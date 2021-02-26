@@ -8,36 +8,41 @@ $(function () {
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
-        'deferRender': true,
         'columns': [
             {'data': 'id'},
-            {'data': 'empresa'},
+            {'data': 'empresa.nombre'},
             {'data': 'llegada_bodega'},
             {'data': 'hora_llegada_bodega'},
             {'data': 'convocatoria'},
-            {'data': 'responsable_entrega'},
-            {'data': 'transportista'},
+            {'data': 'pedido_compras_publicas'},
             {'data': 'guia_transporte'},
             {'data': 'factura'},
             {'data': 'id'}
         ],
         'columnDefs': [
             {
-                'targets': [7],
+                'targets': [5],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    return get_tag_url_document(data, 'Ver pedido de compras publicas')
+                }
+            },
+            {
+                'targets': [6],
                 'orderable': false,
                 'render': function (data, type, row) {
                     return get_tag_url_document(data, 'Ver factura')
                 }
             },
             {
-                'targets': [8],
+                'targets': [7],
                 'orderable': false,
                 'render': function (data, type, row) {
                     return get_tag_url_document(data, 'Ver guia')
                 }
             },
             {
-                'targets': [9],
+                'targets': [8],
                 'orderable': false,
                 'render': function (data, type, row) {
                     var buttons = '<a href="/compras/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
