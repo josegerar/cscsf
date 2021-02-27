@@ -1,16 +1,94 @@
-{% extends 'create.html' %}
+{% extends 'list.html' %}
 {% load static %}
 {% block header %}
     {% include 'headerrp.html' %}
 {% endblock %}
 {% block head_list %}
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link href="{% static 'lib/select2-4.0.13/css/select2.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'lib/select2-4.0.13/css/select2-bootstrap4.min.css' %}" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{% static 'lib/select2-4.0.13/js/select2.min.js' %}"></script>
     <script src="{% static 'lib/select2-4.0.13/js/i18n/es.js' %}"></script>
 
     <script src="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.js' %}"></script>
     <link href="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="card card-default">
+            <form method="post" action="." enctype="multipart/form-data">
+                <input type="hidden" name="action" value="{{ action }}"/>
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-{{ icontitle }}"></i>
+                        {{ title }}
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Desglose de sustancia </h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="tblistado" class="table">
+                                        <thead>
+                                        <th scope="col">Tipo lugar</th>
+                                        <th scope="col">Nombre</th>
+                                        <th scope="col">Cantidad ingreso</th>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-atom"></i> Datos de la sustancia</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Nombre de la sustancia:</label>
+                                        {{ form.nombre }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Unidad de medida:</label>
+                                        {{ form.unidad_medida }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Descripcion:</label>
+                                        {{ form.descripcion }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Cupo autorizado:</label>
+                                        {{ form.cupo_autorizado }}
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-flat">
+                        <i class="fas fa-save"></i>
+                        Guardar registro
+                    </button>
+                    <a href="{{ url_list }}" class="btn btn-primary btn-danger">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 
 {% block script %}

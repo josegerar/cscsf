@@ -10,17 +10,17 @@ class SustanciaForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        cantidad_cleaned = float(cleaned_data.get("cantidad"))
-        cupo_autorizado_cleaned = float(cleaned_data.get("cupo_autorizado"))
-
-        if cantidad_cleaned is not None and cupo_autorizado_cleaned is not None:
-            if cantidad_cleaned > cupo_autorizado_cleaned:
-                raise ValidationError(
-                    _('Valor invalido: %(value)s La cantidad debe ser menor o igual al cupo autorizado'),
-                    params={'value': cantidad_cleaned},
-                )
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     cantidad_cleaned = float(cleaned_data.get("cantidad"))
+    #     cupo_autorizado_cleaned = float(cleaned_data.get("cupo_autorizado"))
+    #
+    #     if cantidad_cleaned is not None and cupo_autorizado_cleaned is not None:
+    #         if cantidad_cleaned > cupo_autorizado_cleaned:
+    #             raise ValidationError(
+    #                 _('Valor invalido: %(value)s La cantidad debe ser menor o igual al cupo autorizado'),
+    #                 params={'value': cantidad_cleaned},
+    #             )
 
     class Meta:
         model = Sustancia
@@ -38,10 +38,6 @@ class SustanciaForm(ModelForm):
             'descripcion': Textarea(attrs={
                 'class': 'form-control',
                 'rows': "5"
-            }),
-            'cantidad': TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese la cantidad actual de sustancia'
             }),
             'cupo_autorizado': TextInput(attrs={
                 'class': 'form-control',

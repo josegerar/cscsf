@@ -2,6 +2,7 @@ from django.db import models
 from django.forms import model_to_dict
 
 from core.login.models import BaseModel, User
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class Bodega(BaseModel):
@@ -56,8 +57,6 @@ class Sustancia(BaseModel):
                                       null=True)
     descripcion = models.CharField(max_length=200, verbose_name="Descripción de la sustancia", blank=True,
                                    null=True)
-    cantidad = models.DecimalField(default=0, verbose_name="Cantidad actual", max_digits=9,
-                                   decimal_places=4)
     cupo_autorizado = models.DecimalField(default=0, verbose_name="Cupo autorizado", max_digits=9,
                                           decimal_places=4)
 
@@ -76,6 +75,38 @@ class Sustancia(BaseModel):
         verbose_name = "Sustancia"
         verbose_name_plural = "Sustancias"
         db_table = "sustancia"
+        ordering = ["id"]
+
+
+class Stock(BaseModel):
+    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE)
+    bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, null=True)
+    laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, null=True)
+    cantidad = models.DecimalField(max_digits=9, decimal_places=4)
+
+    def __str__(self):
+        return str(self.id)
+
+    def toJSON(self):
+        item = {'cantidad': self.cantidad}
+        if self.bodega is not None:
+            item['bodega'] = self.bodega.toJSON()
+        else:
+            item['bodega'] = Bodega().toJSON()
+        if self.laboratorio is not None:
+            item['laboratorio'] = self.laboratorio.toJSON()
+        else:
+            item['laboratorio'] = Laboratorio().toJSON()
+        if self.sustancia is not None:
+            item['sustancia'] = self.sustancia.toJSON()
+        else:
+            item['sustancia'] = Sustancia().toJSON()
+        return item
+
+    class Meta:
+        verbose_name = "Stock sustancia"
+        verbose_name_plural = "Stock sustancias"
+        db_table = "stock"
         ordering = ["id"]
 
 
@@ -98,8 +129,7 @@ class TipoMovimientoInventario(BaseModel):
 
 
 class Inventario(BaseModel):
-    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Stock de sustancia", null=True)
-    bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, verbose_name="Bodega", null=True)
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock de sustancia", null=True)
     cantidad_movimiento = models.DecimalField(default=0, verbose_name="Cantidad movimiento", max_digits=9,
                                               decimal_places=4)
     tipo_movimiento = models.ForeignKey(TipoMovimientoInventario, on_delete=models.CASCADE,
@@ -111,18 +141,14 @@ class Inventario(BaseModel):
     def toJSON(self):
         item = {'id': self.id, 'cantidad': self.cantidad_movimiento,
                 'fecha': self.date_creation.strftime("%Y-%m-%d %H:%M:%S")}
-        if self.sustancia is not None:
-            item['sustancia'] = self.sustancia.toJSON()
+        if self.stock is not None:
+            item['stock'] = self.stock.toJSON()
         else:
-            item['sustancia'] = Sustancia().toJSON()
+            item['stock'] = Stock().toJSON()
         if self.tipo_movimiento is not None:
             item['tipo_movimiento'] = self.tipo_movimiento.toJSON()
         else:
             item['tipo_movimiento'] = TipoMovimientoInventario().toJSON()
-        if self.bodega is not None:
-            item['bodega'] = self.bodega.toJSON()
-        else:
-            item['bodega'] = Bodega().toJSON()
         return item
 
     class Meta:

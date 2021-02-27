@@ -5,8 +5,9 @@ from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia
+from core.bodega.models import Sustancia, Bodega
 from core.representantetecnico.forms.formSustancia import SustanciaForm
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
@@ -32,14 +33,24 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
         return context
 
     def post(self, request, *args, **kwargs):
-        data = None
+        data = {}
         try:
             action = request.POST['action']
             if action == 'add':
                 form = self.get_form()
                 data = form.save()
-            else:
-                data = {}
+            elif action == 'list_desglose':
+                data = []
+                for i in Bodega.objects.all():
+                    item = i.toJSON()
+                    item['tipo'] = 'bodega'
+                    item['cantidad_ingreso'] = 0.0000
+                    data.append(item)
+                for i in Laboratorio.objects.all():
+                    item = i.toJSON()
+                    item['tipo'] = 'laboratorio'
+                    item['cantidad_ingreso'] = 0.0000
+                    data.append(item)
         except Exception as e:
             data['error'] = str(e)
-        return JsonResponse(data)
+        return JsonResponse(data, safe=False)
