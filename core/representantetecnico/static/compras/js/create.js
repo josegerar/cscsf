@@ -28,7 +28,10 @@ const compra = {
         return item;
     },
     get_stock_item: function (dataIndex) {
-        let stock = this.data.sustancias[dataIndex].stock;
+        let stock = [];
+        $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
+            if (vstock.bodega.id) stock.push(vstock);
+        });
         return stock;
     },
     list_sustancia: function () {
