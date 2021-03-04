@@ -61,14 +61,16 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                             compra.save()
 
                             for i in sustancias:
+                                stock_selected = i['stock_selected']
+
                                 det = ComprasPublicasDetalle()
-                                det.sustancia_id = i['id']
+                                det.stock_id = stock_selected['id']
                                 det.compra_id = compra.id
                                 det.cantidad = float(i['cantidad'])
                                 det.save()
 
                                 inv = Inventario()
-                                inv.sustancia_id = det.sustancia_id
+                                inv.stock_id = det.stock_id
                                 inv.cantidad_movimiento = det.cantidad
                                 inv.tipo_movimiento_id = tipo_movimiento.id
                                 inv.save()

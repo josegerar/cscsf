@@ -69,6 +69,10 @@ class Sustancia(BaseModel):
             item['unidad_medida'] = self.unidad_medida.toJSON()
         else:
             item['unidad_medida'] = UnidadMedida().toJSON()
+        item['stock'] = []
+        if self.stock_set is not None:
+            for i in self.stock_set.all():
+                item['stock'].append(i.toJSON(rel_sustancia=True))
         return item
 
     class Meta:
@@ -87,8 +91,8 @@ class Stock(BaseModel):
     def __str__(self):
         return str(self.id)
 
-    def toJSON(self):
-        item = {'cantidad': self.cantidad}
+    def toJSON(self, rel_sustancia=False):
+        item = {'id': self.id, 'cantidad': self.cantidad}
         if self.bodega is not None:
             item['bodega'] = self.bodega.toJSON()
         else:
@@ -97,10 +101,11 @@ class Stock(BaseModel):
             item['laboratorio'] = self.laboratorio.toJSON()
         else:
             item['laboratorio'] = Laboratorio().toJSON()
-        if self.sustancia is not None:
-            item['sustancia'] = self.sustancia.toJSON()
-        else:
-            item['sustancia'] = Sustancia().toJSON()
+        if rel_sustancia is False:
+            if self.sustancia is not None:
+                item['sustancia'] = self.sustancia.toJSON()
+            else:
+                item['sustancia'] = Sustancia().toJSON()
         return item
 
     class Meta:

@@ -14,9 +14,12 @@ class Laboratorio(BaseModel):
         return self.nombre
 
     def toJSON(self):
-        item = {'id': self.id, 'nombre': self.nombre,
-                'responsable': '{} {} {}'.format(str(self.responsable.first_name), str(self.responsable.last_name),
-                                                 str(self.responsable.cedula))}
+        item = {'id': self.id, 'nombre': self.nombre}
+        if self.responsable is not None:
+            item['responsable'] = '{} {} {}'.format(str(self.responsable.first_name), str(self.responsable.last_name),
+                                                    str(self.responsable.cedula))
+        else:
+            item['responsable'] = ""
         return item
 
     class Meta:

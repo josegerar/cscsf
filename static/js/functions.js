@@ -16,6 +16,15 @@ function message_error(obj) {
     });
 }
 
+function message_info(message = '') {
+    console.log(message)
+    Swal.fire({
+        'title': '¡Notificacion!',
+        'html': `<p>${message}</p>`,
+        'icon': 'info'
+    });
+}
+
 function disableEnableForm(form, yesNo) {
     let f = form, s, opacity;
     s = f.style;
@@ -25,7 +34,30 @@ function disableEnableForm(form, yesNo) {
     for (let i = 0; i < f.length; i++) f[i].disabled = yesNo;
 }
 
-function submit_with_ajax(url, parameters, title, content, callback, cancelOrError) {
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+function submit_with_ajax(
+    url = window.location.pathname,
+    parameters = new FormData(),
+    title = "",
+    content = "",
+    callback,
+    cancelOrError) {
     $.confirm({
         theme: 'material',
         title: title,
@@ -137,7 +169,12 @@ function confirm_action(title, content, callback) {
     });
 }
 
-async function send_petition_server(method = 'POST', formdata = new FormData(), url = '', csrfmiddlewaretoken = '') {
+async function send_petition_server(
+    method = 'POST',
+    formdata = new FormData(),
+    url = window.location.pathname,
+    csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value) {
+
     // Opciones por defecto estan marcadas con un *
     const response = await fetch(url, {
         method: method, // *GET, POST, PUT, DELETE, etc.

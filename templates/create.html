@@ -55,6 +55,25 @@
                     'theme': 'bootstrap4',
                     'language': 'es'
                 });
+
+                $('form').on('submit', function (event) {
+                    event.preventDefault();
+                    let action_save = $(event.originalEvent.submitter).attr('rel');
+                    const form = this;
+                    const parameters = new FormData(form);
+                    disableEnableForm(form, true);
+                    submit_with_ajax(
+                        window.location.pathname, parameters
+                        , 'Confirmación'
+                        , '¿Estas seguro de realizar la siguiente acción?'
+                        , function callback(data) {
+                            if (action_save === 'save') location.href = '{{ url_list }}';
+                            else if (action_save === 'othersave') location.reload();
+                        }, function cancelOrError() {
+                            disableEnableForm(form, false);
+                        }
+                    );
+                });
             });
             {% if form.errors %}
                 var errors = '';
@@ -69,25 +88,6 @@
                     text: errors,
                 });
             {% endif %}
-            $('form').on('submit', function (event) {
-                event.preventDefault();
-                let action_save = $(event.originalEvent.submitter).attr('rel');
-                console.log(action_save);
-                const form = this;
-                const parameters = new FormData(form);
-                disableEnableForm(form, true);
-                submit_with_ajax(
-                    window.location.pathname, parameters
-                    , 'Confirmación'
-                    , '¿Estas seguro de realizar la siguiente acción?'
-                    , function callback(data) {
-                        if (action_save === 'save') location.href = '{{ url_list }}';
-                        else if (action_save === 'othersave') location.reload();
-                    }, function cancelOrError() {
-                        disableEnableForm(form, false);
-                    }
-                );
-            });
         </script>
     </div>
 {% endblock %}

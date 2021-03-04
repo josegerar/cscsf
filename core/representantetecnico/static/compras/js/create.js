@@ -5,26 +5,31 @@ const compra = {
         sustancias: []
     },
     add_sustancia: function (item) {
-        item.cantidad_ingreso = 0.0001;
-        item.cantidad = parseFloat(item.cantidad);
-        item.cupo_autorizado = parseFloat(item.cupo_autorizado);
-        let exist = false;
-        $.each(this.data.sustancias, function (index, value) {
-            if (item.id === value.id) {
-                value.cantidad_ingreso += item.cantidad_ingreso;
-                exist = true;
-                return false;
-            }
-        });
-        if (!exist) {
-            if (item.cantidad_ingreso + item.cantidad > item.cupo_autorizado) {
-                message_error("La sustancia " + item.nombre
-                    + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
-            } else {
-                this.data.sustancias.push(item);
-            }
+        item = this.config_item(item);
+        if (item.cantidad_ingreso + item.cantidad > item.cupo_autorizado) {
+            message_error("La sustancia " + item.nombre
+                + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
+        } else {
+            this.data.sustancias.push(item);
         }
         this.list_sustancia();
+    },
+    config_item: function (item) {
+        let cant = 0;
+        $.each(item.stock, function (istock, vstock) {
+            if (vstock.bodega.id) vstock.text = "Bod. " + vstock.bodega.nombre;
+            else vstock.text = "Lab. " + vstock.laboratorio.nombre;
+            cant += parseFloat(vstock.cantidad);
+        });
+        item.cantidad_ingreso = 0.0001;
+        item.cupo_autorizado = parseFloat(item.cupo_autorizado);
+        item.cantidad = cant.toFixed(4);
+        item.stock_selected = null;
+        return item;
+    },
+    get_stock_item: function (dataIndex) {
+        let stock = this.data.sustancias[dataIndex].stock;
+        return stock;
     },
     list_sustancia: function () {
         this.datatable.clear();
@@ -54,22 +59,30 @@ const compra = {
         } else {
             callback();
         }
+    },
+    set_stock_selected: function (dataIndex, idStock) {
+        $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
+            if (vstock.id === idStock) {
+                compra.data.sustancias[dataIndex].stock_selected = vstock;
+            }
+        });
     }
 };
 
 $(function () {
     //token csrf django
-    const csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfmiddlewaretoken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     //activar datatable a detalle de sustancias
     //asignar datable a objeto manejador de datos de la compra
     compra.datatable = $('#tblistado').DataTable({
         'responsive': true,
-        'autoWidth': false,
         'destroy': true,
+        "ordering": false,
         'columns': [
             {'data': 'id'},
             {'data': 'nombre'},
+            {'data': 'id'},
             {'data': 'cantidad_ingreso'},
             {'data': 'cantidad'},
             {'data': 'cupo_autorizado'},
@@ -87,6 +100,13 @@ $(function () {
                 'targets': [2],
                 'orderable': false,
                 'render': function (data, type, row) {
+                    return '<select name="lugar_ingreso" class="form-control-sm" style="width: 100%"></select>';
+                }
+            },
+            {
+                'targets': [3],
+                'orderable': false,
+                'render': function (data, type, row) {
                     return '<input value="' + data + '" type="text" name="cantidad" class="form-control form-control-sm input-sm" autocomplete="off"/>';
                 }
             }
@@ -99,8 +119,23 @@ $(function () {
                 'step': 0.1,
                 'max': data.cupo_autorizado - data.cantidad,
                 'forcestepdivisibility': 'none',
-                'decimals': 4
+                'decimals': 4,
+                'verticalupclass': 'glyphicon glyphicon-plus',
+                'verticaldownclass': 'glyphicon glyphicon-minus',
+                'buttondown_class': "btn btn-primary btn-sm",
+                'buttonup_class': "btn btn-primary btn-sm"
             });
+            $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
+                let data = $(this).select2('data');
+                compra.set_stock_selected(parseInt(dataIndex), parseInt(data[0].id));
+            }).select2({
+                'theme': 'bootstrap4',
+                'language': 'es',
+                'data': compra.get_stock_item(dataIndex),
+                'containerCssClass': "select2-font-size-sm"
+            });
+            $(row).find('select[name="lugar_ingreso"]').trigger('change.select2');
+
             $(row).find('input[name="cantidad"]').on('change', function (event) {
                 let nueva_cantidad = parseFloat($(this).val());
                 compra.update_cantidad_sustancia(nueva_cantidad, dataIndex);
@@ -176,33 +211,5 @@ $(function () {
             compra.add_sustancia(ui.item);
             $(this).val('');
         }
-    });
-
-    //envio de datos al servidor
-    $('form').on('submit', function (event) {
-        event.preventDefault();
-        let form = this;
-        compra.verify_send_data(function () {
-            let parameters = new FormData(form);
-            parameters.append('sustancias', JSON.stringify(compra.data.sustancias));
-            disableEnableForm(form, true);
-            submit_with_ajax(
-                window.location.pathname, parameters
-                , 'Confirmación'
-                , '¿Estas seguro de realizar la siguiente acción?'
-                , function (data) {
-                    location.href = '/compras/';
-                }, function () {
-                    disableEnableForm(form, false);
-                }
-            );
-        }, function () {
-            confirm_action(
-                'Notificacion',
-                '¡Deben existir sustancias en el detalle para guardar la informacón de la compra!',
-                function () {
-                }
-            );
-        });
     });
 });

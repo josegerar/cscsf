@@ -4,7 +4,7 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from app.settings import MEDIA_URL
-from core.bodega.models import Sustancia
+from core.bodega.models import Sustancia, Stock
 from core.login.models import User, BaseModel
 from core.representantetecnico.files.read import *
 from core.representantetecnico.files.write import *
@@ -200,7 +200,7 @@ class ComprasPublicas(BaseModel):
 
 class ComprasPublicasDetalle(BaseModel):
     compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE, verbose_name="Compra")
-    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Sustancia")
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
     cantidad = models.IntegerField(verbose_name="cantidad")
 
     def __str__(self):
