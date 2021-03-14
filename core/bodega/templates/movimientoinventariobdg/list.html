@@ -1,0 +1,35 @@
+{% extends 'list.html' %}
+
+{% load static %}
+
+{% block header %}
+    {% include 'headerbdg.html' %}
+{% endblock %}
+
+{% block head_list %}
+    <script src="{% static 'movimientoinventario/js/list.js' %}"></script>
+{% endblock %}
+
+{% block filtrostable %}
+
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Sustancia</th>
+        <th scope="col">Cantidad</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Unidad de medida</th>
+        <th scope="col">TIpo de movimiento</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

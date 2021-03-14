@@ -1,0 +1,103 @@
+{% extends 'list.html' %}
+
+{% load static %}
+
+{% block header %}
+    {% include 'headerbdg.html' %}
+{% endblock %}
+
+{% block filtrostable %}
+
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Descripcion</th>
+        <th scope="col">Cupo autorizado</th>
+        <th scope="col">Unidad de medida</th>
+        <th scope="col">Opciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="card card-default">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ icontitle }}"></i>
+                    {{ title }}
+                </h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card card-secondary">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-boxes"></i> Sustancias</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="tblistado" class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Nombre</th>
+                                        <th scope="col">Descripcion</th>
+                                        <th scope="col">Cupo autorizado</th>
+                                        <th scope="col">Unidad de medida</th>
+                                        <th scope="col">Opciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card card-secondary">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-atom"></i>Stock de sustancia</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="tbstock" class="table">
+                                    <thead>
+                                    <th scope="col">Tipo lugar</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Cantidad ingreso</th>
+                                    </thead>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+                {% csrf_token %}
+                <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+                    <i class="fas fa-plus"></i>
+                    Nuevo registro
+                </a>
+                <button id="btnSync" type="button" class="btn btn-primary btn-success">
+                    <i class="fas fa-sync"></i>
+                    Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'sustancia/js/list.js' %}"></script>
+{% endblock %}
