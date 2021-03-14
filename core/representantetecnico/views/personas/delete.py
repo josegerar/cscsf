@@ -11,7 +11,7 @@ from core.representantetecnico.models import Persona
 class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
     permission_required = ('representantetecnico.delete_persona',)
     model = Persona
-    template_name = 'personas/delete.html'
+    template_name = 'delete.html'
     success_url = reverse_lazy('rp:personas')
     url_redirect = success_url
 

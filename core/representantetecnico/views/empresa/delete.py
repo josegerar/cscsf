@@ -11,7 +11,7 @@ from core.representantetecnico.models import Proveedor
 class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
     permission_required = ('representantetecnico.delete_proveedor',)
     model = Proveedor
-    template_name = 'empresa/delete.html'
+    template_name = 'delete.html'
     success_url = reverse_lazy('rp:empresas')
     url_redirect = success_url
 

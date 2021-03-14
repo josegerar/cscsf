@@ -7,7 +7,6 @@ from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import Inventario
 
-
 class MovimientosInventarioListViewbdg(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
     permission_required = ('bodega.view_inventario',)
     model = Inventario

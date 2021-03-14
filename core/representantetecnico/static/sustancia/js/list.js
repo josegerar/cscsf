@@ -70,6 +70,7 @@ $(function () {
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
+            console.log(row);
             $(row).find('a[rel=viewstocksubstance]').on('click', function () {
                 tbstock.clear();
                 tbstock.rows.add(data.stock).draw();

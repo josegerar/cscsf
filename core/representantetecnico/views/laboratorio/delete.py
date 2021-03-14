@@ -11,7 +11,7 @@ from core.tecnicolaboratorio.models import Laboratorio
 class LaboratorioDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
     permission_required = ('tecnicolaboratorio.delete_laboratorio',)
     model = Laboratorio
-    template_name = 'laboratorio/delete.html'
+    template_name = 'delete.html'
     success_url = reverse_lazy('rp:laboratorios')
     url_redirect = success_url
 

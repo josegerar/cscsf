@@ -15,13 +15,7 @@
         <div class="container">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    {% if request.user.is_representative %}
-                        <h5 class="m-0"> Representante Técnico <small>CSCSF-UTEQ</small></h5>
-                    {% elif request.user.is_grocer %}
-                        <h5 class="m-0"> Bodeguera/o <small>CSCSF-UTEQ</small></h5>
-                    {% elif request.user.is_laboratory_worker %}
-                        <h5 class="m-0"> Técnico laboratorista <small>CSCSF-UTEQ</small></h5>
-                    {% endif %}
+                    {% include 'validateheader.html' %}
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">

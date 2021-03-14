@@ -1,0 +1,7 @@
+{% if request.user.is_representative %}
+    {% include 'headerrp.html' %}
+{% elif request.user.is_grocer %}
+    {% include 'headerbdg.html' %}
+{% elif request.user.is_laboratory_worker %}
+    {% include 'headertl.html' %}
+{% endif %}

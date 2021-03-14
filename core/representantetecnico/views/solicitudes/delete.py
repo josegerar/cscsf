@@ -11,7 +11,7 @@ from core.representantetecnico.models import Solicitud
 class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
     permission_required = ('representantetecnico.delete_solicitud',)
     model = Solicitud
-    template_name = 'solicitud/delete.html'
+    template_name = 'delete.html'
     success_url = reverse_lazy('rp:solicitudes')
     url_redirect = success_url
 

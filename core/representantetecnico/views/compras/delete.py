@@ -11,7 +11,7 @@ from core.representantetecnico.models import ComprasPublicas
 class ComprasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
     permission_required = ('representantetecnico.delete_compraspublicas',)
     model = ComprasPublicas
-    template_name = 'compras/delete.html'
+    template_name = 'delete.html'
     success_url = reverse_lazy('rp:compras')
     url_redirect = success_url
 

@@ -11,7 +11,7 @@ from core.bodega.models import Bodega
 class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
     permission_required = ('bodega.delete_bodega',)
     model = Bodega
-    template_name = 'bodega/delete.html'
+    template_name = 'delete.html'
     success_url = reverse_lazy('rp:bodegas')
     url_redirect = success_url
 
