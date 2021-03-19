@@ -50,7 +50,6 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                     if compra is not None:
                         with transaction.atomic():
                             sustancias = json.loads(request.POST['sustancias'])
-                            tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='add')
                             compra.save()
 
                             for i in sustancias:
@@ -62,11 +61,6 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                 det.cantidad = float(i['cantidad'])
                                 det.save()
 
-                                inv = Inventario()
-                                inv.stock_id = det.stock_id
-                                inv.cantidad_movimiento = det.cantidad
-                                inv.tipo_movimiento_id = tipo_movimiento.id
-                                inv.save()
             else:
                 data['error'] = 'No ha realizado ninguna accion'
         except Exception as e:

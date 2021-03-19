@@ -187,6 +187,7 @@ class ComprasPublicas(BaseModel):
     pedido_compras_publicas = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
+    estado_compra = models.BooleanField(default=False, null=True, verbose_name="Estado de la compra")
 
     def __str__(self):
         return str(self.id)
@@ -194,11 +195,15 @@ class ComprasPublicas(BaseModel):
     def toJSON(self):
         item = {'id': self.id, 'llegada_bodega': self.llegada_bodega, 'hora_llegada_bodega': self.hora_llegada_bodega,
                 'convocatoria': self.convocatoria, 'pedido_compras_publicas': self.get_pedido_compras_publicas(),
-                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura()}
+                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura(), 'estado_compra': self.estado_compra}
         if self.empresa is not None:
             item['empresa'] = self.empresa.toJSON()
         else:
             item['empresa'] = Proveedor().toJSON()
+        item['detallecompra'] = []
+        if self.compraspublicasdetalle_set is not None:
+            for i in self.compraspublicasdetalle_set.all():
+                item['detallecompra'].append(i.toJSON(rel_compraspublicas=True))
         return item
 
     def get_pedido_compras_publicas(self):
@@ -230,6 +235,16 @@ class ComprasPublicasDetalle(BaseModel):
 
     def __str__(self):
         return str(self.id)
+
+    def toJSON(self, rel_compraspublicas=False):
+        item = {'cantidad': self.cantidad}
+        if rel_compraspublicas is False:
+            item['compra'] = self.compra.toJSON()
+        if self.stock is not None:
+            item['stock'] = self.stock.toJSON()
+        else:
+            item['stock'] = Stock().toJSON()
+        return item
 
     class Meta:
         verbose_name = "Compra Publica Detalle"

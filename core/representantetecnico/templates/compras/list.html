@@ -4,6 +4,7 @@
 
 {% block header %}
     {% include 'header.html' %}
+    {% include 'comprasbdg/modal/createFolder.html' %}
 {% endblock %}
 
 {% block filtrostable %}
@@ -39,7 +40,10 @@
         <th scope="col">Pedido de compras publicas</th>
         <th scope="col">Factura</th>
         <th scope="col">Guia transporte</th>
-        <th scope="col">Opciones</th>
+        <th scope="col">Estado</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Opciones</th>
+        {% endif %}
     </tr>
     </thead>
     <tbody>
@@ -47,5 +51,11 @@
     </tbody>
 {% endblock %}
 {% block script %}
-    <script src="{% static 'compras/js/list.js' %}"></script>
+    {% if request.user.is_representative %}
+        <script src="{% static 'compras/js/list.js' %}"></script>
+    {% elif request.user.is_grocer %}
+        <script src="{% static 'comprasbdg/js/list.js' %}"></script>
+    {% elif request.user.is_laboratory_worker %}
+        <script src="{% static 'compras/js/list.js' %}"></script>
+    {% endif %}
 {% endblock %}

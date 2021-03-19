@@ -19,7 +19,7 @@ class ComprasForm(ModelForm):
     class Meta:
         model = ComprasPublicas
         fields = '__all__'
-        # exclude = ['id', 'fecha_registro']
+        exclude = ['estado_compra']
         widgets = {
             'empresa': Select(attrs={
                 'class': 'form-control select2',

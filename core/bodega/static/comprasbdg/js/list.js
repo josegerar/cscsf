@@ -4,6 +4,18 @@ $(function () {
     if (csrfmiddlewaretoken.length > 0) {
         data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
     }
+    var tbdetallecompra = $('#tbdetallecompra').DataTable({
+        'responsive': true,
+        'autoWidth': false,
+        'destroy': true,
+        'columns': [
+            {'data': 'stock.bodega.nombre'},
+            {'data': 'stock.sustancia.nombre'},
+            {'data': 'cantidad'},
+            {'data': 'stock.sustancia.cupo_autorizado'}
+        ]
+    });
+
     var tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
@@ -18,7 +30,6 @@ $(function () {
             {'data': 'guia_transporte'},
             {'data': 'factura'},
             {'data': 'estado_compra'},
-            {'data': 'id'},
         ],
         'columnDefs': [
             {
@@ -46,28 +57,44 @@ $(function () {
                 'targets': [8],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if(data){
+                    if (data) {
                         return "Compra confirmada"
-                    }else {
-                        return "Compra No Confirmada"
+                    } else {
+                        var buttons = '<button rel="confirmarCompra" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Confirmar</button>';
+                        return buttons
                     }
                 }
-            },
-            {
-                'targets': [9],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    var buttons = '<a href="/compras/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                    buttons += '<a href="/compras/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
-                    return buttons
-                }
             }
-        ]
+        ],
+        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
+            $(row).find('button[rel="confirmarCompra"]').on('click', function (event) {
+                $('#modalConfirmarCompra').find('input[name=id_compra]').val(data.id);
+                tbdetallecompra.clear();
+                tbdetallecompra.rows.add(data.detallecompra).draw();
+                $('#modalConfirmarCompra').modal('show');
+            });
+        }
     });
 
     update_datatable(tblistado, window.location.pathname, data);
 
     $('#btnSync').on('click', function (event) {
         update_datatable(tblistado, window.location.pathname, data);
+    });
+    $('#frmconfirmarcompra').on('submit', function (event) {
+        event.preventDefault();
+        let form = this;
+        let parameters = new FormData(form);
+        disableEnableForm(form, true);
+        submit_with_ajax(
+                        window.location.pathname, parameters
+                        , 'Confirmación'
+                        , '¿Estas seguro de realizar la siguiente acción?'
+                        , function (data) {
+                            location.reload();
+                        }, function () {
+                            disableEnableForm(form, false);
+                        }
+                    );
     });
 });

@@ -1,11 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import ComprasPublicas, Laboratorio
+from core.bodega.models import TipoMovimientoInventario, Inventario, Stock
+from core.representantetecnico.models import ComprasPublicas, Laboratorio, ComprasPublicasDetalle
 
 
 class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -21,6 +23,29 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                 data = []
                 for i in ComprasPublicas.objects.all():
                     data.append(i.toJSON())
+            elif action =='confirmarCompra':
+                idcompra = request.POST.get('id_compra')
+                if idcompra is not None:
+                    with transaction.atomic():
+                        comprasPublicas = ComprasPublicas.objects.get(id=idcompra)
+                        tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='add')
+                        if comprasPublicas is not None:
+                            detallecompra = ComprasPublicasDetalle.objects.filter(compra_id=comprasPublicas.id)
+                            for i in detallecompra:
+                                stock = Stock.objects.get(id=i.stock_id)
+                                stock.cantidad = stock.cantidad + i.cantidad
+                                stock.save()
+
+                                inv = Inventario()
+                                inv.stock_id = i.stock_id
+                                inv.cantidad_movimiento = i.cantidad
+                                inv.tipo_movimiento_id = tipo_movimiento.id
+                                inv.save()
+
+                            comprasPublicas.estado_compra=True
+                            comprasPublicas.save()
+                        else:
+                            data['error'] = 'Compra no encontrada'
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
