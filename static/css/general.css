@@ -1,0 +1,7 @@
+.select2 {
+    width: 100% !important;
+}
+
+.form-group-sm > .select2{
+    font-size: 11px;
+}

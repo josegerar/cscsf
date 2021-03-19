@@ -45,6 +45,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {% block head %}
 
     {% endblock %}
+
+    <link rel="stylesheet" href="{% static 'css/general.css' %}">
 </head>
 <body class="hold-transition layout-top-nav">
 <div class="wrapper">
@@ -53,14 +55,32 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {% endblock %}
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper" style="padding-top: 4em">
-        {% block contentwrapper %}
-            {% block contentheader %}
-                {% include "contentheader.html" %}
-            {% endblock %}
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        {% include 'validateheader.html' %}
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            {% for item in urls %}
+                                {% if forloop.last %}
+                                    <li class="breadcrumb-item active">{{ item.uriname }}</li>
+                                {% else %}
+                                    <li class="breadcrumb-item"><a href="{{ item.uridj }}">{{ item.uriname }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
 
-            {% block content %}
+        {% block content %}
 
-            {% endblock %}
         {% endblock %}
     </div>
     <!-- /.content-wrapper -->

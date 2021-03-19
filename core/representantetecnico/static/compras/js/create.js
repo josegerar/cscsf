@@ -103,7 +103,7 @@ $(function () {
                 'targets': [2],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return '<select name="lugar_ingreso" class="form-control-sm" style="width: 100%"></select>';
+                    return '<div class="form-group form-group-sm"><select name="lugar_ingreso" class="form-control-sm" style="width: 100%"></select></div>';
                 }
             },
             {
@@ -197,22 +197,9 @@ $(function () {
     });
 
     //activar el autocomplete en el buscador
-    $('input[name="search"]').focus().autocomplete({
-        source: function (request, response) {
-            let data = new FormData();
-            data.append('action', 'search_substance');
-            data.append('term', request.term);
-            send_petition_server('POST', data, window.location.pathname, csrfmiddlewaretoken)
-                .then(data => {
-                    response(data);
-                });
-        },
-        delay: 400,
-        minLength: 1,
-        select: function (event, ui) {
-            event.preventDefault();
-            compra.add_sustancia(ui.item);
-            $(this).val('');
-        }
-    });
+    autocompleteInput("search", "/sustancias/", "search_substance",
+        function (item) {
+            compra.add_sustancia(item);
+        });
+
 });

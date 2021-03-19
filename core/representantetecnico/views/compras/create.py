@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -42,15 +42,8 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            action = request.POST['action']
-            if action == 'search_substance':
-                data = []
-                substances = Sustancia.objects.filter(nombre__icontains=request.POST['term'])[0:10]
-                for i in substances:
-                    substance = i.toJSON()
-                    substance['value'] = i.nombre
-                    data.append(substance)
-            elif action == 'add':
+            action = request.POST.get('action')
+            if action == 'add':
                 form = self.get_form()
                 if form.is_valid():
                     compra = form.instance

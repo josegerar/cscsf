@@ -5,6 +5,7 @@ from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
+from core.bodega.models import Sustancia
 from core.representantetecnico.forms.formSolicitud import SolicitudForm
 from core.representantetecnico.models import Solicitud
 

@@ -40,6 +40,13 @@ class User(AbstractUser, BaseModel):
                     User.objects.all()]
         return choices
 
+    @staticmethod
+    def get_choices_laboratory_worker():
+        choices = [('', '---------')]
+        choices += [(o.id, str('{} {} {}'.format(str(o.first_name), str(o.last_name), str(o.cedula)))) for o in
+                    User.objects.filter(is_laboratory_worker=True)]
+        return choices
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.
         group = None
@@ -52,78 +59,17 @@ class User(AbstractUser, BaseModel):
         if group is not None:
             self.groups.add(group)
 
-    # Obtenemos los perfiles de cada usuario acorde a su tipo
-    def get_representative_profile(self):
-        representative_profile = None
-        if hasattr(self, 'representativeprofile'):
-            representative_profile = self.representativeprofile
-        return representative_profile
-
-    def get_laboratory_worker_profile(self):
-        laboratory_worker_profile = None
-        if hasattr(self, 'laboratoryworkerprofile'):
-            laboratory_worker_profile = self.laboratoryworkerprofile
-        return laboratory_worker_profile
-
-    def get_grocer_profile(self):
-        grocer_profile = None
-        if hasattr(self, 'grocerprofile'):
-            grocer_profile = self.grocerprofile
-        return grocer_profile
-
     def get_imagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
         else:
             return '{}{}'.format(STATIC_URL, 'img/user.png')
 
+    def get_user_info(self):
+        return '{} {} {}'.format(str(self.first_name), str(self.last_name), str(self.cedula))
+
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
         db_table = "auth_user"
-        ordering = ["id"]
-
-
-class RepresentativeProfile(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-    name_profile = models.CharField(max_length=64, default="representante tecnico")
-
-    def __str__(self):
-        return self.name_profile
-
-    class Meta:
-        verbose_name = "Represente tecnico Perfil"
-        verbose_name_plural = "Represente tecnico Perfiles"
-        db_table = "representative_technical_profile"
-        ordering = ["id"]
-
-
-class LaboratoryWorkerProfile(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-    name_profile = models.CharField(max_length=64, default="tecnico laboratorista")
-
-    def __str__(self):
-        return self.name_profile
-
-    class Meta:
-        verbose_name = "Tecnico laboratorista Perfil"
-        verbose_name_plural = "Tecnico laboratorista Perfiles"
-        db_table = "laboratory_worker_profile"
-        ordering = ["id"]
-
-
-class GrocerProfile(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-    name_profile = models.CharField(max_length=64, default="bodeguero")
-
-    def __str__(self):
-        return self.name_profile
-
-    class Meta:
-        verbose_name = "Bodeguero Perfil"
-        verbose_name_plural = "Bodeguero Perfiles"
-        db_table = "grocer_profile"
         ordering = ["id"]

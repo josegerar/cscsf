@@ -5,3 +5,4 @@ from core.representantetecnico.models import *
 admin.site.register(Categoria)
 admin.site.register(Laboratorio)
 admin.site.register(TipoPersona)
+admin.site.register(TipoActividad)

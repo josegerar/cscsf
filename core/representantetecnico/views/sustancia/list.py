@@ -25,6 +25,22 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
         ]
         return context
 
+    def get(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.GET.get('action')
+            if action is not None and action == 'search_substance':
+                data = []
+                substances = Sustancia.objects.filter(nombre__icontains=request.GET['term'])[0:10]
+                for i in substances:
+                    substance = i.toJSON()
+                    substance['value'] = i.nombre
+                    data.append(substance)
+                return JsonResponse(data, safe=False)
+        except Exception as e:
+            data['error'] = str(e)
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         data = {}
         try:

@@ -180,9 +180,68 @@ async function send_petition_server(
         method: method, // *GET, POST, PUT, DELETE, etc.
         mode: 'same-origin', // no-cors, *cors, same-origin
         headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
             'X-CSRFToken': csrfmiddlewaretoken
         },
         body: formdata // body data type must match "Content-Type" header
     });
     return response.json(); // parses JSON response into native JavaScript objects
+}
+
+function encodeQueryString(params = {}) {
+    const keys = Object.keys(params)
+    return keys.length
+        ? "?" + keys
+        .map(key => encodeURIComponent(key)
+            + "=" + encodeURIComponent(params[key]))
+        .join("&")
+        : ""
+}
+
+function autocompleteInput(nameInput = "", urlSend = "", actionName = "", selectItemCallBack) {
+    //activar el autocomplete en el buscador
+    $(`input[name=${nameInput}`).focus().autocomplete({
+        source: function (request, response) {
+            let data = {'action': actionName, 'term': request.term}
+            const url = `${urlSend}${encodeQueryString(data)}`;
+            fetch(url, {
+                'method': 'GET',
+                'credentials': 'include',
+                'Content-Type': 'application/json',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                },
+            })
+                .then(res => res.json())
+                .then((json) => {
+                    response(json);
+                });
+        },
+        delay: 400,
+        minLength: 1,
+        select: function (event, ui) {
+            event.preventDefault();
+            selectItemCallBack(ui.item);
+            $(this).val('');
+        }
+    });
+}
+
+function activePluguinTouchSpinInputRow(row, nameInput = "", maxValue = 0) {
+    $(row).find(`input[name=${nameInput}]`).TouchSpin({
+        'verticalbuttons': true,
+        'min': 0.0001,
+        'initval': 0.0001,
+        'step': 0.1,
+        'max': maxValue,
+        'forcestepdivisibility': 'none',
+        'decimals': 4,
+        'verticalupclass': 'glyphicon glyphicon-plus',
+        'verticaldownclass': 'glyphicon glyphicon-minus',
+        'buttondown_class': "btn btn-primary btn-sm",
+        'buttonup_class': "btn btn-primary btn-sm"
+    });
 }

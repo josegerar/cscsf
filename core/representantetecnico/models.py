@@ -57,7 +57,6 @@ class Categoria(BaseModel):
     nombre = models.CharField(max_length=20, verbose_name="Nombre de la categoria", unique=True)
     descripcion = models.CharField(max_length=200, blank=True, null=True)
     is_active = models.BooleanField(default=True, editable=False)
-    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.nombre
@@ -69,10 +68,28 @@ class Categoria(BaseModel):
         ordering = ["id"]
 
 
+class TipoActividad(BaseModel):
+    nombre = models.CharField(max_length=20, verbose_name="Nombre", unique=True)
+    descripcion = models.CharField(max_length=200, blank=True, null=True, verbose_name="Descripcion")
+    is_active = models.BooleanField(default=True, editable=False)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Tipo de actividad"
+        verbose_name_plural = "Tipos de actividades"
+        db_table = "tipo_actividad"
+        ordering = ["id"]
+
+
 class Solicitud(BaseModel):
     solicitante = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Solicitante")
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio", null=True)
-    nombre_proyecto = models.CharField(max_length=150, verbose_name="Nombre de proyecto", null=True)
+    tipo_actividad = models.ForeignKey(TipoActividad, on_delete=models.CASCADE, verbose_name="Tipo de actividad")
+    nombre_actividad = models.CharField(max_length=150, verbose_name="Nombre de proyecto", null=True)
+    responsable_actividad = models.ForeignKey(Persona, on_delete=models.CASCADE,
+                                              verbose_name="Responsable de actividad")
     documento_solicitud = models.FileField(upload_to='solicitud/%Y/%m/%d', null=True, blank=True)
     is_autorized = models.BooleanField(default=False, verbose_name="Autorizada", null=True)
     fecha_autorizacion = models.DateTimeField(editable=False, null=True)
@@ -90,16 +107,25 @@ class Solicitud(BaseModel):
         super().save(*args, **kwargs)
 
     def toJSON(self):
-        item = {
-            'id': self.id,
-            'solicitante': '{} {} {}'.format(str(self.solicitante.first_name), str(self.solicitante.last_name),
-                                             str(self.solicitante.cedula)),
-            'laboratorio': self.laboratorio.nombre,
-            'proyecto': self.nombre_proyecto,
-            'documento': self.get_doc_solicitud(),
-            'autorizacion': self.get_autorizacion(),
-            'fecha_autorizacion': self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
-        }
+        item = {'id': self.id, 'nombre_actividad': self.nombre_actividad,
+                'documento': self.get_doc_solicitud(), 'autorizacion': self.get_autorizacion(),
+                'fecha_autorizacion': self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")}
+        if self.solicitante is not None:
+            item['solicitante'] = self.solicitante.get_user_info()
+        else:
+            item['solicitante'] = ""
+        if self.laboratorio is not None:
+            item['laboratorio'] = self.laboratorio.nombre
+        else:
+            item['laboratorio'] = ""
+        if self.tipo_actividad is not None:
+            item['tipo_actividad'] = self.tipo_actividad.__str__()
+        else:
+            item['tipo_actividad'] = ""
+        if self.responsable_actividad is not None:
+            item['responsable_actividad'] = self.responsable_actividad
+        else:
+            item['responsable_actividad'] = ""
         return item
 
     def get_doc_solicitud(self):
@@ -123,7 +149,6 @@ class Solicitud(BaseModel):
 class Facultad(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de facultad", unique=True)
     is_active = models.BooleanField(default=True, editable=False)
-    fecha_creacion = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.nombre
