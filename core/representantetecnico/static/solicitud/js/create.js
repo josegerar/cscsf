@@ -42,14 +42,15 @@ const solicitud = {
 
     },
     set_stock_selected: function (dataIndex, idStock) {
-        $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
-            if (vstock.id === idStock) {
-                solicitud.data.sustancias[dataIndex].stock_selected = vstock;
-                solicitud.data.sustancias[dataIndex].cantidad_bodega = parseFloat(vstock.cantidad).toFixed(4);
-                return false;
-            }
-        });
-        this.list_sustancia();
+        console.log(dataIndex, idStock);
+        // $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
+        //     if (vstock.id === idStock) {
+        //         solicitud.data.sustancias[dataIndex].stock_selected = vstock;
+        //         solicitud.data.sustancias[dataIndex].cantidad_bodega = parseFloat(vstock.cantidad).toFixed(4);
+        //         return false;
+        //     }
+        // });
+        // this.list_sustancia();
     }
 }
 
@@ -92,7 +93,7 @@ $(function () {
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
 
-            activePluguinTouchSpinInputRow(row, "cantidad", data.cupo_autorizado - data.cantidad);
+            activePluguinTouchSpinInputRow(row, "cantidad", parseFloat(data.cupo_autorizado).toFixed(4));
 
             $(row).find('select[name="bodega_salida"]').on('change.select2', function (e) {
                 let data = $(this).select2('data');
