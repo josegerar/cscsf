@@ -17,7 +17,7 @@ $(function () {
             {'data': 'pedido_compras_publicas'},
             {'data': 'guia_transporte'},
             {'data': 'factura'},
-            {'data': 'estado_compra'},
+            {'data': 'estado'},
             {'data': 'id'},
         ],
         'columnDefs': [
@@ -46,10 +46,14 @@ $(function () {
                 'targets': [8],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if(data){
-                        return "Compra confirmada"
-                    }else {
-                        return "Compra No Confirmada"
+                    if (data.estado == 'registrado') {
+                        return "Registrado"
+                    } else if (data.estado == 'almacenado'){
+                        return "Almacenado"
+                    } else if (data.estado == 'revision'){
+                        return '<label class="btn-danger">Revisión</label>'
+                    } else {
+                        return ""
                     }
                 }
             },

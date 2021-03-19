@@ -10,7 +10,7 @@ from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import Sustancia, Inventario, TipoMovimientoInventario
 from core.representantetecnico.forms.formCompra import ComprasForm
-from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle
+from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle, EstadoCompra
 
 
 class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
@@ -50,6 +50,8 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                     if compra is not None:
                         with transaction.atomic():
                             sustancias = json.loads(request.POST['sustancias'])
+                            estadocompra = EstadoCompra.objects.get(estado='registrado')
+                            compra.estado_compra_id = estadocompra.id
                             compra.save()
 
                             for i in sustancias:
@@ -58,7 +60,7 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                 det = ComprasPublicasDetalle()
                                 det.stock_id = stock_selected['id']
                                 det.compra_id = compra.id
-                                det.cantidad = float(i['cantidad'])
+                                det.cantidad = float(i['cantidad_ingreso'])
                                 det.save()
 
             else:

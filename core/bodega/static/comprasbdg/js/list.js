@@ -21,7 +21,10 @@ $(function () {
         'autoWidth': false,
         'destroy': true,
         'columns': [
-            {'data': 'id'},
+            {
+                "className": 'details-control',
+                'data': 'id'
+            },
             {'data': 'empresa.nombre'},
             {'data': 'llegada_bodega'},
             {'data': 'hora_llegada_bodega'},
@@ -29,7 +32,7 @@ $(function () {
             {'data': 'pedido_compras_publicas'},
             {'data': 'guia_transporte'},
             {'data': 'factura'},
-            {'data': 'estado_compra'},
+            {'data': 'estado'},
         ],
         'columnDefs': [
             {
@@ -57,23 +60,21 @@ $(function () {
                 'targets': [8],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    console.log(data)
-                    if (data) {
-                        return "Compra confirmada"
-                    } else {
+                    if (data.estado == 'registrado') {
                         var buttons = '<button rel="confirmarCompra" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Confirmar</button>';
                         return buttons
+                    } else if (data.estado == 'almacenado') {
+                        return "Almacenado"
+                    } else if (data.estado == 'revision') {
+                        return '<label class="btn-danger">Revisión</label>'
+                    } else {
+                        return ""
                     }
                 }
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
-            $(row).find('button[rel="confirmarCompra"]').on('click', function (event) {
-                $('#modalConfirmarCompra').find('input[name=id_compra]').val(data.id);
-                tbdetallecompra.clear();
-                tbdetallecompra.rows.add(data.detallecompra).draw();
-                $('#modalConfirmarCompra').modal('show');
-            });
+            updateRowsCallback(row,data,dataIndex)
         }
     });
 
@@ -88,14 +89,34 @@ $(function () {
         let parameters = new FormData(form);
         disableEnableForm(form, true);
         submit_with_ajax(
-                        window.location.pathname, parameters
-                        , 'Confirmación'
-                        , '¿Estas seguro de realizar la siguiente acción?'
-                        , function (data) {
-                            location.reload();
-                        }, function () {
-                            disableEnableForm(form, false);
-                        }
-                    );
+            window.location.pathname, parameters
+            , 'Confirmación'
+            , '¿Estas seguro de realizar la siguiente acción?'
+            , function (data) {
+                location.reload();
+            }, function () {
+                disableEnableForm(form, false);
+            }
+        );
     });
+
+        // Add event listener for opening and closing details
+    $('#tblistado tbody').on('click', 'td.details-control', function () {
+        let tr = $(this).closest('tr');
+        let row = tblistado.row(tr);
+        let child = row.child();
+        let data = row.data();
+        if (child) {
+            updateRowsCallback(child, data, row.index());
+        }
+    });
+
+    function updateRowsCallback(row, data, dataIndex) {
+        $(row).find('button[rel="confirmarCompra"]').on('click', function (event) {
+            $('#modalConfirmarCompra').find('input[name=id_compra]').val(data.id);
+            tbdetallecompra.clear();
+            tbdetallecompra.rows.add(data.detallecompra).draw();
+            $('#modalConfirmarCompra').modal('show');
+        });
+    }
 });
