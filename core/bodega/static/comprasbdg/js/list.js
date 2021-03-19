@@ -57,6 +57,7 @@ $(function () {
                 'targets': [8],
                 'orderable': false,
                 'render': function (data, type, row) {
+                    console.log(data)
                     if (data) {
                         return "Compra confirmada"
                     } else {

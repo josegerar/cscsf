@@ -179,6 +179,25 @@ class Proveedor(BaseModel):
         ordering = ["id"]
 
 
+class EstadoCompra(BaseModel):
+    estado = models.CharField(max_length=100, verbose_name="Estado")
+    descripcion = models.CharField(max_length=300, verbose_name="Descripcion")
+    is_active = models.BooleanField(default=True, editable=False)
+
+    def __str__(self):
+        return str(self.estado)
+
+    def toJSON(self):
+        item = {'estado':self.estado, 'descripcion':self.descripcion}
+        return item
+
+    class Meta:
+        verbose_name = "Estado de compra"
+        verbose_name_plural = "Estado de compras"
+        db_table = "estado_compra"
+        ordering = ["id"]
+
+
 class ComprasPublicas(BaseModel):
     empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Empresa", null=True)
     llegada_bodega = models.DateField(default=timezone.now, verbose_name="Fecha llegada a bodega")
@@ -187,7 +206,7 @@ class ComprasPublicas(BaseModel):
     pedido_compras_publicas = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
-    estado_compra = models.BooleanField(default=False, null=True, verbose_name="Estado de la compra")
+    estado_compra = models.ForeignKey(EstadoCompra, on_delete=models.CASCADE, verbose_name="Estado de compras", null=True)
 
     def __str__(self):
         return str(self.id)
@@ -195,7 +214,7 @@ class ComprasPublicas(BaseModel):
     def toJSON(self):
         item = {'id': self.id, 'llegada_bodega': self.llegada_bodega, 'hora_llegada_bodega': self.hora_llegada_bodega,
                 'convocatoria': self.convocatoria, 'pedido_compras_publicas': self.get_pedido_compras_publicas(),
-                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura(), 'estado_compra': self.estado_compra}
+                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura()}
         if self.empresa is not None:
             item['empresa'] = self.empresa.toJSON()
         else:
@@ -204,6 +223,10 @@ class ComprasPublicas(BaseModel):
         if self.compraspublicasdetalle_set is not None:
             for i in self.compraspublicasdetalle_set.all():
                 item['detallecompra'].append(i.toJSON(rel_compraspublicas=True))
+        if self.estado_compra is not None:
+            item ['estado'] = self.estado_compra.toJSON()
+        else:
+            item['estado'] = EstadoCompra().toJSON()
         return item
 
     def get_pedido_compras_publicas(self):
