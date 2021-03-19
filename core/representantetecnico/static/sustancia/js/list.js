@@ -68,15 +68,17 @@ $(function () {
                     return buttons
                 }
             }
-        ],
-        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
-            console.log(row);
-            $(row).find('a[rel=viewstocksubstance]').on('click', function () {
-                tbstock.clear();
-                tbstock.rows.add(data.stock).draw();
-            });
-        }
+        ]
     });
+
+    $('#tblistado tbody')
+        .on('click', 'a[rel=viewstocksubstance]', function () {
+            let trdata = tblistado.cell($(this).closest('td, li')).index();
+            let row = $(`#tblistado tbody tr:eq(${trdata.row})`);
+            let rowData = tblistado.row(row).data();
+            tbstock.clear();
+            tbstock.rows.add(rowData.stock).draw();
+        });
 
     update_datatable(tblistado, window.location.pathname, data);
 
