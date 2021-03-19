@@ -11,10 +11,10 @@ $(function () {
         'deferRender': true,
         'columns': [
             {'data': 'id'},
-            {'data': 'sustancia.nombre'},
+            {'data': 'stock.sustancia.nombre'},
             {'data': 'cantidad'},
             {'data': 'fecha'},
-            {'data': 'sustancia.unidad_medida.nombre'},
+            {'data': 'stock.sustancia.unidad_medida.nombre'},
             {'data': 'tipo_movimiento.descripcion'}
         ]
     });

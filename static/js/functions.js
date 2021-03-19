@@ -245,3 +245,14 @@ function activePluguinTouchSpinInputRow(row, nameInput = "", maxValue = 0) {
         'buttonup_class': "btn btn-primary btn-sm"
     });
 }
+
+function util() {
+        // $('#tblistado tbody')
+    //     .on('click', 'a[rel=viewstocksubstance]', function () {
+    //         let trdata = tblistado.cell($(this).closest('td, li')).index();
+    //         let row = $(`#tblistado tbody tr:eq(${trdata.row})`);
+    //         let rowData = tblistado.row(row).data();
+    //         tbstock.clear();
+    //         tbstock.rows.add(rowData.stock).draw();
+    //     });
+}

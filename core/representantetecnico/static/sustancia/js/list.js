@@ -50,7 +50,10 @@ $(function () {
         'autoWidth': false,
         'destroy': true,
         'columns': [
-            {'data': 'id'},
+            {
+                "className": 'details-control',
+                'data': 'id'
+            },
             {'data': 'nombre'},
             {'data': 'descripcion'},
             {'data': 'cupo_autorizado'},
@@ -68,17 +71,22 @@ $(function () {
                     return buttons
                 }
             }
-        ]
+        ],
+        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        }
     });
 
-    $('#tblistado tbody')
-        .on('click', 'a[rel=viewstocksubstance]', function () {
-            let trdata = tblistado.cell($(this).closest('td, li')).index();
-            let row = $(`#tblistado tbody tr:eq(${trdata.row})`);
-            let rowData = tblistado.row(row).data();
-            tbstock.clear();
-            tbstock.rows.add(rowData.stock).draw();
-        });
+    // Add event listener for opening and closing details
+    $('#tblistado tbody').on('click', 'td.details-control', function () {
+        let tr = $(this).closest('tr');
+        let row = tblistado.row(tr);
+        let child = row.child();
+        let data = row.data();
+        if (child) {
+            updateRowsCallback(child, data, row.index());
+        }
+    });
 
     update_datatable(tblistado, window.location.pathname, data);
 
@@ -86,4 +94,12 @@ $(function () {
         tbstock.clear();
         update_datatable(tblistado, window.location.pathname, data);
     });
+
+    function updateRowsCallback(row, data, dataIndex) {
+        $(row).find('a[rel=viewstocksubstance]').on('click', function (event) {
+            tbstock.clear();
+            tbstock.rows.add(data.stock).draw();
+        });
+    }
+
 });

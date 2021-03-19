@@ -83,7 +83,10 @@ $(function () {
         'destroy': true,
         "ordering": false,
         'columns': [
-            {'data': 'id'},
+            {
+                "className": 'details-control',
+                'data': 'id'
+            },
             {'data': 'nombre'},
             {'data': 'id'},
             {'data': 'cantidad_ingreso'},
@@ -115,43 +118,7 @@ $(function () {
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
-            $(row).find('input[name="cantidad"]').TouchSpin({
-                'verticalbuttons': true,
-                'min': 0.0001,
-                'initval': 0.0001,
-                'step': 0.1,
-                'max': data.cupo_autorizado - data.cantidad,
-                'forcestepdivisibility': 'none',
-                'decimals': 4,
-                'verticalupclass': 'glyphicon glyphicon-plus',
-                'verticaldownclass': 'glyphicon glyphicon-minus',
-                'buttondown_class': "btn btn-primary btn-sm",
-                'buttonup_class': "btn btn-primary btn-sm"
-            });
-            $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
-                let data = $(this).select2('data');
-                compra.set_stock_selected(parseInt(dataIndex), parseInt(data[0].id));
-            }).select2({
-                'theme': 'bootstrap4',
-                'language': 'es',
-                'data': compra.get_stock_item(dataIndex),
-                'containerCssClass': "select2-font-size-sm"
-            });
-            $(row).find('select[name="lugar_ingreso"]').trigger('change.select2');
-
-            $(row).find('input[name="cantidad"]').on('change', function (event) {
-                let nueva_cantidad = parseFloat($(this).val());
-                compra.update_cantidad_sustancia(nueva_cantidad, dataIndex);
-            });
-            $(row).find('a[rel="remove"]').on('click', function (event) {
-                confirm_action(
-                    'Notificación',
-                    '¿Esta seguro de eliminar la sustancia ¡' + data.nombre + '!?',
-                    function () {
-                        compra.delete_sustancia(dataIndex);
-                    }
-                );
-            });
+            updateRowsCallback(row, data, dataIndex)
         }
     });
 
@@ -201,5 +168,56 @@ $(function () {
         function (item) {
             compra.add_sustancia(item);
         });
+
+    // Add event listener for opening and closing details
+    $('#tblistado tbody').on('click', 'td.details-control', function () {
+        let tr = $(this).closest('tr');
+        let row = tblistado.row(tr);
+        let child = row.child();
+        let data = row.data();
+        if (child) {
+            updateRowsCallback(child, data, row.index());
+        }
+    });
+
+    function updateRowsCallback(row, data, dataIndex) {
+        $(row).find('input[name="cantidad"]').TouchSpin({
+            'verticalbuttons': true,
+            'min': 0.0001,
+            'initval': 0.0001,
+            'step': 0.1,
+            'max': data.cupo_autorizado - data.cantidad,
+            'forcestepdivisibility': 'none',
+            'decimals': 4,
+            'verticalupclass': 'glyphicon glyphicon-plus',
+            'verticaldownclass': 'glyphicon glyphicon-minus',
+            'buttondown_class': "btn btn-primary btn-sm",
+            'buttonup_class': "btn btn-primary btn-sm"
+        });
+        $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
+            let data_select = $(this).select2('data');
+            compra.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id));
+        }).select2({
+            'theme': 'bootstrap4',
+            'language': 'es',
+            'data': compra.get_stock_item(dataIndex),
+            'containerCssClass': "select2-font-size-sm"
+        });
+        $(row).find('select[name="lugar_ingreso"]').trigger('change.select2');
+
+        $(row).find('input[name="cantidad"]').on('change', function (event) {
+            let nueva_cantidad = parseFloat($(this).val());
+            compra.update_cantidad_sustancia(nueva_cantidad, dataIndex);
+        });
+        $(row).find('a[rel="remove"]').on('click', function (event) {
+            confirm_action(
+                'Notificación',
+                '¿Esta seguro de eliminar la sustancia ¡' + data.nombre + '!?',
+                function () {
+                    compra.delete_sustancia(dataIndex);
+                }
+            );
+        });
+    }
 
 });

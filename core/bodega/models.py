@@ -83,7 +83,7 @@ class Sustancia(BaseModel):
 
 
 class Stock(BaseModel):
-    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE)
+    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, null=True)
     bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, null=True)
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, null=True)
     cantidad = models.DecimalField(max_digits=9, decimal_places=4)
