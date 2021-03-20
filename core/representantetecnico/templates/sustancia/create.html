@@ -79,7 +79,11 @@
                     {% csrf_token %}
                     <button rel="save" type="submit" class="btn btn-primary btn-flat">
                         <i class="fas fa-save"></i>
-                        Guardar registro
+                        {% if action == 'add' %}
+                            Guardar registro
+                        {% elif action == 'edit' %}
+                            Actualizar registro
+                        {% endif %}
                     </button>
                     {% if action == 'add' %}
                         <button rel="othersave" type="submit" class="btn btn-secondary btn-flat">
@@ -98,7 +102,12 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'sustancia/js/create.js' %}"></script>
+    {% if action == 'add' %}
+        <script src="{% static 'sustancia/js/create.js' %}"></script>
+    {% elif action == 'edit' %}
+        <script src="{% static 'sustancia/js/update.js' %}"></script>
+    {% endif %}
+
     <script type="application/javascript">
         $(function () {
             $('form').on('submit', function (event) {

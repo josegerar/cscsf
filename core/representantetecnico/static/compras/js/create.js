@@ -170,15 +170,10 @@ $(function () {
         });
 
     // Add event listener for opening and closing details
-    $('#tblistado tbody').on('click', 'td.details-control', function () {
-        let tr = $(this).closest('tr');
-        let row = tblistado.row(tr);
-        let child = row.child();
-        let data = row.data();
-        if (child) {
-            updateRowsCallback(child, data, row.index());
-        }
-    });
+    addEventListenerOpenDetailRowDatatable('tblistado', compra.datatable, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('input[name="cantidad"]').TouchSpin({

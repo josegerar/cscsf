@@ -180,7 +180,6 @@ $(function () {
 
     get_async_data_callback(window.location.pathname, data,
         function (response) {
-            console.log(response);
             compra.add_detalle_compra(response);
         },
         function (error) {
