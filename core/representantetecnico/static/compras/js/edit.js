@@ -1,20 +1,26 @@
 const compra = {
     datatable: null,
     data: {
-        sustancias: []
+        detalleCompra: []
     },
     add_sustancia: function (item) {
         item = this.config_item(item);
-        if (item.cantidad_ingreso + item.cantidad > item.cupo_autorizado) {
+        if (item.stock.sustancia.cantidad_ingreso + item.stock.sustancia.cantidad > item.stock.sustancia.cupo_autorizado) {
             message_error("La sustancia " + item.nombre
                 + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
         } else {
-            this.data.sustancias.push(item);
+            this.data.detalleCompra.push(item);
         }
+        this.list_sustancia();
+    },
+    add_detalle_compra: function (data = []) {
+        this.data.detalleCompra = data;
         this.list_sustancia();
     },
     config_item: function (item) {
         let cant = 0;
+        let itemDetalle = {'id': -1,'cantidad': 0.0000, 'stock': {'sustancia': item , 'cantidad': 0.0000}};
+
         $.each(item.stock, function (istock, vstock) {
             if (vstock.bodega.id) vstock.text = "Bod. " + vstock.bodega.nombre;
             else vstock.text = "Lab. " + vstock.laboratorio.nombre;
@@ -24,48 +30,51 @@ const compra = {
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
         item.cantidad = cant.toFixed(4);
         item.stock_selected = null;
-        return item;
+        return itemDetalle;
     },
     get_stock_item: function (dataIndex) {
         let stock = [];
-        $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
-            if (vstock.bodega.id) stock.push(vstock);
+        $.each(this.data.detalleCompra[dataIndex].stock.sustancia.stock, function (istock, vstock) {
+            if (vstock.bodega.id) {
+                vstock.text = "Bod. " + vstock.bodega.nombre;
+                stock.push(vstock);
+            }
         });
         return stock;
     },
     list_sustancia: function () {
         this.datatable.clear();
-        this.datatable.rows.add(this.data.sustancias).draw();
+        this.datatable.rows.add(this.data.detalleCompra).draw();
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
-        this.data.sustancias[index].cantidad_ingreso = nueva_cantidad;
+        this.data.detalleCompra[index].cantidad_ingreso = nueva_cantidad;
     },
     delete_sustancia: function (index) {
-        this.data.sustancias.splice(index, 1);
+        this.data.detalleCompra.splice(index, 1);
         this.list_sustancia();
     },
     delete_all_sustancias: function () {
-        if (this.data.sustancias.length === 0) return false;
+        if (this.data.detalleCompra.length === 0) return false;
         confirm_action(
             'Alerta',
             '¿Esta seguro de eliminar todas las sustancias del detalle?',
             function () {
-                compra.data.sustancias = [];
+                compra.data.detalleCompra = [];
                 compra.list_sustancia();
             }
         );
     },
     verify_send_data: function (callback, error) {
-        if (this.data.sustancias.length === 0) {
+        if (this.data.detalleCompra.length === 0) {
             error();
         } else {
             callback();
         }
     },
     set_stock_selected: function (dataIndex, idStock) {
-        $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
+        $.each(this.data.detalleCompra[dataIndex].stock.sustancia.stock, function (istock, vstock) {
             if (vstock.id === idStock) {
-                compra.data.sustancias[dataIndex].stock_selected = vstock;
+                compra.data.detalleCompra[dataIndex].stock.sustancia.stock_selected = vstock;
             }
         });
     }
@@ -87,12 +96,12 @@ $(function () {
                 "className": 'details-control',
                 'data': 'id'
             },
-            {'data': 'nombre'},
+            {'data': 'stock.sustancia.nombre'},
             {'data': 'id'},
-            {'data': 'cantidad_ingreso'},
             {'data': 'cantidad'},
-            {'data': 'cupo_autorizado'},
-            {'data': 'unidad_medida.nombre'}
+            {'data': 'stock.cantidad'},
+            {'data': 'stock.sustancia.cupo_autorizado'},
+            {'data': 'stock.sustancia.unidad_medida.nombre'}
         ],
         'columnDefs': [
             {
@@ -145,13 +154,7 @@ $(function () {
     });
 
     ////activar plugin TouchSpin para la convocatoria
-    $("input[name='convocatoria']").TouchSpin({
-        'verticalbuttons': true,
-        'min': 1,
-        'initval': 1,
-        'verticalupclass': 'glyphicon glyphicon-plus',
-        'verticaldownclass': 'glyphicon glyphicon-minus'
-    });
+    activePluginTOuchSpinInput('convocatoria', 1, 1);
 
     //evento para eliminar todas las sustancias del objeto manejador y el datatable
     $('button[rel="removeall"]').on('click', function (event) {
@@ -170,32 +173,24 @@ $(function () {
         });
 
     // Add event listener for opening and closing details
-    $('#tblistado tbody').on('click', 'td.details-control', function () {
-        let tr = $(this).closest('tr');
-        let row = tblistado.row(tr);
-        let child = row.child();
-        let data = row.data();
-        if (child) {
-            updateRowsCallback(child, data, row.index());
-        }
-    });
+    addEventListenerOpenDetailRowDatatable('tblistado', compra.datatable, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
 
-    update_datatable(compra.datatable, window.location.pathname, data);
+    get_async_data_callback(window.location.pathname, data,
+        function (response) {
+            console.log(response);
+            compra.add_detalle_compra(response);
+        },
+        function (error) {
+            message_error(error);
+        });
 
     function updateRowsCallback(row, data, dataIndex) {
-        $(row).find('input[name="cantidad"]').TouchSpin({
-            'verticalbuttons': true,
-            'min': 0.0001,
-            'initval': 0.0001,
-            'step': 0.1,
-            'max': data.cupo_autorizado - data.cantidad,
-            'forcestepdivisibility': 'none',
-            'decimals': 4,
-            'verticalupclass': 'glyphicon glyphicon-plus',
-            'verticaldownclass': 'glyphicon glyphicon-minus',
-            'buttondown_class': "btn btn-primary btn-sm",
-            'buttonup_class': "btn btn-primary btn-sm"
-        });
+
+        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.sustancia.cupo_autorizado);
+
         $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
             let data_select = $(this).select2('data');
             compra.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id));
@@ -205,6 +200,11 @@ $(function () {
             'data': compra.get_stock_item(dataIndex),
             'containerCssClass': "select2-font-size-sm"
         });
+        if (data.stock.hasOwnProperty("id")) {
+            if (parseInt(data.stock.id) > 0) {
+                $(row).find('select[name="lugar_ingreso"]').val(data.stock.id.toString()); // Select the option with a value of '1'
+            }
+        }
         $(row).find('select[name="lugar_ingreso"]').trigger('change.select2');
 
         $(row).find('input[name="cantidad"]').on('change', function (event) {
@@ -221,5 +221,4 @@ $(function () {
             );
         });
     }
-
 });

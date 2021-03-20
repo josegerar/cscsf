@@ -129,6 +129,25 @@ function update_datatable(datatable, url, data) {
     });
 }
 
+function get_async_data_callback(url, data, callback, error) {
+    $.ajax({
+        'url': url,
+        'type': 'POST',
+        'data': data,
+        'dataType': 'json'
+    }).done(function (response) {
+        if (!response.hasOwnProperty('error')) {
+            if (response.length > 0) {
+                callback(response);
+            }
+        } else {
+            error(response.error);
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        error(errorThrown);
+    });
+}
+
 function get_tag_url_document(data, comment) {
     let html = '';
     if (data && data.length > 0) {
@@ -246,8 +265,31 @@ function activePluguinTouchSpinInputRow(row, nameInput = "", maxValue = 0) {
     });
 }
 
+function activePluginTOuchSpinInput(nameInput = "", min = 0, initval = 0) {
+    $(`input[name=${nameInput}]`).TouchSpin({
+        'verticalbuttons': true,
+        'min': min,
+        'initval': initval,
+        'verticalupclass': 'glyphicon glyphicon-plus',
+        'verticaldownclass': 'glyphicon glyphicon-minus'
+    });
+}
+
+function addEventListenerOpenDetailRowDatatable(tableId = "", dataTable,
+                                                tagNameForEvent = "", updateRowsCallback) {
+    $(`#${tableId} tbody`).on('click', tagNameForEvent, function () {
+        let tr = $(this).closest('tr');
+        let row = dataTable.row(tr);
+        let child = row.child();
+        let data = row.data();
+        if (child) {
+            updateRowsCallback(child, data, row.index());
+        }
+    });
+}
+
 function util() {
-        // $('#tblistado tbody')
+    // $('#tblistado tbody')
     //     .on('click', 'a[rel=viewstocksubstance]', function () {
     //         let trdata = tblistado.cell($(this).closest('td, li')).index();
     //         let row = $(`#tblistado tbody tr:eq(${trdata.row})`);

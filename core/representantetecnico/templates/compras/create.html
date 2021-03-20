@@ -142,7 +142,11 @@
                     {% csrf_token %}
                     <button rel="save" type="submit" class="btn btn-primary btn-flat">
                         <i class="fas fa-save"></i>
-                        Guardar registro
+                        {% if action == 'add' %}
+                            Guardar registro
+                        {% elif action == 'edit' %}
+                            Actualizar registro
+                        {% endif %}
                     </button>
                     {% if action == 'add' %}
                         <button rel="othersave" type="submit" class="btn btn-secondary btn-flat">
@@ -177,7 +181,13 @@
                 let action_save = $(event.originalEvent.submitter).attr('rel');
                 compra.verify_send_data(function () {
                     let parameters = new FormData(form);
-                    parameters.append('sustancias', JSON.stringify(compra.data.sustancias));
+
+                    {% if action == 'add' %}
+                        parameters.append('sustancias', JSON.stringify(compra.data.sustancias));
+                    {% elif action == 'edit' %}
+                        parameters.append('detalle_compra', JSON.stringify(compra.data.detalleCompra));
+                    {% endif %}
+
                     disableEnableForm(form, true);
                     submit_with_ajax(
                         window.location.pathname, parameters

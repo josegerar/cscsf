@@ -188,7 +188,7 @@ class EstadoCompra(BaseModel):
         return str(self.estado)
 
     def toJSON(self):
-        item = {'estado':self.estado, 'descripcion':self.descripcion}
+        item = {'estado': self.estado, 'descripcion': self.descripcion}
         return item
 
     class Meta:
@@ -206,7 +206,8 @@ class ComprasPublicas(BaseModel):
     pedido_compras_publicas = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
-    estado_compra = models.ForeignKey(EstadoCompra, on_delete=models.CASCADE, verbose_name="Estado de compras", null=True)
+    estado_compra = models.ForeignKey(EstadoCompra, on_delete=models.CASCADE, verbose_name="Estado de compras",
+                                      null=True)
 
     def __str__(self):
         return str(self.id)
@@ -224,7 +225,7 @@ class ComprasPublicas(BaseModel):
             for i in self.compraspublicasdetalle_set.all():
                 item['detallecompra'].append(i.toJSON(rel_compraspublicas=True))
         if self.estado_compra is not None:
-            item ['estado'] = self.estado_compra.toJSON()
+            item['estado'] = self.estado_compra.toJSON()
         else:
             item['estado'] = EstadoCompra().toJSON()
         return item
@@ -260,7 +261,7 @@ class ComprasPublicasDetalle(BaseModel):
         return str(self.id)
 
     def toJSON(self, rel_compraspublicas=False):
-        item = {'cantidad': self.cantidad}
+        item = {'id': self.id, 'cantidad': self.cantidad}
         if rel_compraspublicas is False:
             item['compra'] = self.compra.toJSON()
         if self.stock is not None:

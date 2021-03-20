@@ -7,25 +7,26 @@ class PersonaForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for form in self.visible_fields():
-            form.field.widget.attrs['class'] = 'form-control'
-            form.field.widget.attrs['autocomplete'] = 'off'
-            #form.field.widget.attrs['oninput'] = 'javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);'
 
     class Meta:
         model = Persona
         fields = '__all__'
+        exclude = ['tipo_persona']
         widgets = {
             'nombre': TextInput(
                 attrs={
                     'placeholder': 'Ingrese los nombres',
-                    'type': 'text'
+                    'type': 'text',
+                    'class': 'form-control',
+                    'autocomplete': 'off'
                 }
             ),
             'apellido': TextInput(
                 attrs={
                     'placeholder': 'Ingrese los apellidos',
-                    'type': 'text'
+                    'type': 'text',
+                    'class': 'form-control',
+                    'autocomplete': 'off'
                 }
             ),
             'cedula': NumberInput(
@@ -33,7 +34,9 @@ class PersonaForm(ModelForm):
                     'placeholder': 'Ingrese el numero de cedula',
                     'type': 'text',
                     'minlength': 10,
-                    'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57'
+                    'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57',
+                    'class': 'form-control',
+                    'autocomplete': 'off'
                 }
             )
         }

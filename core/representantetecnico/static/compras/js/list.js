@@ -48,9 +48,9 @@ $(function () {
                 'render': function (data, type, row) {
                     if (data.estado === 'registrado') {
                         return "Registrado"
-                    } else if (data.estado === 'almacenado'){
+                    } else if (data.estado === 'almacenado') {
                         return "Almacenado"
-                    } else if (data.estado === 'revision'){
+                    } else if (data.estado === 'revision') {
                         return '<label class="btn-danger">Revisión</label>'
                     } else {
                         return ""
@@ -61,9 +61,13 @@ $(function () {
                 'targets': [9],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    var buttons = '<a href="/compras/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                    buttons += '<a href="/compras/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
-                    return buttons
+                    if (row.estado && row.estado.estado === "almacenado") {
+                        return ""
+                    } else {
+                        let buttons = '<a href="/compras/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
+                        buttons += '<a href="/compras/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
+                        return buttons
+                    }
                 }
             }
         ]

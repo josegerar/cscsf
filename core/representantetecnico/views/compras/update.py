@@ -1,4 +1,7 @@
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
@@ -8,7 +11,7 @@ from django.shortcuts import redirect
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.forms.formCompra import ComprasForm
-from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle
+from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle, EstadoCompra
 
 
 class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
@@ -51,12 +54,51 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
             if action is not None:
                 if action == 'edit':
                     form = self.get_form()
-                    data = form.save()
+                    if form.is_valid():
+                        compra = form.instance
+                        if compra is not None:
+                            with transaction.atomic():
+                                detalle_compras_new = json.loads(request.POST['detalle_compra'])
+                                estadocompra = EstadoCompra.objects.get(estado='registrado')
+                                compra.estado_compra_id = estadocompra.id
+                                compra.save()
+                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)
+
+                                for dc_old in detalle_compras_old:
+                                    exits_old = False
+                                    for dc_new in detalle_compras_new:
+                                        if dc_old.id == dc_new['id']:
+                                            exits_old = True
+                                    if exits_old is False:
+                                        dc_old.delete()
+
+                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)
+
+                                for dc_new in detalle_compras_new:
+                                    exits_old = False
+                                    item_det_new = None
+                                    stock_old = dc_new['stock']
+                                    sustancia_new = stock_old['sustancia']
+                                    stock_selected = sustancia_new['stock_selected']
+
+                                    for dc_old in detalle_compras_old:
+                                        if dc_old.id == dc_new['id']:
+                                            exits_old = True
+                                            item_det_new = dc_old
+
+                                    if exits_old is False and item_det_new is None:
+                                        item_det_new = ComprasPublicasDetalle()
+
+                                    item_det_new.stock_id = stock_selected['id']
+                                    item_det_new.compra_id = compra.id
+                                    item_det_new.cantidad = float(dc_new['cantidad'])
+                                    item_det_new.save()
+
                 elif action == 'searchdetail':
                     data = []
                     detalle_compras = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)
                     for dci in detalle_compras:
-                        data.append(dci.toJSON())
+                        data.append(dci.toJSON(rel_compraspublicas=True))
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
