@@ -161,7 +161,12 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'compras/js/create.js' %}"></script>
+    {% if action == 'add' %}
+        <script src="{% static 'compras/js/create.js' %}"></script>
+    {% elif action == 'edit' %}
+        <script src="{% static 'compras/js/edit.js' %}"></script>
+    {% endif %}
+
 
     <script type="application/javascript">
         $(function () {

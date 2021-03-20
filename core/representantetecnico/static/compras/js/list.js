@@ -46,11 +46,11 @@ $(function () {
                 'targets': [8],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if (data.estado == 'registrado') {
+                    if (data.estado === 'registrado') {
                         return "Registrado"
-                    } else if (data.estado == 'almacenado'){
+                    } else if (data.estado === 'almacenado'){
                         return "Almacenado"
-                    } else if (data.estado == 'revision'){
+                    } else if (data.estado === 'revision'){
                         return '<label class="btn-danger">Revisión</label>'
                     } else {
                         return ""
