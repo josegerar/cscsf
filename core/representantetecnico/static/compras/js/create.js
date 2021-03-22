@@ -177,19 +177,9 @@ $(function () {
         });
 
     function updateRowsCallback(row, data, dataIndex) {
-        $(row).find('input[name="cantidad"]').TouchSpin({
-            'verticalbuttons': true,
-            'min': 0.0001,
-            'initval': 0.0001,
-            'step': 0.1,
-            'max': data.cupo_autorizado - data.cantidad,
-            'forcestepdivisibility': 'none',
-            'decimals': 4,
-            'verticalupclass': 'glyphicon glyphicon-plus',
-            'verticaldownclass': 'glyphicon glyphicon-minus',
-            'buttondown_class': "btn btn-primary btn-sm",
-            'buttonup_class': "btn btn-primary btn-sm"
-        });
+
+        activePluguinTouchSpinInputRow(row, 'cantidad', data.cupo_autorizado - data.cantidad)
+
         $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
             let data_select = $(this).select2('data');
             console.log(data_select);

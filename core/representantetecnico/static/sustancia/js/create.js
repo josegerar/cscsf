@@ -25,6 +25,13 @@ const sustancias = {
     update_cantidad_desglose: function (cantidad, index) {
         this.data.desgloses[index].cantidad_ingreso = cantidad;
     },
+    verify_send_data: function (callback, error) {
+        let cantidad = this.get_cantidad_ingreso_total();
+        if (cantidad > 0) {
+            if (cantidad > this.data.cupo_autorizado) error("La cantidad a ingresar no puede ser mayor al cupo autorizado");
+            else callback();
+        } else callback();
+    },
     get_cantidad_ingreso_total: function () {
         let cantidad = 0;
         $.each(this.data.desgloses, function (index, value) {
