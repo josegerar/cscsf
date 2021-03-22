@@ -24,20 +24,6 @@ const sustancias = {
     },
     update_cantidad_desglose: function (cantidad, index) {
         this.data.desgloses[index].cantidad_ingreso = cantidad;
-    },
-    verify_send_data: function (callback, error) {
-        let cantidad = this.get_cantidad_ingreso_total();
-        if (cantidad > 0) {
-            if (cantidad > this.data.cupo_autorizado) error("La cantidad a ingresar no puede ser mayor al cupo autorizado");
-            else callback();
-        } else callback();
-    },
-    get_cantidad_ingreso_total: function () {
-        let cantidad = 0;
-        $.each(this.data.desgloses, function (index, value) {
-            cantidad += value.cantidad_ingreso;
-        });
-        return cantidad;
     }
 }
 
@@ -48,7 +34,10 @@ $(function () {
         'autoWidth': false,
         'destroy': true,
         'columns': [
-            {'data': 'tipo'},
+            {
+                "className": 'details-control',
+                'data': 'tipo'
+            },
             {'data': 'nombre'},
             {'data': 'cantidad_ingreso'}
         ],
@@ -62,18 +51,7 @@ $(function () {
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
-            $(row).find('input[name="cantidad"]').TouchSpin({
-                'verticalbuttons': true,
-                'min': 0.0000,
-                'initval': 0.0000,
-                'step': 0.1,
-                'forcestepdivisibility': 'none',
-                'decimals': 4
-            });
-            $(row).find('input[name="cantidad"]').on('change', function (event) {
-                let nueva_cantidad = parseFloat($(this).val());
-                sustancias.update_cantidad_desglose(nueva_cantidad, dataIndex);
-            });
+            updateRowsCallback(row, data, dataIndex);
         }
     });
 
@@ -98,4 +76,26 @@ $(function () {
         'theme': 'bootstrap4',
         'language': 'es'
     });
+
+    // Add event listener for opening and closing details
+    addEventListenerOpenDetailRowDatatable('tblistado', sustancias.datatable, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
+
+    function updateRowsCallback(row, data, dataIndex) {
+        $(row).find('input[name="cantidad"]').TouchSpin({
+            'verticalbuttons': true,
+            'min': 0.0000,
+            'initval': 0.0000,
+            'step': 0.1,
+            'forcestepdivisibility': 'none',
+            'decimals': 4
+        });
+        $(row).find('input[name="cantidad"]').on('change', function (event) {
+            let nueva_cantidad = parseFloat($(this).val());
+            sustancias.update_cantidad_desglose(nueva_cantidad, dataIndex);
+        });
+    }
+
 });

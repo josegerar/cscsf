@@ -21,9 +21,9 @@ $(function () {
             {
                 'targets': [0],
                 'render': function (data, type, row) {
-                    if (row.bodega.id !== null) {
+                    if (row.bodega) {
                         return "bodega";
-                    } else if (row.laboratorio.id !== null) {
+                    } else if (row.laboratorio) {
                         return "laboratorio";
                     } else {
                         return "";
@@ -33,9 +33,9 @@ $(function () {
             {
                 'targets': [1],
                 'render': function (data, type, row) {
-                    if (row.bodega.id !== null) {
+                    if (row.bodega) {
                         return row.bodega.nombre;
-                    } else if (row.laboratorio.id !== null) {
+                    } else if (row.laboratorio.id) {
                         return row.laboratorio.nombre;
                     } else {
                         return "";

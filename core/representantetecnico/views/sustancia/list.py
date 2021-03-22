@@ -48,7 +48,7 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
             if action == 'searchdata':
                 data = []
                 for i in Sustancia.objects.all():
-                    data.append(i.toJSON())
+                    data.append(i.toJSON(view_stock=True))
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:

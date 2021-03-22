@@ -47,67 +47,71 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {% endblock %}
 
     <link rel="stylesheet" href="{% static 'css/general.css' %}">
+    <link rel="stylesheet" href="{% static 'css/loading.css' %}">
+    <script src="{% static 'js/loading.js' %}"></script>
 </head>
 <body class="hold-transition layout-top-nav">
-<div class="wrapper">
-    {% block header %}
+<div class="main-container-load">
+    <div class="wrapper">
 
-    {% endblock %}
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper" style="padding-top: 4em">
-        <!-- Content Header (Page header) -->
-        <div class="content-header">
-            <div class="container">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        {% include 'validateheader.html' %}
-                    </div><!-- /.col -->
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            {% for item in urls %}
-                                {% if forloop.last %}
-                                    <li class="breadcrumb-item active">{{ item.uriname }}</li>
-                                {% else %}
-                                    <li class="breadcrumb-item"><a href="{{ item.uridj }}">{{ item.uriname }}</a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </ol>
-                    </div><!-- /.col -->
-                </div><!-- /.row -->
-            </div><!-- /.container-fluid -->
-        </div>
-        <!-- /.content-header -->
-
-        {% block content %}
+        {% block header %}
 
         {% endblock %}
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper" style="padding-top: 4em">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            {% include 'validateheader.html' %}
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                {% for item in urls %}
+                                    {% if forloop.last %}
+                                        <li class="breadcrumb-item active">{{ item.uriname }}</li>
+                                    {% else %}
+                                        <li class="breadcrumb-item"><a href="{{ item.uridj }}">{{ item.uriname }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+
+            {% block content %}
+
+            {% endblock %}
+        </div>
+        <!-- /.content-wrapper -->
+        <!-- /.content -->
+
     </div>
-    <!-- /.content-wrapper -->
-    <!-- /.content -->
+    <!-- /.footer -->
+    {% include 'footer.html' %}
+    <!-- ./footer -->
+    {% block script %}
 
+    {% endblock %}
+
+    <script type="application/javascript">
+        {% if messages %}
+            let html_messages = '<p>';
+            {% for message in messages %}
+                html_messages += '{{ message }}<br>';
+            {% endfor %}
+            html_messages += '</p>';
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                html: html_messages,
+            })
+        {% endif %}
+    </script>
 </div>
-<!-- /.footer -->
-{% include 'footer.html' %}
-<!-- ./footer -->
-{% block script %}
-
-{% endblock %}
-
-<script type="application/javascript">
-    {% if messages %}
-        let html_messages = '<p>';
-        {% for message in messages %}
-            html_messages += '{{ message }}<br>';
-        {% endfor %}
-        html_messages += '</p>';
-        Swal.fire({
-            icon: 'error',
-            title: '¡Error!',
-            html: html_messages,
-        })
-    {% endif %}
-</script>
-
 </body>
 </html>

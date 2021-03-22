@@ -1,0 +1,35 @@
+.loading_spinner_custom {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: 1s all;
+}
+
+.content_loading_opacity {
+    opacity: 0.4;
+}
+
+.loading_spinner_custom .show_loading {
+    opacity: 1 !important;
+}
+
+.loading_spinner_custom .spin_custom {
+    border: .25em solid;
+    border-top: .25em solid transparent;
+    border-radius: 50%;
+    width: 3em;
+    height: 3em;
+    z-index: 9999;
+    top: calc(50% - 1.5em);
+    left: calc(50% - 1.5em);
+    animation: spin 1s linear infinite;
+    position: absolute;
+    opacity: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -73,6 +73,7 @@ function submit_with_ajax(
                 text: "Si",
                 btnClass: 'btn-primary',
                 action: function () {
+                    Loading.show();
                     $.ajax({
                         'url': url,
                         'type': 'POST',
@@ -91,7 +92,7 @@ function submit_with_ajax(
                         message_error(errorThrown);
                         cancelOrError();
                     }).always(function (data) {
-
+                        Loading.hide();
                     });
                 }
             },
@@ -107,6 +108,7 @@ function submit_with_ajax(
 }
 
 function update_datatable(datatable, url, data) {
+    Loading.show();
     $.ajax({
         'url': url,
         'type': 'POST',
@@ -125,7 +127,7 @@ function update_datatable(datatable, url, data) {
     }).fail(function (jqXHR, textStatus, errorThrown) {
         message_error(errorThrown);
     }).always(function (data) {
-
+        Loading.hide();
     });
 }
 

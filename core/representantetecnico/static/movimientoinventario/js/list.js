@@ -1,10 +1,7 @@
 $(function () {
-    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-    var data = {'action': 'searchdata'}
-    if (csrfmiddlewaretoken.length > 0) {
-        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-    }
-    var tblistado = $('#tblistado').DataTable({
+    const csrfmiddlewaretoken = getCookie("csrftoken");
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': csrfmiddlewaretoken};
+    const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
