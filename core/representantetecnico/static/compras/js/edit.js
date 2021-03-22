@@ -47,6 +47,7 @@ const compra = {
         this.datatable.rows.add(this.data.detalleCompra).draw();
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
+        console.log(nueva_cantidad);
         this.data.detalleCompra[index].cantidad_ingreso = nueva_cantidad;
     },
     delete_sustancia: function (index) {

@@ -91,8 +91,12 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
 
                                     item_det_new.stock_id = stock_selected['id']
                                     item_det_new.compra_id = compra.id
-                                    item_det_new.cantidad = float(dc_new['cantidad'])
+                                    item_det_new.cantidad = float(dc_new['cantidad_ingreso'])
                                     item_det_new.save()
+                        else:
+                            data['error'] = 'ha ocurrido un error'
+                    else:
+                        data['error'] = 'ha ocurrido un error'
 
                 elif action == 'searchdetail':
                     data = []

@@ -7,7 +7,7 @@ from django.views.generic import ListView
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import TipoMovimientoInventario, Inventario, Stock
-from core.representantetecnico.models import ComprasPublicas, Laboratorio, ComprasPublicasDetalle
+from core.representantetecnico.models import ComprasPublicas, Laboratorio, ComprasPublicasDetalle, EstadoCompra
 
 
 class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -23,29 +23,51 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                 data = []
                 for i in ComprasPublicas.objects.all():
                     data.append(i.toJSON())
+            elif action == 'revisionCompra':
+                idcompra = request.POST.get('id_compra')
+                if idcompra is not None:
+                    with transaction.atomic():
+                        comprasPublicas = ComprasPublicas.objects.get(id=idcompra)
+                        if comprasPublicas is not None:
+                            compras_estado = EstadoCompra.objects.get(estado='revision')
+                            if compras_estado is not None:
+                                comprasPublicas.estado_compra_id = compras_estado.id
+                                comprasPublicas.save()
+                            else:
+                                data['error'] = 'ha ocurrido un error'
+                        else:
+                            data['error'] = 'ha ocurrido un error'
+                else:
+                    data['error'] = 'ha ocurrido un error'
             elif action =='confirmarCompra':
                 idcompra = request.POST.get('id_compra')
                 if idcompra is not None:
                     with transaction.atomic():
                         comprasPublicas = ComprasPublicas.objects.get(id=idcompra)
                         tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='add')
-                        if comprasPublicas is not None:
-                            detallecompra = ComprasPublicasDetalle.objects.filter(compra_id=comprasPublicas.id)
-                            for i in detallecompra:
-                                stock = Stock.objects.get(id=i.stock_id)
-                                stock.cantidad = stock.cantidad + i.cantidad
-                                stock.save()
+                        if tipo_movimiento is not None:
+                            compras_estado = EstadoCompra.objects.get(estado='almacenado')
+                            if compras_estado is not None:
+                                comprasPublicas.estado_compra_id = compras_estado.id
+                                comprasPublicas.save()
+                                if comprasPublicas is not None:
+                                    detallecompra = ComprasPublicasDetalle.objects.filter(compra_id=comprasPublicas.id)
+                                    for i in detallecompra:
+                                        stock = Stock.objects.get(id=i.stock_id)
+                                        stock.cantidad = stock.cantidad + i.cantidad
+                                        stock.save()
 
-                                inv = Inventario()
-                                inv.stock_id = i.stock_id
-                                inv.cantidad_movimiento = i.cantidad
-                                inv.tipo_movimiento_id = tipo_movimiento.id
-                                inv.save()
-
-                            comprasPublicas.estado_compra=True
-                            comprasPublicas.save()
+                                        inv = Inventario()
+                                        inv.stock_id = i.stock_id
+                                        inv.cantidad_movimiento = i.cantidad
+                                        inv.tipo_movimiento_id = tipo_movimiento.id
+                                        inv.save()
+                                else:
+                                    data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
+                            else:
+                                data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
                         else:
-                            data['error'] = 'Compra no encontrada'
+                            data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:

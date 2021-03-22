@@ -32,6 +32,7 @@ const compra = {
         $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
             if (vstock.bodega.id) stock.push(vstock);
         });
+        console.log(stock)
         return stock;
     },
     list_sustancia: function () {
@@ -191,6 +192,7 @@ $(function () {
         });
         $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
             let data_select = $(this).select2('data');
+            console.log(data_select);
             compra.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id));
         }).select2({
             'theme': 'bootstrap4',

@@ -255,7 +255,7 @@ class ComprasPublicas(BaseModel):
 class ComprasPublicasDetalle(BaseModel):
     compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE, verbose_name="Compra")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
-    cantidad = models.IntegerField(verbose_name="cantidad")
+    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
 
     def __str__(self):
         return str(self.id)

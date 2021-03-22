@@ -85,8 +85,15 @@ $(function () {
     });
     $('#frmconfirmarcompra').on('submit', function (event) {
         event.preventDefault();
+        let action_save = $(event.originalEvent.submitter).attr('rel');
+        console.log(action_save);
         let form = this;
         let parameters = new FormData(form);
+        if (action_save == 'confirmar'){
+            parameters.append('action','confirmarCompra');
+        } else if(action_save == 'revisar'){
+            parameters.append('action','revisionCompra');
+        }
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
