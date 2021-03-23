@@ -57,14 +57,16 @@
                             </div>
                             <div class="card-footer">
                                 {% csrf_token %}
-                                <a href="{{ create_url }}" class="btn btn-primary btn-flat">
-                                    <i class="fas fa-plus"></i>
-                                    Nuevo registro
-                                </a>
-                                <button id="btnSync" type="button" class="btn btn-primary btn-success">
-                                    <i class="fas fa-sync"></i>
-                                    Actualizar
-                                </button>
+                                {% block buttons_list %}
+                                    <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+                                        <i class="fas fa-plus"></i>
+                                        Nuevo registro
+                                    </a>
+                                    <button id="btnSync" type="button" class="btn btn-primary btn-success">
+                                        <i class="fas fa-sync"></i>
+                                        Actualizar
+                                    </button>
+                                {% endblock %}
                             </div>
                         </div>
                     </div>

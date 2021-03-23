@@ -13,6 +13,7 @@ class SolicitudForm(ModelForm):
     class Meta:
         model = Solicitud
         fields = '__all__'
+        exclude = ['estado_solicitud', 'fecha_autorizacion']
         widgets = {
             'solicitante': Select(attrs={
                 'class': 'form-control select2',

@@ -1,5 +1,6 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
@@ -17,6 +18,13 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if self.object is not None:
+            if self.object.estado_compra is not None:
+                if self.object.estado_compra.estado == 'aprobado' or self.object.estado_compra.estado == 'entregado':
+                    messages.error(request, 'solicitud de entrega de sustancia ya aprobado o entregado')
+                    messages.error(request, 'No es posible su eliminación')
+                    messages.error(request, 'Pongase en contacto con el administrador del sistema')
+                    return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

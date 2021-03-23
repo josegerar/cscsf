@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.contrib import messages
 from django.views.generic import DeleteView
 
 from app.settings import LOGIN_REDIRECT_URL
@@ -17,6 +18,13 @@ class ComprasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if self.object is not None:
+            if self.object.estado_compra is not None:
+                if self.object.estado_compra.estado == 'almacenado':
+                    messages.error(request, 'Registro de compra ya almacenado en bodega')
+                    messages.error(request, 'No es posible su eliminación')
+                    messages.error(request, 'Pongase en contacto con el administrador del sistema')
+                    return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
