@@ -15,24 +15,21 @@ const compra = {
         this.list_sustancia();
     },
     config_item: function (item) {
-        let cant = 0;
         $.each(item.stock, function (istock, vstock) {
-            if (vstock.bodega.id) vstock.text = "Bod. " + vstock.bodega.nombre;
-            else vstock.text = "Lab. " + vstock.laboratorio.nombre;
-            cant += parseFloat(vstock.cantidad);
+            if (vstock.bodega) vstock.text = "Bod. " + vstock.bodega.nombre;
+            else if (vstock.laboratorio) vstock.text = "Lab. " + vstock.laboratorio.nombre;
         });
         item.cantidad_ingreso = 0.0001;
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
-        item.cantidad = cant.toFixed(4);
         item.stock_selected = null;
+        item.cupo_disponible = item.cupo_autorizado - item.cupo_consumido;
         return item;
     },
     get_stock_item: function (dataIndex) {
         let stock = [];
         $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
-            if (vstock.bodega.id) stock.push(vstock);
+            if (vstock.bodega) stock.push(vstock);
         });
-        console.log(stock)
         return stock;
     },
     list_sustancia: function () {
@@ -91,7 +88,7 @@ $(function () {
             {'data': 'nombre'},
             {'data': 'id'},
             {'data': 'cantidad_ingreso'},
-            {'data': 'cantidad'},
+            {'data': 'cupo_disponible'},
             {'data': 'cupo_autorizado'},
             {'data': 'unidad_medida.nombre'}
         ],
@@ -167,6 +164,7 @@ $(function () {
     //activar el autocomplete en el buscador
     autocompleteInput("search", "/sustancias/", "search_substance",
         function (item) {
+            console.log(item);
             compra.add_sustancia(item);
         });
 

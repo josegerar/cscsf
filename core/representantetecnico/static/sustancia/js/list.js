@@ -97,6 +97,7 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('a[rel=viewstocksubstance]').on('click', function (event) {
+            activeSelectionRowDatatable(row, tblistado);
             tbstock.clear();
             tbstock.rows.add(data.stock).draw();
         });

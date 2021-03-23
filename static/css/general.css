@@ -2,6 +2,10 @@
     width: 100% !important;
 }
 
-.form-group-sm > .select2{
+.form-group-sm > .select2 {
     font-size: 11px;
+}
+
+table.dataTable tbody tr.selected {
+    background-color: #B0BED9;
 }

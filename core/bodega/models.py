@@ -74,7 +74,7 @@ class Sustancia(BaseModel):
             tipo_movimiento__nombre="add",
             stock__sustancia_id=self.id
         ).aggregate(Sum("cantidad_movimiento"))
-        item['cupo_consumido'] = cupo_consumido;
+        item['cupo_consumido'] = float(cupo_consumido['cantidad_movimiento__sum'])
         if self.unidad_medida is not None:
             item['unidad_medida'] = self.unidad_medida.toJSON()
         item['stock'] = []

@@ -33,7 +33,7 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                 data = []
                 substances = Sustancia.objects.filter(nombre__icontains=request.GET['term'])[0:10]
                 for i in substances:
-                    substance = i.toJSON()
+                    substance = i.toJSON(view_stock=True)
                     substance['value'] = i.nombre
                     data.append(substance)
                 return JsonResponse(data, safe=False)

@@ -290,6 +290,13 @@ function addEventListenerOpenDetailRowDatatable(tableId = "", dataTable,
     });
 }
 
+function activeSelectionRowDatatable(row, datatable) {
+    datatable.$('tr.selected').removeClass('selected');
+    $(row).addClass('selected');
+    //datatable.rows({selected: false}).data();
+    //datatable.row(row).select();
+}
+
 function util() {
     // $('#tblistado tbody')
     //     .on('click', 'a[rel=viewstocksubstance]', function () {
