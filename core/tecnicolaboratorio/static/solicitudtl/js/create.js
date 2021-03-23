@@ -9,18 +9,19 @@ const solicitud = {
             message_error("La sustancia seleccionada no tiene stock suficente en bodega");
             return false;
         }
-        this.data.sustancias.push();
+        this.data.sustancias.push(item);
         this.list_sustancia();
     },
     config_item: function (item) {
         let cantidad = 0;
         $.each(item.stock, function (istock, vstock) {
-            if (vstock.bodega.id) {
+            if (vstock.bodega) {
                 vstock.text = "Bod. " + vstock.bodega.nombre;
                 cantidad += parseFloat(vstock.cantidad);
-            } else vstock.text = "Lab. " + vstock.laboratorio.nombre;
+            } else if (vstock.laboratorio) vstock.text = "Lab. " + vstock.laboratorio.nombre;
         });
-        item.cantidad_solicitud = 0.0001;
+        item.cantidad_solicitud = 0;
+        item.cupo_autorizado = parseFloat(item.cupo_autorizado);
         item.cantidad_bodega = 0;
         item.cantidad_bodegas_total = cantidad;
         item.stock_selected = null;
@@ -29,7 +30,7 @@ const solicitud = {
     get_bodegas_item: function (dataIndex) {
         let stock = [];
         $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
-            if (vstock.bodega.id && parseFloat(vstock.cantidad) > 0) stock.push(vstock);
+            if (vstock.bodega && parseFloat(vstock.cantidad) > 0) stock.push(vstock);
         });
         return stock;
     },
@@ -41,7 +42,8 @@ const solicitud = {
 
     },
     delete_sustancia: function (index) {
-
+        this.data.sustancias.splice(index, 1);
+        this.list_sustancia();
     },
     delete_all_sustancias: function () {
 
@@ -49,16 +51,19 @@ const solicitud = {
     verify_send_data: function (callback, error) {
 
     },
-    set_stock_selected: function (dataIndex, idStock) {
-        console.log(dataIndex, idStock);
+    set_stock_selected: function (dataIndex, idStock, row) {
+        if (solicitud.data.sustancias[dataIndex].stock_selected &&
+            solicitud.data.sustancias[dataIndex].stock_selected.id === idStock) {
+            return false;
+        }
         $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
             if (vstock.id === idStock) {
                 solicitud.data.sustancias[dataIndex].stock_selected = vstock;
-                solicitud.data.sustancias[dataIndex].cantidad_bodega = parseFloat(vstock.cantidad).toFixed(4);
+                solicitud.data.sustancias[dataIndex].cantidad_bodega = parseFloat(vstock.cantidad);
                 return false;
             }
         });
-        this.list_sustancia();
+        $(row).find('label[rel=cantidad_bodega]').text(solicitud.data.sustancias[dataIndex].cantidad_bodega);
     }
 }
 
@@ -100,6 +105,13 @@ $(function () {
                 'render': function (data, type, row) {
                     return '<input value="' + data + '" type="text" name="cantidad" class="form-control form-control-sm input-sm" autocomplete="off"/>';
                 }
+            },
+            {
+                'targets': [4],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    return `<label style="font-weight: 500;" rel="cantidad_bodega">${data}</label>`;
+                }
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
@@ -115,6 +127,7 @@ $(function () {
 
     autocompleteInput("search", "/sustancias/", "search_substance",
         function (item) {
+            console.log(item);
             solicitud.add_sustancia(item);
         });
 
@@ -125,17 +138,31 @@ $(function () {
         });
 
     function updateRowsCallback(row, data, dataIndex) {
-        activePluguinTouchSpinInputRow(row, "cantidad", parseFloat(data.cupo_autorizado).toFixed(4));
+
+        activePluguinTouchSpinInputRow(row, "cantidad", data.cupo_autorizado - data.cupo_consumido,
+            0, 0, 0.1);
 
         $(row).find('select[name="bodega_salida"]').on('change.select2', function (e) {
+
             let data_select = $(this).select2('data');
-            solicitud.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id));
+
+            solicitud.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id), row);
+
+            $(row).find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
+                max: solicitud.data.sustancias[dataIndex].cantidad_bodega
+            });
+
         }).select2({
             'theme': 'bootstrap4',
             'language': 'es',
             'data': solicitud.get_bodegas_item(dataIndex),
             'containerCssClass': "select2-font-size-sm"
         });
+
+        if (data.stock_selected && data.cantidad_bodega) {
+            $(row).find('select[name="lugar_ingreso"]').val(data.stock_selected.id);
+        }
+
         $(row).find('select[name="bodega_salida"]').trigger('change.select2');
 
         $(row).find('input[name="cantidad"]').on('change', function (event) {
@@ -147,7 +174,7 @@ $(function () {
                 'Notificación',
                 '¿Esta seguro de eliminar la sustancia ¡' + data.nombre + '!?',
                 function () {
-                    //compra.delete_sustancia(dataIndex);
+                    solicitud.delete_sustancia(dataIndex);
                 }
             );
         });

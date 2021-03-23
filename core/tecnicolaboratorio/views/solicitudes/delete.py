@@ -13,7 +13,7 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
     permission_required = ('representantetecnico.delete_solicitud',)
     model = Solicitud
     template_name = 'delete.html'
-    success_url = reverse_lazy('rp:solicitudes')
+    success_url = reverse_lazy('tl:solicitudes')
     url_redirect = success_url
 
     def dispatch(self, request, *args, **kwargs):
@@ -44,6 +44,6 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Solicitudes"},
-            {"uridj": reverse_lazy('rp:'), "uriname": "Eliminar"}
+            {"uridj": reverse_lazy('tl:eliminarsolicitud'), "uriname": "Eliminar"}
         ]
         return context

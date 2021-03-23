@@ -22,10 +22,6 @@ from core.representantetecnico.views.personas.delete import PersonasDeleteView
 from core.representantetecnico.views.personas.list import PersonaListView
 from core.representantetecnico.views.personas.update import PersonasUpdateView
 from core.representantetecnico.views.repositorio.list import RepositorioListView
-from core.representantetecnico.views.solicitudes.create import SolicitudCreateView
-from core.representantetecnico.views.solicitudes.delete import SolicitudDeleteView
-from core.representantetecnico.views.solicitudes.list import SolicitudListView
-from core.representantetecnico.views.solicitudes.update import SolicitudUpdateView
 from core.representantetecnico.views.sustancia.create import SustanciaCreateView
 from core.representantetecnico.views.sustancia.delete import SustanciaDeleteView
 from core.representantetecnico.views.sustancia.list import SustanciaListView
@@ -54,12 +50,6 @@ urlpatterns = [
     path('compras/registro/', ComprasCreateView.as_view(), name="registrocompras"),
     path('compras/update/<int:pk>/', ComprasUpdateView.as_view(), name="actualizacioncompras"),
     path('compras/delete/<int:pk>/', ComprasDeleteView.as_view(), name="eliminarcompras"),
-
-    # solicitudes
-    path('solicitudes/', SolicitudListView.as_view(), name="solicitudes"),
-    path('solicitudes/registro/', SolicitudCreateView.as_view(), name="registrosolicitud"),
-    path('solicitudes/update/<int:pk>/', SolicitudUpdateView.as_view(), name="actualizacionsolicitud"),
-    path('solicitudes/delete/<int:pk>/', SolicitudDeleteView.as_view(), name="eliminarsolicitud"),
 
     # empresa
     path('empresas/', EmpresaListView.as_view(), name="empresas"),

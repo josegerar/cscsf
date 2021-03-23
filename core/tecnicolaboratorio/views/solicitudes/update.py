@@ -6,16 +6,16 @@ from django.views.generic import UpdateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.forms.formSolicitud import SolicitudForm
 from core.representantetecnico.models import Solicitud
+from core.tecnicolaboratorio.forms.formSolicitud import SolicitudForm
 
 
 class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
     permission_required = ('representantetecnico.change_solicitud',)
     model = Solicitud
     form_class = SolicitudForm
-    template_name = 'laboratorio/create.html'
-    success_url = reverse_lazy('rp:solicitudes')
+    template_name = 'solicitudtl/create.html'
+    success_url = reverse_lazy('tl:solicitudes')
     url_redirect = success_url
 
     def dispatch(self, request, *args, **kwargs):
@@ -39,7 +39,7 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Solicitudes"},
-            {"uridj": reverse_lazy('rp:actualizacionsolicitud'), "uriname": "Edicción"}
+            {"uridj": reverse_lazy('tl:actualizacionsolicitud'), "uriname": "Edicción"}
         ]
         return context
 

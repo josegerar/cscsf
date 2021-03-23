@@ -5,17 +5,16 @@ from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia
-from core.representantetecnico.forms.formSolicitud import SolicitudForm
 from core.representantetecnico.models import Solicitud
+from core.tecnicolaboratorio.forms.formSolicitud import SolicitudForm
 
 
 class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
     permission_required = ('representantetecnico.add_solicitud',)
     model = Solicitud
     form_class = SolicitudForm
-    template_name = "solicitud/create.html"
-    success_url = reverse_lazy("rp:solicitudes")
+    template_name = "solicitudtl/create.html"
+    success_url = reverse_lazy("tl:solicitudes")
     url_redirect = success_url
 
     def get_context_data(self, **kwargs):
@@ -28,7 +27,7 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": self.success_url, "uriname": "Solicitudes"},
-            {"uridj": reverse_lazy('rp:registrosolicitud'), "uriname": "Registro"}
+            {"uridj": reverse_lazy('tl:registrosolicitud'), "uriname": "Registro"}
         ]
         return context
 
