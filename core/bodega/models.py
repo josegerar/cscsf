@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.db import models
+from django.db.models import Sum
 from django.forms import model_to_dict
 
 from core.login.models import BaseModel, User
@@ -64,7 +67,14 @@ class Sustancia(BaseModel):
         return self.nombre
 
     def toJSON(self, view_stock=False):
-        item = model_to_dict(self, exclude=['unidad_medida'])
+        item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion,
+                'cupo_autorizado': self.cupo_autorizado}
+        cupo_consumido = Inventario.objects.filter(
+            date_creation__year=datetime.now().year,
+            tipo_movimiento__nombre="add",
+            stock__sustancia_id=self.id
+        ).aggregate(Sum("cantidad_movimiento"))
+        item['cupo_consumido'] = cupo_consumido;
         if self.unidad_medida is not None:
             item['unidad_medida'] = self.unidad_medida.toJSON()
         item['stock'] = []
