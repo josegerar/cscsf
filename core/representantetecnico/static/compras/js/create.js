@@ -19,7 +19,7 @@ const compra = {
             if (vstock.bodega) vstock.text = "Bod. " + vstock.bodega.nombre;
             else if (vstock.laboratorio) vstock.text = "Lab. " + vstock.laboratorio.nombre;
         });
-        item.cantidad_ingreso = 0.0001;
+        item.cantidad_ingreso = 0;
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
         item.stock_selected = null;
         item.cupo_disponible = item.cupo_autorizado - item.cupo_consumido;
@@ -55,11 +55,20 @@ const compra = {
         );
     },
     verify_send_data: function (callback, error) {
+        let isValidData = true;
         if (this.data.sustancias.length === 0) {
-            error();
+            isValidData = false;
+            error("¡Debe existir al menos 1 sustancia a comprar agregada!");
         } else {
-            callback();
+
+            $.each(this.data.sustancias, function (index, item) {
+                if (item.cantidad_ingreso <= 0) {
+                    isValidData = false;
+                    error(`! La sustancia ${item.nombre} tiene una cantidad a ingresar invalida, por favor verifique ¡`);
+                }
+            });
         }
+        if (isValidData) callback();
     },
     set_stock_selected: function (dataIndex, idStock) {
         $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
@@ -164,7 +173,6 @@ $(function () {
     //activar el autocomplete en el buscador
     autocompleteInput("search", "/sustancias/", "search_substance",
         function (item) {
-            console.log(item);
             compra.add_sustancia(item);
         });
 
@@ -176,11 +184,11 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
 
-        activePluguinTouchSpinInputRow(row, 'cantidad', data.cupo_autorizado - data.cantidad)
+        activePluguinTouchSpinInputRow(row, 'cantidad', data.cupo_autorizado - data.cupo_disponible,
+            0, 0, 0.1);
 
         $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
             let data_select = $(this).select2('data');
-            console.log(data_select);
             compra.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id));
         }).select2({
             'theme': 'bootstrap4',

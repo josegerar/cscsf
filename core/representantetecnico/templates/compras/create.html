@@ -200,8 +200,8 @@
                             disableEnableForm(form, false);
                         }
                     );
-                }, function () {
-                    message_info('¡Deben existir sustancias en el detalle para guardar la informacón de la compra!');
+                }, function (message) {
+                    message_info(message);
                 });
             });
         });

@@ -251,12 +251,13 @@ function autocompleteInput(nameInput = "", urlSend = "", actionName = "", select
     });
 }
 
-function activePluguinTouchSpinInputRow(row, nameInput = "", maxValue = 0) {
+function activePluguinTouchSpinInputRow(row, nameInput = "", maxValue = 0,
+                                        minValue = 0, initVal = 0, step = 0) {
     $(row).find(`input[name=${nameInput}]`).TouchSpin({
         'verticalbuttons': true,
-        'min': 0.0001,
-        'initval': 0.0001,
-        'step': 0.1,
+        'min': minValue,
+        'initval': initVal,
+        'step': step,
         'max': maxValue,
         'forcestepdivisibility': 'none',
         'decimals': 4,
