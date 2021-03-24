@@ -108,7 +108,7 @@ class SolicitudDetalle(BaseModel):
             if ver_solicitud:
                 item['solicitud'] = self.solicitud.toJSON()
         if self.stock is not None:
-            item['stock'] = self.stock.toJSON(view_subtance=True)
+            item['stock'] = self.stock.toJSON(view_subtance=True, view_stock_substance=True)
         return item
 
     class Meta:

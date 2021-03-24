@@ -91,7 +91,7 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
 
                                     item_det_new.stock_id = stock_selected['id']
                                     item_det_new.solicitud_id = solicitud.id
-                                    item_det_new.cantidad = float(dc_new['cantidad_ingreso'])
+                                    item_det_new.cantidad = float(dc_new['cantidad_solicitud'])
                                     item_det_new.save()
 
                         else:

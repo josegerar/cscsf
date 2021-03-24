@@ -145,6 +145,7 @@ function get_async_data_callback(url, data, callback, error) {
                 Loading.hide();
                 callback(response);
             }
+            Loading.hide();
         } else {
             Loading.hide();
             error(response.error);

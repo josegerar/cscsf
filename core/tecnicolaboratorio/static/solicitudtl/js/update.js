@@ -4,8 +4,8 @@ const solicitud = {
         detalleSolicitud: []
     },
     add_sustancia: function (item) {
-        this.config_item(item);
-        if (item.cantidad_bodegas_total <= 0) {
+        item = this.config_item(item);
+        if (item.stock.sustancia.cantidad_bodegas_total <= 0) {
             message_error("La sustancia seleccionada no tiene stock suficente en bodega");
             return false;
         }
@@ -18,6 +18,7 @@ const solicitud = {
     },
     config_item: function (item) {
         let cantidad = 0;
+        let itemDetalle = {'id': -1, 'cantidad_solicitud': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
         $.each(item.stock, function (istock, vstock) {
             if (vstock.bodega) {
                 vstock.text = "Bod. " + vstock.bodega.nombre;
@@ -29,16 +30,17 @@ const solicitud = {
         item.cantidad_bodega = 0;
         item.cantidad_bodegas_total = cantidad;
         item.stock_selected = null;
-        return item;
+        return itemDetalle;
     },
     get_bodegas_item: function (dataIndex) {
         let stock = [];
-        $.each(this.data.detalleSolicitud[dataIndex].stock, function (istock, vstock) {
+        $.each(this.data.detalleSolicitud[dataIndex].stock.sustancia.stock, function (istock, vstock) {
             if (vstock.bodega && parseFloat(vstock.cantidad) > 0) stock.push(vstock);
         });
         return stock;
     },
     list_sustancia: function () {
+        console.log(this.data.detalleSolicitud);
         this.datatable.clear();
         this.datatable.rows.add(this.data.detalleSolicitud).draw();
     },
@@ -74,20 +76,21 @@ const solicitud = {
             });
         }
         if (isValidData) callback();
+        else error("Ha ocurrido un error");
     },
     set_stock_selected: function (dataIndex, idStock, row) {
-        if (solicitud.data.detalleSolicitud[dataIndex].stock_selected &&
-            solicitud.data.detalleSolicitud[dataIndex].stock_selected.id === idStock) {
+        if (solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.stock_selected &&
+            solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.stock_selected.id === idStock) {
             return false;
         }
-        $.each(this.data.detalleSolicitud[dataIndex].stock, function (istock, vstock) {
+        $.each(this.data.detalleSolicitud[dataIndex].stock.sustancia.stock, function (istock, vstock) {
             if (vstock.id === idStock) {
-                solicitud.data.detalleSolicitud[dataIndex].stock_selected = vstock;
-                solicitud.data.detalleSolicitud[dataIndex].cantidad_bodega = parseFloat(vstock.cantidad);
+                solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.stock_selected = vstock;
+                solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.cantidad_bodega = parseFloat(vstock.cantidad);
                 return false;
             }
         });
-        $(row).find('label[rel=cantidad_bodega]').text(solicitud.data.detalleSolicitud[dataIndex].cantidad_bodega);
+        $(row).find('label[rel=cantidad_bodega]').text(solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.cantidad_bodega);
     }
 }
 
@@ -104,11 +107,11 @@ $(function () {
                 "className": 'details-control',
                 'data': 'id'
             },
-            {'data': 'nombre'},
+            {'data': 'stock.sustancia.nombre'},
             {'data': 'id'},
             {'data': 'cantidad_solicitud'},
-            {'data': 'cantidad_bodega'},
-            {'data': 'unidad_medida.nombre'}
+            {'data': 'stock.sustancia.cantidad_bodega'},
+            {'data': 'stock.sustancia.unidad_medida.nombre'}
         ],
         'columnDefs': [
             {
@@ -136,7 +139,7 @@ $(function () {
                 'targets': [4],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return `<label style="font-weight: 500;" rel="cantidad_bodega">${data}</label>`;
+                    return `<label style="font-weight: 400;" rel="cantidad_bodega">${data}</label>`;
                 }
             }
         ],

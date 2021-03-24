@@ -67,7 +67,7 @@ class Sustancia(BaseModel):
                 'cupo_autorizado': self.cupo_autorizado}
         cupo_consumido = Inventario.objects.filter(
             date_creation__year=datetime.now().year,
-            tipo_movimiento__nombre="add",
+            tipo_movimiento__nombre="addcompra",
             stock__sustancia_id=self.id
         ).aggregate(Sum("cantidad_movimiento"))
         item['cupo_consumido'] = float(cupo_consumido['cantidad_movimiento__sum'])

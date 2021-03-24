@@ -19,7 +19,7 @@ const compra = {
     },
     config_item: function (item) {
         let cant = 0;
-        let itemDetalle = {'id': -1,'cantidad': 0.0000, 'stock': {'sustancia': item , 'cantidad': 0.0000}};
+        let itemDetalle = {'id': -1, 'cantidad': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
 
         $.each(item.stock, function (istock, vstock) {
             if (vstock.bodega.id) vstock.text = "Bod. " + vstock.bodega.nombre;
@@ -47,7 +47,6 @@ const compra = {
         this.datatable.rows.add(this.data.detalleCompra).draw();
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
-        console.log(nueva_cantidad);
         this.data.detalleCompra[index].cantidad_ingreso = nueva_cantidad;
     },
     delete_sustancia: function (index) {
@@ -66,11 +65,20 @@ const compra = {
         );
     },
     verify_send_data: function (callback, error) {
+        let isValidData = true;
         if (this.data.detalleCompra.length === 0) {
-            error();
+            isValidData = false;
+            error("¡Debe existir al menos 1 sustancia agregada en la solicitud!");
         } else {
-            callback();
+            $.each(this.data.detalleCompra, function (index, item) {
+                if (item.cantidad_ingreso <= 0) {
+                    isValidData = false;
+                    error(`! La sustancia ${item.nombre} tiene una cantidad a solicitar invalida, por favor verifique ¡`);
+                }
+            });
         }
+        if (isValidData) callback();
+        else error("Ha ocurrido un error");
     },
     set_stock_selected: function (dataIndex, idStock) {
         $.each(this.data.detalleCompra[dataIndex].stock.sustancia.stock, function (istock, vstock) {
