@@ -48,6 +48,7 @@
         {% include 'solicitud/modal/autorizarSolicitud.html' %}
         <script src="{% static 'solicitud/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
+        {% include 'solicitudbdg/modal/entregaSustanciaSolicitud.html' %}
         <script src="{% static 'solicitudbdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         <script src="{% static 'solicitudtl/js/list.js' %}"></script>

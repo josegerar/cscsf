@@ -45,7 +45,7 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                 if idcompra is not None:
                     with transaction.atomic():
                         comprasPublicas = ComprasPublicas.objects.get(id=idcompra)
-                        tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='add')
+                        tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='addcompra')
                         if tipo_movimiento is not None:
                             compras_estado = EstadoTransaccion.objects.get(estado='almacenado')
                             if compras_estado is not None:
