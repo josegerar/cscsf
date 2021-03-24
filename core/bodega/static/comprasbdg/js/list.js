@@ -88,7 +88,7 @@ $(function () {
         let action_save = $(event.originalEvent.submitter).attr('rel');
         let form = this;
         let parameters = new FormData(form);
-        if (action_save == 'confirmar') {
+        if (action_save === 'confirmar') {
             parameters.append('action', 'confirmarCompra');
             disableEnableForm(form, true);
             submit_with_ajax(
@@ -101,7 +101,7 @@ $(function () {
                     disableEnableForm(form, false);
                 }
             );
-        } else if (action_save == 'revisar') {
+        } else if (action_save === 'revisar') {
             $('#modalConfirmarCompra').modal('hide');
             $('#frmJustRevision').find('input[name="id_solicitud"]').val(parameters.get("id_solicitud"))
             $('#modalJustRevision').modal('show');

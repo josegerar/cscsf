@@ -122,6 +122,7 @@ function update_datatable(datatable, url, data) {
                 datatable.clear();
                 datatable.rows.add(response).draw();
             }
+            Loading.hide();
         } else {
             Loading.hide();
             message_error(response.error);

@@ -4,7 +4,6 @@
 
 {% block header %}
     {% include 'header.html' %}
-    {% include 'comprasbdg/modal/createFolder.html' %}
 {% endblock %}
 
 {% block filtrostable %}
@@ -19,7 +18,7 @@
         <ul class="nav nav-treeview" style="display: none;">
             {% for laboratorio in laboratorios %}
                 <li class="nav-item">
-                    <a href="../charts/chartjs.html" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>{{ laboratorio.nombre }}</p>
                     </a>
@@ -50,6 +49,20 @@
 
     </tbody>
 {% endblock %}
+
+{% block buttons_list %}
+    {% if request.user.is_representative %}
+        <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+            <i class="fas fa-plus"></i>
+            Nuevo registro
+        </a>
+    {% endif %}
+    <button id="btnSync" type="button" class="btn btn-primary btn-success">
+        <i class="fas fa-sync"></i>
+        Actualizar
+    </button>
+{% endblock %}
+
 {% block script %}
     {% if request.user.is_representative %}
         <script src="{% static 'compras/js/list.js' %}"></script>
