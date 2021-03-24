@@ -7,6 +7,7 @@ class PersonaForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['imagen'].widget.attrs['class'] = ' form-control'
 
     class Meta:
         model = Persona
@@ -32,6 +33,16 @@ class PersonaForm(ModelForm):
             'cedula': NumberInput(
                 attrs={
                     'placeholder': 'Ingrese el numero de cedula',
+                    'type': 'text',
+                    'minlength': 10,
+                    'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57',
+                    'class': 'form-control',
+                    'autocomplete': 'off'
+                }
+            ),
+            'telefono': NumberInput(
+                attrs={
+                    'placeholder': 'Ingrese el numero de telefono',
                     'type': 'text',
                     'minlength': 10,
                     'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57',

@@ -42,7 +42,8 @@
                         <div class="col-lg-8">
                             <div class="card card-secondary">
                                 <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias solicitadas
+                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias
+                                        solicitadas
                                     </h3>
                                 </div>
                                 <!-- /.card-header -->
@@ -141,4 +142,39 @@
 
 {% block script %}
     <script src="{% static 'solicitudtl/js/create.js' %}"></script>
+
+    <script type="application/javascript">
+        $(function () {
+            //envio de datos al servidor
+            $('form').on('submit', function (event) {
+                event.preventDefault();
+                let form = this;
+                let action_save = $(event.originalEvent.submitter).attr('rel');
+                solicitud.verify_send_data(function () {
+                    let parameters = new FormData(form);
+
+                    {% if action == 'add' %}
+                        parameters.append('sustancias', JSON.stringify(solicitud.data.sustancias));
+                    {% elif action == 'edit' %}
+                        parameters.append('detalle_solicitud', JSON.stringify(solicitud.data.detalleSolicitud));
+                    {% endif %}
+
+                    disableEnableForm(form, true);
+                    submit_with_ajax(
+                        window.location.pathname, parameters
+                        , 'Confirmación'
+                        , '¿Estas seguro de realizar la siguiente acción?'
+                        , function (data) {
+                            if (action_save === 'save') location.href = '{{ url_list }}';
+                            else if (action_save === 'othersave') location.reload();
+                        }, function () {
+                            disableEnableForm(form, false);
+                        }
+                    );
+                }, function (message) {
+                    message_info(message);
+                });
+            });
+        });
+    </script>
 {% endblock %}

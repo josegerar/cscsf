@@ -5,12 +5,12 @@ from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
+from core.login.models import Persona
 from core.representantetecnico.forms.formPersona import PersonaForm
-from core.representantetecnico.models import Persona
 
 
 class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
-    permission_required = ('representantetecnico.add_persona',)
+    permission_required = ('login.add_persona',)
     model = Persona
     form_class = PersonaForm
     template_name = 'personas/create.html'

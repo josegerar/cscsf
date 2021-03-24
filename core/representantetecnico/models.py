@@ -5,67 +5,11 @@ from django.utils import timezone
 
 from app.settings import MEDIA_URL
 from core.bodega.models import Sustancia, Stock
-from core.login.models import User, BaseModel
+from core.login.models import User, BaseModel, Persona
 from core.representantetecnico.files.read import *
 from core.representantetecnico.files.write import *
 from core.representantetecnico.validators import *
 from core.tecnicolaboratorio.models import Laboratorio
-
-
-class TipoPersona(BaseModel):
-    nombre = models.CharField(max_length=30, verbose_name="Tipo de persona", unique=True)
-    descripcion = models.CharField(max_length=200, verbose_name="Descripcion", blank=True, null=True)
-    is_active = models.BooleanField(default=True, editable=False)
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = "Tipo de persona"
-        verbose_name_plural = "Tipos de Personas"
-        db_table = "tipo_persona"
-        ordering = ["id"]
-
-
-class Persona(BaseModel):
-    tipo_persona = models.ForeignKey(TipoPersona, on_delete=models.CASCADE,
-                                     null=True, blank=True, verbose_name="Tipo de persona")
-    nombre = models.CharField(max_length=100, verbose_name="Nombres", default="")
-    apellido = models.CharField(max_length=100, verbose_name="Apellidos")
-    cedula = models.CharField(max_length=10, verbose_name="Cedula", unique=True)
-    is_active = models.BooleanField(default=True, editable=False)
-
-    def __str__(self):
-        return self.nombre + " " + self.apellido
-
-    def toJSON(self):
-        item = model_to_dict(self, exclude=['tipo_persona'])
-        if self.tipo_persona is not None:
-            item['tipo'] = self.tipo_persona.nombre
-        else:
-            item['tipo'] = ""
-        return item
-
-    class Meta:
-        verbose_name = "Persona"
-        verbose_name_plural = "Personas"
-        db_table = "persona"
-        ordering = ["id"]
-
-
-class Categoria(BaseModel):
-    nombre = models.CharField(max_length=20, verbose_name="Nombre de la categoria", unique=True)
-    descripcion = models.CharField(max_length=200, blank=True, null=True)
-    is_active = models.BooleanField(default=True, editable=False)
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = "Categoria"
-        verbose_name_plural = "Categorias"
-        db_table = "categoria"
-        ordering = ["id"]
 
 
 class TipoActividad(BaseModel):
@@ -83,9 +27,9 @@ class TipoActividad(BaseModel):
         ordering = ["id"]
 
 
-class EstadoCompra(BaseModel):
+class EstadoTransaccion(BaseModel):
     estado = models.CharField(max_length=100, verbose_name="Estado")
-    descripcion = models.CharField(max_length=300, verbose_name="Descripcion")
+    descripcion = models.CharField(max_length=300, verbose_name="Descripcion", null=True, blank=True)
     is_active = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
@@ -96,9 +40,9 @@ class EstadoCompra(BaseModel):
         return item
 
     class Meta:
-        verbose_name = "Estado de compra"
-        verbose_name_plural = "Estado de compras"
-        db_table = "estado_compra"
+        verbose_name = "Estado de transacción"
+        verbose_name_plural = "Estado de transacciones"
+        db_table = "estado_transaccion"
         ordering = ["id"]
 
 
@@ -111,7 +55,7 @@ class Solicitud(BaseModel):
                                               verbose_name="Responsable de actividad")
     documento_solicitud = models.FileField(upload_to='solicitud/%Y/%m/%d', null=True, blank=True)
     fecha_autorizacion = models.DateTimeField(editable=False, null=True)
-    estado_solicitud = models.ForeignKey(EstadoCompra, on_delete=models.CASCADE, verbose_name="Estados solicitud",
+    estado_solicitud = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estados solicitud",
                                          null=True)
 
     def __str__(self):
@@ -138,7 +82,6 @@ class Solicitud(BaseModel):
             return '{}{}'.format(MEDIA_URL, self.documento_solicitud)
         return ''
 
-
     class Meta:
         verbose_name = "Solicitud"
         verbose_name_plural = "Solicitudes"
@@ -146,17 +89,27 @@ class Solicitud(BaseModel):
         ordering = ["id"]
 
 
-class Facultad(BaseModel):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre de facultad", unique=True)
-    is_active = models.BooleanField(default=True, editable=False)
+class SolicitudDetalle(BaseModel):
+    solicitud = models.ForeignKey(Solicitud, on_delete=models.CASCADE, verbose_name="Solicitud")
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
+    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
 
     def __str__(self):
-        return self.nombre
+        return str(self.id)
+
+    def toJSON(self, ver_solicitud=False):
+        item = {'id': self.id, 'cantidad': self.cantidad}
+        if self.solicitud is not None:
+            if ver_solicitud:
+                item['solicitud'] = self.solicitud.toJSON()
+        if self.stock is not None:
+            item['stock'] = self.stock.toJSON()
+        return item
 
     class Meta:
-        verbose_name = "Facultad"
-        verbose_name_plural = "Facultades"
-        db_table = "facultad"
+        verbose_name = "Solicitud Detalle"
+        verbose_name_plural = "Solicitud Detalles"
+        db_table = "detalle_solicitud"
         ordering = ["id"]
 
 
@@ -187,7 +140,7 @@ class ComprasPublicas(BaseModel):
     pedido_compras_publicas = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     guia_transporte = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
-    estado_compra = models.ForeignKey(EstadoCompra, on_delete=models.CASCADE, verbose_name="Estado de compras",
+    estado_compra = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estado de compras",
                                       null=True)
 
     def __str__(self):
@@ -207,8 +160,6 @@ class ComprasPublicas(BaseModel):
                 item['detallecompra'].append(i.toJSON(rel_compraspublicas=True))
         if self.estado_compra is not None:
             item['estado'] = self.estado_compra.toJSON()
-        else:
-            item['estado'] = EstadoCompra().toJSON()
         return item
 
     def get_pedido_compras_publicas(self):
@@ -258,21 +209,6 @@ class ComprasPublicasDetalle(BaseModel):
         ordering = ["id"]
 
 
-class SolicitanteCompra(BaseModel):
-    solicitante_compra = models.ForeignKey(User, on_delete=models.CASCADE)
-    ingreso_compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE)
-    tipo_sc = models.CharField(max_length=2, null=True, validators=[validate_solicitante_compra_tipo_sc])
-
-    def __str__(self):
-        return str(self.id)
-
-    class Meta:
-        verbose_name = "Solicitante Compra"
-        verbose_name_plural = "Solicitantes Compras"
-        db_table = "solicitante_compra"
-        ordering = ["id"]
-
-
 class TipoDocumento(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     descripcion = models.CharField(max_length=300, verbose_name="Descripcion")
@@ -301,23 +237,6 @@ class Documento(BaseModel):
         verbose_name = "Documento"
         verbose_name_plural = "Documentos"
         db_table = "documento"
-        ordering = ["id"]
-
-
-class Entrega(BaseModel):
-    documento = models.ForeignKey(Documento, on_delete=models.PROTECT)
-    ingreso_compras = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT)
-    laboratorio_entrega = models.ForeignKey(Laboratorio, on_delete=models.PROTECT)
-    fecha_solicitud_entrega = models.DateTimeField(default=timezone.now, editable=False)
-    fecha_entrega = models.DateTimeField(default=timezone.now, editable=False)
-
-    def __str__(self):
-        return str(self.id)
-
-    class Meta:
-        verbose_name = "Entrega"
-        verbose_name_plural = "Entregas"
-        db_table = "entrega"
         ordering = ["id"]
 
 

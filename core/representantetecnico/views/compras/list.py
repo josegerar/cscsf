@@ -7,7 +7,7 @@ from django.views.generic import ListView
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import TipoMovimientoInventario, Inventario, Stock
-from core.representantetecnico.models import ComprasPublicas, Laboratorio, ComprasPublicasDetalle, EstadoCompra
+from core.representantetecnico.models import ComprasPublicas, Laboratorio, ComprasPublicasDetalle, EstadoTransaccion
 
 
 class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -29,7 +29,7 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                     with transaction.atomic():
                         comprasPublicas = ComprasPublicas.objects.get(id=idcompra)
                         if comprasPublicas is not None:
-                            compras_estado = EstadoCompra.objects.get(estado='revision')
+                            compras_estado = EstadoTransaccion.objects.get(estado='revision')
                             if compras_estado is not None:
                                 comprasPublicas.estado_compra_id = compras_estado.id
                                 comprasPublicas.save()
@@ -39,14 +39,14 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                             data['error'] = 'ha ocurrido un error'
                 else:
                     data['error'] = 'ha ocurrido un error'
-            elif action =='confirmarCompra':
+            elif action == 'confirmarCompra':
                 idcompra = request.POST.get('id_compra')
                 if idcompra is not None:
                     with transaction.atomic():
                         comprasPublicas = ComprasPublicas.objects.get(id=idcompra)
                         tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='add')
                         if tipo_movimiento is not None:
-                            compras_estado = EstadoCompra.objects.get(estado='almacenado')
+                            compras_estado = EstadoTransaccion.objects.get(estado='almacenado')
                             if compras_estado is not None:
                                 comprasPublicas.estado_compra_id = compras_estado.id
                                 comprasPublicas.save()

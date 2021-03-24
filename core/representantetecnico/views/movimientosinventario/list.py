@@ -6,7 +6,6 @@ from django.views.generic import ListView
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import Inventario
-from crum import get_current_user
 
 
 class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):

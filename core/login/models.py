@@ -7,10 +7,37 @@ from app.settings import MEDIA_URL, STATIC_URL
 from core.base.models import BaseModel
 
 
-class User(AbstractUser, BaseModel):
+class Persona(BaseModel):
+    nombre = models.CharField(max_length=100, verbose_name="Nombres", default="")
+    apellido = models.CharField(max_length=100, verbose_name="Apellidos")
     cedula = models.CharField(max_length=10, verbose_name="Cedula", unique=True)
     telefono = models.CharField(max_length=10, verbose_name="Telefono", null=True, blank=True)
     imagen = models.ImageField(upload_to="users/%Y/%m/%d", null=True, blank=True)
+    is_active = models.BooleanField(default=True, editable=False)
+
+    def __str__(self):
+        return self.nombre + " " + self.apellido
+
+    def toJSON(self):
+        item = model_to_dict(self, exclude=['imagen'])
+        item['imagen'] = self.get_imagen()
+        return item
+
+    def get_imagen(self):
+        if self.imagen:
+            return '{}{}'.format(MEDIA_URL, self.imagen)
+        else:
+            return '{}{}'.format(STATIC_URL, 'img/user.png')
+
+    class Meta:
+        verbose_name = "Persona"
+        verbose_name_plural = "Personas"
+        db_table = "persona"
+        ordering = ["id"]
+
+
+class User(AbstractUser, BaseModel):
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name="Persona", null=True)
     is_representative = models.BooleanField(
         _('Es representante técnico'),
         default=False,
@@ -36,15 +63,13 @@ class User(AbstractUser, BaseModel):
     @staticmethod
     def get_choices_user():
         choices = [('', '---------')]
-        choices += [(o.id, str('{} {} {}'.format(str(o.first_name), str(o.last_name), str(o.cedula)))) for o in
-                    User.objects.all()]
+        choices += [(o.id, o.get_user_info()) for o in User.objects.all()]
         return choices
 
     @staticmethod
     def get_choices_laboratory_worker():
         choices = [('', '---------')]
-        choices += [(o.id, str('{} {} {}'.format(str(o.first_name), str(o.last_name), str(o.cedula)))) for o in
-                    User.objects.filter(is_laboratory_worker=True)]
+        choices += [(o.id, o.get_user_info()) for o in User.objects.filter(is_laboratory_worker=True)]
         return choices
 
     def save(self, *args, **kwargs):
@@ -59,14 +84,11 @@ class User(AbstractUser, BaseModel):
         if group is not None:
             self.groups.add(group)
 
-    def get_imagen(self):
-        if self.imagen:
-            return '{}{}'.format(MEDIA_URL, self.imagen)
-        else:
-            return '{}{}'.format(STATIC_URL, 'img/user.png')
-
     def get_user_info(self):
-        return '{} {} {}'.format(str(self.first_name), str(self.last_name), str(self.cedula))
+        if self.persona is not None:
+            return self.persona.__str__()
+        else:
+            return self.username
 
     class Meta:
         verbose_name = "Usuario"

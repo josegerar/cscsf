@@ -39,17 +39,37 @@ const solicitud = {
         this.datatable.rows.add(this.data.sustancias).draw();
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
-
+        this.data.sustancias[index].cantidad_solicitud = nueva_cantidad;
     },
     delete_sustancia: function (index) {
         this.data.sustancias.splice(index, 1);
         this.list_sustancia();
     },
     delete_all_sustancias: function () {
-
+        if (this.data.sustancias.length === 0) return false;
+        confirm_action(
+            'Alerta',
+            '¿Esta seguro de eliminar todas las sustancias del detalle?',
+            function () {
+                solicitud.data.sustancias = [];
+                solicitud.list_sustancia();
+            }
+        );
     },
     verify_send_data: function (callback, error) {
-
+        let isValidData = true;
+        if (this.data.sustancias.length === 0) {
+            isValidData = false;
+            error("¡Debe existir al menos 1 sustancia agregada en la solicitud!");
+        } else {
+            $.each(this.data.sustancias, function (index, item) {
+                if (item.cantidad_solicitud <= 0) {
+                    isValidData = false;
+                    error(`! La sustancia ${item.nombre} tiene una cantidad a solicitar invalida, por favor verifique ¡`);
+                }
+            });
+        }
+        if (isValidData) callback();
     },
     set_stock_selected: function (dataIndex, idStock, row) {
         if (solicitud.data.sustancias[dataIndex].stock_selected &&
@@ -137,6 +157,16 @@ $(function () {
             updateRowsCallback(row, data, dataIndex);
         });
 
+    //evento para limpiar el cuadro de busqueda de sustancias
+    $('button[rel="cleansearch"]').on('click', function (event) {
+        $('input[name="search"]').val("");
+    });
+
+    //evento para eliminar todas las sustancias del objeto manejador y el datatable
+    $('button[rel="removeall"]').on('click', function (event) {
+        solicitud.delete_all_sustancias();
+    });
+
     function updateRowsCallback(row, data, dataIndex) {
 
         activePluguinTouchSpinInputRow(row, "cantidad", data.cupo_autorizado - data.cupo_consumido,
@@ -167,7 +197,7 @@ $(function () {
 
         $(row).find('input[name="cantidad"]').on('change', function (event) {
             let nueva_cantidad = parseFloat($(this).val());
-            //compra.update_cantidad_sustancia(nueva_cantidad, dataIndex);
+            solicitud.update_cantidad_sustancia(nueva_cantidad, dataIndex);
         });
         $(row).find('a[rel="remove"]').on('click', function (event) {
             confirm_action(

@@ -10,7 +10,7 @@ class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'telefono')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
         (_('Permissions'), {
             'fields': (
                 'is_active', 'is_staff', 'is_superuser', 'is_representative', 'is_laboratory_worker', 'is_grocer',
@@ -23,7 +23,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2', 'cedula'),
+            'fields': ('username', 'password1', 'password2'),
         }),
         (_('Roles'), {
             'fields': ('is_representative', 'is_laboratory_worker', 'is_grocer'),

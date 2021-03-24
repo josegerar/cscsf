@@ -9,7 +9,7 @@
                     </div>
                     <div class="card-body">
                         <p class="card-text">Solicitudes de entrega de sustancias.</p>
-                        <a href="{% url 'rp:solicitudes' %}" class="btn btn-primary">ir</a>
+                        <a href="{% url 'tl:solicitudes' %}" class="btn btn-primary">ir</a>
                     </div>
                 </div>
                 <div class="card card-primary card-outline">
@@ -18,25 +18,10 @@
                     </div>
                     <div class="card-body">
                         <p class="card-text">Visualizar stock de sutancias.</p>
-                        <a href="{% url 'tl:stockinv' %}" class="btn btn-primary">ir</a>
+                        <a href="{% url 'rp:sustancias' %}" class="btn btn-primary">ir</a>
                     </div>
                 </div>
             </div>
-
-            <!-- /.col-md-6 -->
-            <div class="col-lg-6">
-                <div class="card card-primary card-outline">
-                    <div class="card-header">
-                        <h5 class="card-title m-0">Entrega de informes</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Entrega de informes acerca del uso de sustancias dentro de un
-                            laboratotio.</p>
-                        <a href="{% url 'tl:informes' %}" class="btn btn-primary">ir</a>
-                    </div>
-                </div><!-- /.card -->
-            </div>
-            <!-- /.col-md-6 -->
         </div>
         <!-- /.row -->
     </div><!-- /.container-fluid -->

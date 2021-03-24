@@ -8,12 +8,6 @@ from core.representantetecnico.models import User
 
 
 class CustomUserCreationForm(UserCreationForm):
-    cedula = CharField(
-        label=_("Cedula"),
-        strip=False,
-        widget=NumberInput(attrs={'minlength': 10, 'maxlength': 10}),
-        help_text="Requerido, maximo 10 caracteres, minimo 10 caracteres",
-    )
 
     class Meta(UserCreationForm.Meta):
         model = User

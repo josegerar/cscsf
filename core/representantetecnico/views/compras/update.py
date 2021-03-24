@@ -6,12 +6,11 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 from django.contrib import messages
-from django.shortcuts import redirect
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.forms.formCompra import ComprasForm
-from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle, EstadoCompra
+from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle, EstadoTransaccion
 
 
 class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
@@ -59,7 +58,7 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                         if compra is not None:
                             with transaction.atomic():
                                 detalle_compras_new = json.loads(request.POST['detalle_compra'])
-                                estadocompra = EstadoCompra.objects.get(estado='registrado')
+                                estadocompra = EstadoTransaccion.objects.get(estado='registrado')
                                 compra.estado_compra_id = estadocompra.id
                                 compra.save()
                                 detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)

@@ -8,7 +8,7 @@ class LaboratorioForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields.get('responsable').choices = User.get_choices_user
+        self.fields.get('responsable').choices = User.get_choices_laboratory_worker
         for form in self.visible_fields():
             form.field.widget.attrs['class'] = 'form-control'
             if form.widget_type == 'select':
