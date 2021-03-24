@@ -5,12 +5,16 @@ $(function () {
         'autoWidth': false,
         'destroy': true,
         'columns': [
-            {'data': 'id'},
+            {
+                "className": 'details-control',
+                'data': 'id'
+            },
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
             {'data': 'documento'},
             {'data': 'id'},
             {'data': 'estado_solicitud'},
+            {'data': 'observacion'},
             {'data': 'id'}
         ],
         'columnDefs': [
@@ -47,6 +51,17 @@ $(function () {
             },
             {
                 'targets': [6],
+                'render': function (data, type, row) {
+                    if (row.estado_solicitud) {
+                        if (row.estado_solicitud.estado === 'revision') {
+                            return '<a href="#" rel="openobs">Ver observación</a>'
+                        }
+                    }
+                    return ""
+                }
+            },
+            {
+                'targets': [7],
                 'orderable': false,
                 'render': function (data, type, row) {
                     if (row.estado_solicitud) {
@@ -63,7 +78,10 @@ $(function () {
                     return "";
                 }
             }
-        ]
+        ],
+        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
+            updateRowsCallback(row, data, dataIndex)
+        }
     });
 
     update_datatable(tblistado, window.location.pathname, data);
@@ -71,4 +89,17 @@ $(function () {
     $('#btnSync').on('click', function (event) {
         update_datatable(tblistado, window.location.pathname, data);
     });
+
+    // Add event listener for opening and closing details
+    addEventListenerOpenDetailRowDatatable('tblistado', tblistado, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
+
+    function updateRowsCallback(row, data, dataIndex) {
+        $(row).find('a[rel=openobs]').on('click', function (event) {
+            $('#frmModalObs').find('textarea[name=observacion]').text(data.observacion);
+            $('#modalObs').modal('show');
+        });
+    }
 });

@@ -1,6 +1,6 @@
 <div id="modalJustRevision" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
-        <form id="frmAutorizarSolicitud" method="post" action=".">
+        <form id="frmJustRevision" method="post" action="../../comprasbdg/modal">
             {% csrf_token %}
             <input type="hidden" name="id_solicitud" value=""/>
             <div class="modal-content">
@@ -20,11 +20,11 @@
 
                             <label>Observación:</label>
                         </div>
-                        <textarea name="descripcion" required cols="40" rows="10" class="form-control" maxlength="500" id="id_observacion"></textarea>
+                        <textarea name="observacion" required cols="40" rows="10" class="form-control" maxlength="500" id="id_observacion"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button rel="revisar" type="submit" class="btn btn-danger">Revisión</button>
+                    <button type="submit" class="btn btn-danger">Revisión</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>

@@ -23,6 +23,7 @@
         <th scope="col">Fecha autorización</th>
         <th scope="col">Estado</th>
         {% if request.user.is_laboratory_worker %}
+            <th scope="col">Observaciones</th>
             <th scope="col">Opciones</th>
         {% endif %}
     </tr>
@@ -46,11 +47,14 @@
 {% block script %}
     {% if request.user.is_representative %}
         {% include 'solicitud/modal/autorizarSolicitud.html' %}
+         {% include 'solicitudbdg/modal/justRevision.html' %}
         <script src="{% static 'solicitud/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
         {% include 'solicitudbdg/modal/entregaSustanciaSolicitud.html' %}
+        {% include 'solicitudbdg/modal/justRevision.html' %}
         <script src="{% static 'solicitudbdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
+        {% include 'solicitudtl/modal/observacion.html' %}
         <script src="{% static 'solicitudtl/js/list.js' %}"></script>
     {% endif %}
 {% endblock %}

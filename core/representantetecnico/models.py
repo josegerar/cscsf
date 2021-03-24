@@ -64,7 +64,7 @@ class Solicitud(BaseModel):
 
     def toJSON(self):
         item = {'id': self.id, 'nombre_actividad': self.nombre_actividad,
-                'documento': self.get_doc_solicitud()}
+                'documento': self.get_doc_solicitud(), 'observacion':self.observacion}
         if self.fecha_autorizacion is not None:
             item['fecha_autorizacion'] = self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
         if self.solicitante is not None:
@@ -156,7 +156,7 @@ class ComprasPublicas(BaseModel):
     def toJSON(self):
         item = {'id': self.id, 'llegada_bodega': self.llegada_bodega, 'hora_llegada_bodega': self.hora_llegada_bodega,
                 'convocatoria': self.convocatoria, 'pedido_compras_publicas': self.get_pedido_compras_publicas(),
-                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura()}
+                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura(),'observacion':self.observacion}
         if self.empresa is not None:
             item['empresa'] = self.empresa.toJSON()
         else:

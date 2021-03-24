@@ -75,10 +75,29 @@ $(function () {
         let parameters = new FormData(form);
         if (action_save == 'entregar') {
             parameters.append('action', 'entregarSustancias');
+            disableEnableForm(form, true);
+            submit_with_ajax(
+                window.location.pathname, parameters
+                , 'Confirmación'
+                , '¿Estas seguro de realizar la siguiente acción?'
+                , function (data) {
+                    location.reload();
+                }, function () {
+                    disableEnableForm(form, false);
+                }
+            );
         } else if (action_save == 'revisar') {
-            parameters.append('action', 'revisionSolicitud');
-            console.log(action_save);
+            $('#modalEntregaSustancia').modal('hide');
+            $('#frmJustRevision').find('input[name="id_solicitud"]').val(parameters.get("id_solicitud"))
+            $('#modalJustRevision').modal('show');
         }
+    });
+
+    $('#frmJustRevision').on('submit', function (event) {
+        event.preventDefault();
+        let form = this;
+        let parameters = new FormData(form);
+        parameters.append('action', 'revisionSolicitud');
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters

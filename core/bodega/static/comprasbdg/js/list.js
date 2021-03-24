@@ -74,7 +74,7 @@ $(function () {
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
-            updateRowsCallback(row,data,dataIndex)
+            updateRowsCallback(row, data, dataIndex)
         }
     });
 
@@ -86,14 +86,44 @@ $(function () {
     $('#frmconfirmarcompra').on('submit', function (event) {
         event.preventDefault();
         let action_save = $(event.originalEvent.submitter).attr('rel');
-        console.log(action_save);
         let form = this;
         let parameters = new FormData(form);
-        if (action_save == 'confirmar'){
-            parameters.append('action','confirmarCompra');
-        } else if(action_save == 'revisar'){
-            parameters.append('action','revisionCompra');
+        if (action_save == 'confirmar') {
+            parameters.append('action', 'confirmarCompra');
+            disableEnableForm(form, true);
+            submit_with_ajax(
+                window.location.pathname, parameters
+                , 'Confirmación'
+                , '¿Estas seguro de realizar la siguiente acción?'
+                , function (data) {
+                    location.reload();
+                }, function () {
+                    disableEnableForm(form, false);
+                }
+            );
+        } else if (action_save == 'revisar') {
+            $('#modalConfirmarCompra').modal('hide');
+            $('#frmJustRevision').find('input[name="id_solicitud"]').val(parameters.get("id_solicitud"))
+            $('#modalJustRevision').modal('show');
         }
+    });
+
+    // Add event listener for opening and closing details
+    $('#tblistado tbody').on('click', 'td.details-control', function () {
+        let tr = $(this).closest('tr');
+        let row = tblistado.row(tr);
+        let child = row.child();
+        let data = row.data();
+        if (child) {
+            updateRowsCallback(child, data, row.index());
+        }
+    });
+
+    $('#frmJustRevision').on('submit', function (event) {
+        event.preventDefault();
+        let form = this;
+        let parameters = new FormData(form);
+        parameters.append('action', 'revisionSolicitud');
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
@@ -105,17 +135,6 @@ $(function () {
                 disableEnableForm(form, false);
             }
         );
-    });
-
-        // Add event listener for opening and closing details
-    $('#tblistado tbody').on('click', 'td.details-control', function () {
-        let tr = $(this).closest('tr');
-        let row = tblistado.row(tr);
-        let child = row.child();
-        let data = row.data();
-        if (child) {
-            updateRowsCallback(child, data, row.index());
-        }
     });
 
     function updateRowsCallback(row, data, dataIndex) {

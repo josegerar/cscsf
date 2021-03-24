@@ -61,6 +61,7 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                             with transaction.atomic():
                                 detalle_solicitud_new = json.loads(request.POST['detalle_solicitud'])
                                 solicitud.estado_solicitud_id = estadosolicitud.id
+                                solicitud.observacion = ""
                                 solicitud.save()
                                 detalle_solicitud_old = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
 

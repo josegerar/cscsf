@@ -69,16 +69,35 @@ $(function () {
     });
 
     $('#frmAutorizarSolicitud').on('submit', function (event) {
-        event.preventDefault();
+         event.preventDefault();
         let action_save = $(event.originalEvent.submitter).attr('rel');
         let form = this;
         let parameters = new FormData(form);
-        if (action_save == 'aprobar'){
-            parameters.append('action','aprobarSolicitud');
-        } else if(action_save == 'revisar'){
-            parameters.append('action','revisionSolicitud');
-            console.log(action_save);
+        if (action_save == 'entregar') {
+            parameters.append('action', 'entregarSustancias');
+            disableEnableForm(form, true);
+            submit_with_ajax(
+                window.location.pathname, parameters
+                , 'Confirmación'
+                , '¿Estas seguro de realizar la siguiente acción?'
+                , function (data) {
+                    location.reload();
+                }, function () {
+                    disableEnableForm(form, false);
+                }
+            );
+        } else if (action_save == 'revisar') {
+            $('#modalEntregaSustancia').modal('hide');
+            $('#frmJustRevision').find('input[name="id_solicitud"]').val(parameters.get("id_solicitud"))
+            $('#modalJustRevision').modal('show');
         }
+    });
+
+        $('#frmJustRevision').on('submit', function (event) {
+        event.preventDefault();
+        let form = this;
+        let parameters = new FormData(form);
+        parameters.append('action', 'revisionSolicitud');
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters

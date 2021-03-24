@@ -33,6 +33,10 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                             compras_estado = EstadoTransaccion.objects.get(estado='revision')
                             if compras_estado is not None:
                                 comprasPublicas.estado_compra_id = compras_estado.id
+                                observacion = request.POST.get('observacion')
+                                if observacion is None:
+                                    observacion = ""
+                                comprasPublicas.observacion = observacion
                                 comprasPublicas.save()
                             else:
                                 data['error'] = 'ha ocurrido un error'

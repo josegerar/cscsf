@@ -31,6 +31,10 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                         if solicitud is not None:
                             estado_solicitud = EstadoTransaccion.objects.get(estado='revision')
                             if estado_solicitud is not None:
+                                observacion = request.POST.get('observacion')
+                                if observacion is None:
+                                    observacion = ""
+                                solicitud.observacion = observacion
                                 solicitud.estado_solicitud_id = estado_solicitud.id
                                 solicitud.save()
                             else:
