@@ -95,7 +95,7 @@
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                             <label>Laboratorio:</label>
+                                            <label>Laboratorio:</label>
                                         </div>
                                         {{ form.laboratorio }}
                                     </div>
@@ -107,7 +107,7 @@
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                             <label>Tipo de solicitud:</label>
+                                            <label>Tipo de solicitud:</label>
                                         </div>
                                         {{ form.tipo_actividad }}
                                     </div>
@@ -119,7 +119,7 @@
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                             <label>Nombre de practica/proyecto:</label>
+                                            <label>Nombre de practica/proyecto:</label>
                                         </div>
                                         {{ form.nombre_actividad }}
                                     </div>
@@ -131,7 +131,7 @@
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                             <label>Responsable de practica/proyecto:</label>
+                                            <label>Responsable de practica/proyecto:</label>
                                         </div>
                                         {{ form.responsable_actividad }}
                                     </div>
@@ -143,7 +143,7 @@
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                             <label>Solicitud:</label>
+                                            <label>Solicitud:</label>
                                         </div>
                                         {{ form.documento_solicitud }}
                                     </div>
@@ -177,7 +177,11 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'solicitudtl/js/create.js' %}"></script>
+    {% if action == 'add' %}
+        <script src="{% static 'solicitudtl/js/create.js' %}"></script>
+    {% elif action == 'edit' %}
+        <script src="{% static 'solicitudtl/js/update.js' %}"></script>
+    {% endif %}
 
     <script type="application/javascript">
         $(function () {

@@ -55,13 +55,13 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                     form = self.get_form()
                     if form.is_valid():
                         compra = form.instance
-                        if compra is not None:
+                        estadocompra = EstadoTransaccion.objects.get(estado='registrado')
+                        if compra is not None and estadocompra is not None:
                             with transaction.atomic():
                                 detalle_compras_new = json.loads(request.POST['detalle_compra'])
-                                estadocompra = EstadoTransaccion.objects.get(estado='registrado')
                                 compra.estado_compra_id = estadocompra.id
                                 compra.save()
-                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)
+                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=compra.id)
 
                                 for dc_old in detalle_compras_old:
                                     exits_old = False
@@ -71,7 +71,7 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                                     if exits_old is False:
                                         dc_old.delete()
 
-                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)
+                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=compra.id)
 
                                 for dc_new in detalle_compras_new:
                                     exits_old = False
@@ -102,6 +102,10 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                     detalle_compras = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)
                     for dci in detalle_compras:
                         data.append(dci.toJSON(rel_compraspublicas=True))
+                else:
+                    data['error'] = 'ha ocurrido un error'
+            else:
+                data['error'] = 'ha ocurrido un error'
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)

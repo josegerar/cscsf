@@ -107,7 +107,7 @@ class Stock(BaseModel):
                 if view_stock_substance is False:
                     item['sustancia'] = self.sustancia.toJSON(view_stock=False)
                 else:
-                    item['sustancia'] = self.sustancia.toJSON()
+                    item['sustancia'] = self.sustancia.toJSON(view_stock=True)
 
         return item
 

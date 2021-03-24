@@ -83,8 +83,7 @@ const compra = {
 
 $(function () {
 
-    const csrfmiddlewaretoken = getCookie('csrftoken');
-    var data = {'action': 'searchdetail', 'csrfmiddlewaretoken': csrfmiddlewaretoken}
+    const data = {'action': 'searchdetail', 'csrfmiddlewaretoken': getCookie('csrftoken')}
 
     //activar datatable a detalle de sustancias
     //asignar datable a objeto manejador de datos de la compra

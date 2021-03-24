@@ -43,11 +43,11 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                 form = self.get_form()
                 if form.is_valid():
                     solicitud = form.instance
-                    estadocompra = EstadoTransaccion.objects.get(estado='registrado')
-                    if solicitud is not None and estadocompra is not None:
+                    estadosolicitud = EstadoTransaccion.objects.get(estado='registrado')
+                    if solicitud is not None and estadosolicitud is not None:
                         with transaction.atomic():
                             sustancias = json.loads(request.POST['sustancias'])
-                            solicitud.estado_solicitud_id = estadocompra.id
+                            solicitud.estado_solicitud_id = estadosolicitud.id
                             solicitud.solicitante_id = request.user.id
                             solicitud.save()
 
