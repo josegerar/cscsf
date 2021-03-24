@@ -6,7 +6,8 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import Solicitud, EstadoTransaccion
+from core.bodega.models import TipoMovimientoInventario, Stock, Inventario
+from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle
 
 
 class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -52,6 +53,53 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                 data['error'] = 'ha ocurrido un error'
                         else:
                             data['error'] = 'ha ocurrido un error'
+            elif action == 'entregarSustancias':
+                idsolicitud = request.POST.get('id_solicitud')
+                if idsolicitud is not None:
+                    with transaction.atomic():
+                        solicitud = Solicitud.objects.get(id=idsolicitud)
+                        tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
+                        tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancialab')
+                        if tipo_movimiento_del is not None:
+                            estado_solicitud = EstadoTransaccion.objects.get(estado='entregado')
+                            if estado_solicitud is not None:
+                                solicitud.estado_solicitud_id = estado_solicitud.id
+                                solicitud.save()
+                                if solicitud is not None:
+                                    detallesustancia = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
+                                    for i in detallesustancia:
+                                        # disminuye stock en bodega
+                                        stockbdg = Stock.objects.get(id=i.stock_id)
+                                        stockbdg.cantidad = stockbdg.cantidad - i.cantidad
+                                        stockbdg.save()
+
+                                        # movimiento de inventario delete de bodega
+                                        inv = Inventario()
+                                        inv.stock_id = i.stock_id
+                                        inv.cantidad_movimiento = i.cantidad
+                                        inv.tipo_movimiento_id = tipo_movimiento_del.id
+                                        inv.save()
+
+                                        # Aumenta el stock de el laboratorio
+                                        stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
+                                                                     sustancia_id=i.stock.sustancia_id)
+                                        stocklab.cantidad = stocklab.cantidad + i.cantidad
+                                        stocklab.save()
+
+                                        # movimiento de inventario addsustancialab en el laboratorio
+                                        invlab = Inventario()
+                                        invlab.stock_id = i.stock_id
+                                        invlab.cantidad_movimiento = i.cantidad
+                                        invlab.tipo_movimiento_id = tipo_movimiento_add.id
+                                        invlab.save()
+
+
+                                else:
+                                    data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
+                            else:
+                                data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
+                        else:
+                            data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:

@@ -15,7 +15,7 @@ class SolicitudForm(ModelForm):
     class Meta:
         model = Solicitud
         fields = '__all__'
-        exclude = ['estado_solicitud', 'fecha_autorizacion', 'solicitante']
+        exclude = ['estado_solicitud', 'fecha_autorizacion', 'solicitante','observacion']
         widgets = {
             'laboratorio': Select(attrs={
                 'class': 'form-control select2',

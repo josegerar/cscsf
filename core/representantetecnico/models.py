@@ -57,6 +57,7 @@ class Solicitud(BaseModel):
     fecha_autorizacion = models.DateTimeField(editable=False, null=True)
     estado_solicitud = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estados solicitud",
                                          null=True)
+    observacion = models.TextField(verbose_name="Observación", null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
@@ -147,6 +148,7 @@ class ComprasPublicas(BaseModel):
     factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     estado_compra = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estado de compras",
                                       null=True)
+    observacion = models.TextField(verbose_name="Observación", null=True, blank=True)
 
     def __str__(self):
         return str(self.id)

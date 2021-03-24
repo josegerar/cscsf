@@ -1,0 +1,30 @@
+<div id="modalAutorizarSolicitud" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="frmAutorizarSolicitud" method="post" action=".">
+            {% csrf_token %}
+            <input type="hidden" name="id_solicitud" value=""/>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar solicitud entrega de sustancias</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="tbdetallesolicitud" class="table">
+                        <thead>
+                        <th scope="col"><label>Bodega: </label></th>
+                        <th scope="col"><label>Nombre de sustancia: </label></th>
+                        <th scope="col"><label>Cantidad solicitada: </label></th>
+                        <th scope="col"><label>Cantidad actual: </label></th>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button rel="revisar" type="submit" class="btn btn-danger">Revisión</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
