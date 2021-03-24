@@ -1,14 +1,9 @@
 $(function () {
-    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-    var data = {'action': 'searchdata'}
-    if (csrfmiddlewaretoken.length > 0) {
-        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-    }
-    var tblistado = $('#tblistado').DataTable({
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
+    const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
-        'deferRender': true,
         'columns': [
             {'data': 'id'},
             {'data': 'laboratorio'},
@@ -54,13 +49,18 @@ $(function () {
                 'targets': [6],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if (row.estado_solicitud && row.estado_solicitud.estado === "entregado" || row.estado_solicitud.estado === "aprobado") {
-                        return ""
-                    } else {
-                        let buttons = '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                        buttons += '<a href="/solicitudes/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
-                        return buttons
+                    if (row.estado_solicitud) {
+                        if (row.estado_solicitud.estado === "entregado") {
+                            return "Recibida";
+                        } else if (row.estado_solicitud.estado === "aprobado") {
+                            return "Aprobado";
+                        } else if (row.estado_solicitud.estado === "revision" || row.estado_solicitud.estado === "registrado") {
+                            let buttons = '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
+                            buttons += '<a href="/solicitudes/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
+                            return buttons;
+                        }
                     }
+                    return "";
                 }
             }
         ]

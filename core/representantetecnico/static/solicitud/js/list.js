@@ -1,23 +1,17 @@
 $(function () {
-    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-    var data = {'action': 'searchdata'}
-    if (csrfmiddlewaretoken.length > 0) {
-        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-    }
-    var tblistado = $('#tblistado').DataTable({
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
+    const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
-        'deferRender': true,
         'columns': [
             {'data': 'id'},
             {'data': 'solicitante'},
             {'data': 'laboratorio'},
-            {'data': 'proyecto'},
+            {'data': 'nombre_actividad'},
             {'data': 'documento'},
-            {'data': 'autorizacion'},
-            {'data': 'fecha_autorizacion'},
-            {'data': 'id'}
+            {'data': 'id'},
+            {'data': 'estado_solicitud'}
         ],
         'columnDefs': [
             {
@@ -28,12 +22,26 @@ $(function () {
                 }
             },
             {
-                'targets': [7],
+                'targets': [5],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    let buttons = '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                    buttons += '<a href="/solicitudes/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
-                    return buttons
+                    if (row.hasOwnProperty("fecha_autorizacion")) return row.fecha_autorizacion;
+                    else return "No autorizado";
+                }
+            },
+            {
+                'targets': [6],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    if (data.estado === 'registrado') {
+                        return '<button rel="confirmarSolicitud" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Confirmar</button>';
+                    } else if (data.estado === 'entregado') {
+                        return "Entregado";
+                    } else if (data.estado === 'revision') {
+                        return '<label class="btn-danger">Revisión</label>'
+                    } else if (data.estado === 'aprobado') {
+                        return "Aprobado";
+                    }
                 }
             }
         ]
