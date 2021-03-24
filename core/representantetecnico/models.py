@@ -53,7 +53,7 @@ class Solicitud(BaseModel):
     nombre_actividad = models.CharField(max_length=150, verbose_name="Nombre de proyecto", null=True)
     responsable_actividad = models.ForeignKey(Persona, on_delete=models.CASCADE,
                                               verbose_name="Responsable de actividad")
-    documento_solicitud = models.FileField(upload_to='solicitud/%Y/%m/%d', null=True, blank=True)
+    documento_solicitud = models.FileField(upload_to='solicitud/%Y/%m/%d', null=True)
     fecha_autorizacion = models.DateTimeField(editable=False, null=True)
     estado_solicitud = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estados solicitud",
                                          null=True)
@@ -63,8 +63,9 @@ class Solicitud(BaseModel):
 
     def toJSON(self):
         item = {'id': self.id, 'nombre_actividad': self.nombre_actividad,
-                'documento': self.get_doc_solicitud(),
-                'fecha_autorizacion': self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")}
+                'documento': self.get_doc_solicitud()}
+        if self.fecha_autorizacion is not None:
+            item['fecha_autorizacion'] = self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
         if self.solicitante is not None:
             item['solicitante'] = self.solicitante.get_user_info()
         if self.estado_solicitud is not None:
@@ -74,7 +75,7 @@ class Solicitud(BaseModel):
         if self.tipo_actividad is not None:
             item['tipo_actividad'] = self.tipo_actividad.__str__()
         if self.responsable_actividad is not None:
-            item['responsable_actividad'] = self.responsable_actividad
+            item['responsable_actividad'] = self.responsable_actividad.toJSON()
         return item
 
     def get_doc_solicitud(self):

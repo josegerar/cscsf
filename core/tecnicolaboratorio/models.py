@@ -14,11 +14,14 @@ class Laboratorio(BaseModel):
     def toJSON(self):
         item = {'id': self.id, 'nombre': self.nombre}
         if self.responsable is not None:
-            item['responsable'] = '{} {} {}'.format(str(self.responsable.first_name), str(self.responsable.last_name),
-                                                    str(self.responsable.cedula))
-        else:
-            item['responsable'] = ""
+            item['responsable'] = self.responsable.get_user_info()
         return item
+
+    @staticmethod
+    def get_choices_laboratory_user(user_id):
+        choices = [('', '---------')]
+        choices += [(o.id, o.nombre) for o in Laboratorio.objects.filter(responsable_id=user_id)]
+        return choices
 
     class Meta:
         verbose_name = "Laboratorio"

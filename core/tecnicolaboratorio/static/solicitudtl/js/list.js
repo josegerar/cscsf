@@ -11,24 +11,31 @@ $(function () {
         'deferRender': true,
         'columns': [
             {'data': 'id'},
-            {'data': 'solicitante'},
             {'data': 'laboratorio'},
-            {'data': 'proyecto'},
+            {'data': 'nombre_actividad'},
             {'data': 'documento'},
-            {'data': 'fecha_autorizacion'},
+            {'data': 'id'},
             {'data': 'estado_solicitud'},
             {'data': 'id'}
         ],
         'columnDefs': [
             {
-                'targets': [4],
+                'targets': [3],
                 'orderable': false,
                 'render': function (data, type, row) {
                     return get_tag_url_document(data, 'Ver solicitud')
                 }
             },
             {
-                'targets': [6],
+                'targets': [4],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    if (row.hasOwnProperty("fecha_autorizacion")) return row.fecha_autorizacion;
+                    else return "No autorizado";
+                }
+            },
+            {
+                'targets': [5],
                 'render': function (data, type, row) {
                     if (data.estado === 'registrado') {
                         return "Registrado"
@@ -44,10 +51,10 @@ $(function () {
                 }
             },
             {
-                'targets': [7],
+                'targets': [6],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if (row.estado && row.estado.estado === "entregado" || row.estado.estado === "aprobado") {
+                    if (row.estado_solicitud && row.estado_solicitud.estado === "entregado" || row.estado_solicitud.estado === "aprobado") {
                         return ""
                     } else {
                         let buttons = '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';

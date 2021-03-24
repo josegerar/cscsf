@@ -26,7 +26,14 @@
                 <input type="hidden" name="action" value="{{ action }}"/>
                 {% for field in form.visible_fields %}
                     <div class="form-group">
-                        {{ field.label_tag }}
+                        <div style="display: flex">
+                            {% if field.field.required %}
+                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                                </div>
+                            {% endif %}
+                            {{ field.label_tag }}
+                        </div>
                         {{ field }}
                     </div>
                 {% endfor %}

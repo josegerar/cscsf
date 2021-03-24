@@ -7,12 +7,13 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
-from core.base.mixins import ValidatePermissionRequiredMixin
+from core.base.mixins import ValidatePermissionRequiredMixin, PassRequestToFormViewMixin
 from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle
 from core.tecnicolaboratorio.forms.formSolicitud import SolicitudForm
 
 
-class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
+class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
+                          PassRequestToFormViewMixin, CreateView):
     permission_required = ('representantetecnico.add_solicitud',)
     model = Solicitud
     form_class = SolicitudForm
@@ -47,6 +48,7 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
                         with transaction.atomic():
                             sustancias = json.loads(request.POST['sustancias'])
                             solicitud.estado_solicitud_id = estadocompra.id
+                            solicitud.solicitante_id = request.user.id
                             solicitud.save()
 
                             for i in sustancias:
@@ -55,6 +57,7 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
                                 det.stock_id = stock_selected['id']
                                 det.solicitud_id = solicitud.id
                                 det.cantidad = float(i['cantidad_solicitud'])
+                                det.save()
                     else:
                         data['error'] = 'Ha ocurrido un error'
                 else:

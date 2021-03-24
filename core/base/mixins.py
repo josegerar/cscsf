@@ -39,3 +39,10 @@ class ValidatePermissionRequiredMixin(object):
         messages.error(request, 'No tiene permiso para entrar a este módulo')
         messages.error(request, 'Pongase en contacto con el administrador del sistema')
         return HttpResponseRedirect(self.get_url_redirect())
+
+
+class PassRequestToFormViewMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs

@@ -67,12 +67,12 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
 
             elif action == 'list_desglose':
                 data = []
-                for i in Bodega.objects.all():
+                for i in Bodega.objects.all().order_by('nombre'):
                     item = i.toJSON()
                     item['tipo'] = 'bodega'
                     item['cantidad_ingreso'] = 0.0000
                     data.append(item)
-                for i in Laboratorio.objects.all():
+                for i in Laboratorio.objects.all().order_by('nombre'):
                     item = i.toJSON()
                     item['tipo'] = 'laboratorio'
                     item['cantidad_ingreso'] = 0.0000

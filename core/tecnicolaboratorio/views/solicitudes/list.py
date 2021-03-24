@@ -32,7 +32,7 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
         context['usertitle'] = "Representante Técnico"
         context['title'] = "Solicitudes registradas"
         context['icontitle'] = "store-alt"
-        context['create_url'] = reverse_lazy('rp:registrosolicitud')
+        context['create_url'] = reverse_lazy('tl:registrosolicitud')
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": reverse_lazy('tl:solicitudes'), "uriname": "Solicitudes"}

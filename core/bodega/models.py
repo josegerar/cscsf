@@ -20,11 +20,7 @@ class Bodega(BaseModel):
     def toJSON(self):
         item = model_to_dict(self, exclude=['responsable'])
         if self.responsable is not None:
-            item['responsable'] = str(
-                '{} {} {}'.format(str(self.responsable.first_name), str(self.responsable.last_name),
-                                  str(self.responsable.cedula)))
-        else:
-            item['responsable'] = None
+            item['responsable'] = self.responsable.get_user_info()
         return item
 
     class Meta:

@@ -88,27 +88,63 @@
                                 <!-- /.card-header -->
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Solicitante:</label>
-                                        {{ form.solicitante }}
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Laboratorio:</label>
+                                        <div style="display: flex">
+                                            {% if form.laboratorio.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                             <label>Laboratorio:</label>
+                                        </div>
                                         {{ form.laboratorio }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Tipo de solicitud:</label>
+                                        <div style="display: flex">
+                                            {% if form.tipo_actividad.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                             <label>Tipo de solicitud:</label>
+                                        </div>
                                         {{ form.tipo_actividad }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Nombre de practica/proyecto:</label>
+                                        <div style="display: flex">
+                                            {% if form.nombre_actividad.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                             <label>Nombre de practica/proyecto:</label>
+                                        </div>
                                         {{ form.nombre_actividad }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Responsable de practica/proyecto:</label>
+                                        <div style="display: flex">
+                                            {% if form.responsable_actividad.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                             <label>Responsable de practica/proyecto:</label>
+                                        </div>
                                         {{ form.responsable_actividad }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Solicitud:</label>
+                                        <div style="display: flex">
+                                            {% if form.documento_solicitud.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                             <label>Solicitud:</label>
+                                        </div>
                                         {{ form.documento_solicitud }}
                                     </div>
                                 </div>

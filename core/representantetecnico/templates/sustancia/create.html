@@ -53,19 +53,51 @@
                                 <!-- /.card-header -->
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Nombre de la sustancia:</label>
+                                        <div style="display: flex">
+                                            {% if form.nombre.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Nombre de la sustancia:</label>
+                                        </div>
                                         {{ form.nombre }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Unidad de medida:</label>
+                                        <div style="display: flex">
+                                            {% if form.unidad_medida.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Unidad de medida:</label>
+                                        </div>
                                         {{ form.unidad_medida }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Descripcion:</label>
+                                        <div style="display: flex">
+                                            {% if form.descripcion.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Descripcion:</label>
+                                        </div>
                                         {{ form.descripcion }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Cupo autorizado:</label>
+                                        <div style="display: flex">
+                                            {% if form.cupo_autorizado.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Cupo autorizado:</label>
+                                        </div>
                                         {{ form.cupo_autorizado }}
                                     </div>
                                 </div>

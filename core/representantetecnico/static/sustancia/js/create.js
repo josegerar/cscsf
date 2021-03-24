@@ -12,12 +12,12 @@ const sustancias = {
         this.form_data_ajax = new FormData();
         this.form_data_ajax.append("action", 'list_desglose');
         Loading.show();
-        send_petition_server(undefined, this.form_data_ajax, undefined, undefined)
-            .then(function (data) {
-                if (data.hasOwnProperty("error")) message_error(data);
-                else sustancias.data.desgloses = data;
+        send_petition_server('POST', this.form_data_ajax, window.location.pathname, getCookie("csrftoken"),
+            function (data) {
+                sustancias.data.desgloses = data;
                 sustancias.list_desgloses();
-                Loading.hide();
+            }, function (error) {
+                message_error(error);
             });
     },
     list_desgloses: function () {

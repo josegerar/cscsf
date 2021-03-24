@@ -88,11 +88,27 @@
                                 <!-- /.card-header -->
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Proveedor:</label>
+                                        <div style="display: flex">
+                                            {% if form.empresa.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Proveedor:</label>
+                                        </div>
                                         {{ form.empresa }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Fecha de llegada a bodega:</label>
+                                        <div style="display: flex">
+                                            {% if form.llegada_bodega.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Fecha de llegada a bodega:</label>
+                                        </div>
                                         <div class="input-group date" id="llegada_bodega" data-target-input="nearest">
                                             {{ form.llegada_bodega }}
                                             <div class="input-group-append" data-target="#llegada_bodega"
@@ -103,7 +119,15 @@
 
                                     </div>
                                     <div class="form-group">
-                                        <label>Hora de llegada a bodega:</label>
+                                        <div style="display: flex">
+                                            {% if form.hora_llegada_bodega.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Hora de llegada a bodega:</label>
+                                        </div>
                                         <div class="input-group date" id="hora_llegada_bodega"
                                              data-target-input="nearest">
                                             {{ form.hora_llegada_bodega }}
@@ -116,19 +140,51 @@
 
                                     </div>
                                     <div class="form-group">
-                                        <label>N° convocatoria:</label>
+                                        <div style="display: flex">
+                                            {% if form.convocatoria.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>N° convocatoria:</label>
+                                        </div>
                                         {{ form.convocatoria }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Pedido de compras publicas:</label>
+                                        <div style="display: flex">
+                                            {% if form.pedido_compras_publicas.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Pedido de compras publicas:</label>
+                                        </div>
                                         {{ form.pedido_compras_publicas }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Guia de transporte:</label>
+                                        <div style="display: flex">
+                                            {% if form.guia_transporte.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Guia de transporte:</label>
+                                        </div>
                                         {{ form.guia_transporte }}
                                     </div>
                                     <div class="form-group">
-                                        <label>Factura:</label>
+                                        <div style="display: flex">
+                                            {% if form.factura.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Factura:</label>
+                                        </div>
                                         {{ form.factura }}
                                     </div>
                                 </div>

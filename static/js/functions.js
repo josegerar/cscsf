@@ -118,20 +118,22 @@ function update_datatable(datatable, url, data) {
         console.log(response)
         if (!response.hasOwnProperty('error')) {
             if (response.length > 0) {
+                Loading.hide();
                 datatable.clear();
                 datatable.rows.add(response).draw();
             }
         } else {
+            Loading.hide();
             message_error(response.error);
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
-        message_error(errorThrown);
-    }).always(function (data) {
         Loading.hide();
+        message_error(errorThrown);
     });
 }
 
 function get_async_data_callback(url, data, callback, error) {
+    Loading.show();
     $.ajax({
         'url': url,
         'type': 'POST',
@@ -140,12 +142,15 @@ function get_async_data_callback(url, data, callback, error) {
     }).done(function (response) {
         if (!response.hasOwnProperty('error')) {
             if (response.length > 0) {
+                Loading.hide();
                 callback(response);
             }
         } else {
+            Loading.hide();
             error(response.error);
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
+        Loading.hide();
         error(errorThrown);
     });
 }
@@ -191,13 +196,12 @@ function confirm_action(title, content, callback) {
 }
 
 async function send_petition_server(
-    method = 'POST',
-    formdata = new FormData(),
-    url = window.location.pathname,
-    csrfmiddlewaretoken = document.querySelector('[name=csrfmiddlewaretoken]').value) {
+    method = '', formdata = new FormData(),
+    url = "", csrfmiddlewaretoken = "", callback, error) {
 
+    Loading.show();
     // Opciones por defecto estan marcadas con un *
-    const response = await fetch(url, {
+    fetch(url, {
         method: method, // *GET, POST, PUT, DELETE, etc.
         mode: 'same-origin', // no-cors, *cors, same-origin
         headers: {
@@ -206,8 +210,16 @@ async function send_petition_server(
             'X-CSRFToken': csrfmiddlewaretoken
         },
         body: formdata // body data type must match "Content-Type" header
+    }).then(function (response) {
+        return response.json(); // parses JSON response into native JavaScript objects
+    }).then(function (data) {
+        if (data.hasOwnProperty("error")) error(data.error);
+        else callback(data);
+    }).catch(function (reason) {
+        error(reason);
+    }).finally(function () {
+        Loading.hide();
     });
-    return response.json(); // parses JSON response into native JavaScript objects
 }
 
 function encodeQueryString(params = {}) {

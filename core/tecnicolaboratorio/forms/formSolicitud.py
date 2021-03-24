@@ -2,24 +2,21 @@ from django.forms import *
 
 from core.login.models import User
 from core.representantetecnico.models import Solicitud
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class SolicitudForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields.get('solicitante').choices = User.get_choices_laboratory_worker
+        self.fields.get('laboratorio').choices = Laboratorio.get_choices_laboratory_user(self.request.user.id)
 
     class Meta:
         model = Solicitud
         fields = '__all__'
-        exclude = ['estado_solicitud', 'fecha_autorizacion']
+        exclude = ['estado_solicitud', 'fecha_autorizacion', 'solicitante']
         widgets = {
-            'solicitante': Select(attrs={
-                'class': 'form-control select2',
-                'style': 'width: 100%',
-                'autofocus': True
-            }),
             'laboratorio': Select(attrs={
                 'class': 'form-control select2',
                 'style': 'width: 100%'
@@ -32,7 +29,8 @@ class SolicitudForm(ModelForm):
                 attrs={
                     'placeholder': 'Ingrese el nombre del proyecto',
                     'type': 'text',
-                    'class': 'form-control'
+                    'class': 'form-control',
+                    'autocomplete': 'off'
                 }
             ),
             'responsable_actividad': Select(attrs={

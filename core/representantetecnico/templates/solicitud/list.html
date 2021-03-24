@@ -14,9 +14,11 @@
     <thead>
     <tr>
         <th scope="col">#</th>
-        <th scope="col">Solicitante</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Solicitante</th>
+        {% endif %}
         <th scope="col">Laboratorio</th>
-        <th scope="col">Proyecto</th>
+        <th scope="col">Actividad</th>
         <th scope="col">Documento</th>
         <th scope="col">Fecha autorización</th>
         <th scope="col">Estado</th>

@@ -8,7 +8,7 @@ class BodegaForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields.get('responsable').choices = User.get_choices_user
+        self.fields.get('responsable').choices = User.get_choices_grocer
 
     class Meta:
         model = Bodega

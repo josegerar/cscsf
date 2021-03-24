@@ -72,6 +72,12 @@ class User(AbstractUser, BaseModel):
         choices += [(o.id, o.get_user_info()) for o in User.objects.filter(is_laboratory_worker=True)]
         return choices
 
+    @staticmethod
+    def get_choices_grocer():
+        choices = [('', '---------')]
+        choices += [(o.id, o.get_user_info()) for o in User.objects.filter(is_grocer=True)]
+        return choices
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.
         group = None
