@@ -76,6 +76,10 @@ class Solicitud(BaseModel):
             item['tipo_actividad'] = self.tipo_actividad.__str__()
         if self.responsable_actividad is not None:
             item['responsable_actividad'] = self.responsable_actividad.toJSON()
+        item['detallesolicitud'] = []
+        if self.solicituddetalle_set is not None:
+            for i in self.solicituddetalle_set.all():
+                item['detallesolicitud'].append(i.toJSON(ver_solicitud=False))
         return item
 
     def get_doc_solicitud(self):
@@ -104,7 +108,7 @@ class SolicitudDetalle(BaseModel):
             if ver_solicitud:
                 item['solicitud'] = self.solicitud.toJSON()
         if self.stock is not None:
-            item['stock'] = self.stock.toJSON()
+            item['stock'] = self.stock.toJSON(view_subtance=True)
         return item
 
     class Meta:
@@ -199,8 +203,6 @@ class ComprasPublicasDetalle(BaseModel):
             item['compra'] = self.compra.toJSON()
         if self.stock is not None:
             item['stock'] = self.stock.toJSON()
-        else:
-            item['stock'] = Stock().toJSON()
         return item
 
     class Meta:
