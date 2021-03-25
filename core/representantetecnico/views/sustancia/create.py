@@ -64,7 +64,10 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
                                 inv.cantidad_movimiento = stock.cantidad
                                 inv.tipo_movimiento_id = tipo_movimiento_add.id
                                 inv.save()
-
+                    else:
+                        data['error'] = 'ha ocurrido un error'
+                else:
+                    data['error'] = 'ha ocurrido un error'
             elif action == 'list_desglose':
                 data = []
                 for i in Bodega.objects.all().order_by('nombre'):

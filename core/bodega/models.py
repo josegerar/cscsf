@@ -63,9 +63,7 @@ class Sustancia(BaseModel):
     def __str__(self):
         return self.nombre
 
-    def toJSON(self, view_stock=False):
-        item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion,
-                'cupo_autorizado': self.cupo_autorizado}
+    def get_cupo_consumido(self):
         cupo_consumido = Inventario.objects.filter(
             date_creation__year=datetime.now().year,
             tipo_movimiento__nombre="addcompra",
@@ -73,7 +71,11 @@ class Sustancia(BaseModel):
         ).aggregate(Sum("cantidad_movimiento"))
         if cupo_consumido['cantidad_movimiento__sum'] is None:
             cupo_consumido['cantidad_movimiento__sum'] = 0
-        item['cupo_consumido'] = float(cupo_consumido['cantidad_movimiento__sum'])
+        return float(cupo_consumido['cantidad_movimiento__sum'])
+
+    def toJSON(self, view_stock=False):
+        item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion,
+                'cupo_autorizado': self.cupo_autorizado, 'cupo_consumido': self.get_cupo_consumido()}
         if self.unidad_medida is not None:
             item['unidad_medida'] = self.unidad_medida.toJSON()
         item['stock'] = []

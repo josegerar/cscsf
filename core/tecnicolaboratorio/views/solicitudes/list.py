@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -72,34 +73,43 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                 if solicitud is not None:
                                     detallesustancia = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
                                     for i in detallesustancia:
-                                        # disminuye stock en bodega
-                                        stockbdg = Stock.objects.get(id=i.stock_id)
-                                        stockbdg.cantidad = stockbdg.cantidad - i.cantidad
-                                        stockbdg.save()
+                                        # verificar si existe cupo para entregar la sustancia
+                                        cupo_consumido = i.stock.sustancia.get_cupo_consumido()
+                                        cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
+                                        if cupo_consumido + float(i.cantidad) > cupo_autorizado:
+                                            raise PermissionDenied(
+                                                'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
+                                                    i.stock.sustancia.nombre)
+                                            )
+                                        else:
+                                            # disminuye stock en bodega
+                                            stockbdg = Stock.objects.get(id=i.stock_id)
+                                            stockbdg.cantidad = stockbdg.cantidad - i.cantidad
+                                            stockbdg.save()
 
-                                        # movimiento de inventario delete de bodega
-                                        inv = Inventario()
-                                        inv.stock_id = i.stock_id
-                                        inv.cantidad_movimiento = i.cantidad
-                                        inv.tipo_movimiento_id = tipo_movimiento_del.id
-                                        inv.save()
+                                            # movimiento de inventario delete de bodega
+                                            inv = Inventario()
+                                            inv.stock_id = i.stock_id
+                                            inv.cantidad_movimiento = i.cantidad
+                                            inv.tipo_movimiento_id = tipo_movimiento_del.id
+                                            inv.save()
 
-                                        # Aumenta el stock de el laboratorio
-                                        stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
-                                                                     sustancia_id=i.stock.sustancia_id)
-                                        stocklab.cantidad = stocklab.cantidad + i.cantidad
-                                        stocklab.save()
+                                            # Aumenta el stock de el laboratorio
+                                            stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
+                                                                         sustancia_id=i.stock.sustancia_id)
+                                            stocklab.cantidad = stocklab.cantidad + i.cantidad
+                                            stocklab.save()
 
-                                        # movimiento de inventario addsustancialab en el laboratorio
-                                        invlab = Inventario()
-                                        invlab.stock_id = i.stock_id
-                                        invlab.cantidad_movimiento = i.cantidad
-                                        invlab.tipo_movimiento_id = tipo_movimiento_add.id
-                                        invlab.save()
-
-
+                                            # movimiento de inventario addsustancialab en el laboratorio
+                                            invlab = Inventario()
+                                            invlab.stock_id = i.stock_id
+                                            invlab.cantidad_movimiento = i.cantidad
+                                            invlab.tipo_movimiento_id = tipo_movimiento_add.id
+                                            invlab.save()
                                 else:
-                                    data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
+                                    raise Exception(
+                                        'ha ocurrido un error al intentar confirmar la compra'
+                                    )
                             else:
                                 data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
                         else:
