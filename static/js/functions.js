@@ -308,8 +308,6 @@ function addEventListenerOpenDetailRowDatatable(tableId = "", dataTable,
 function activeSelectionRowDatatable(row, datatable) {
     datatable.$('tr.selected').removeClass('selected');
     $(row).addClass('selected');
-    //datatable.rows({selected: false}).data();
-    //datatable.row(row).select();
 }
 
 function util() {
@@ -321,4 +319,11 @@ function util() {
     //         tbstock.clear();
     //         tbstock.rows.add(rowData.stock).draw();
     //     });
+
+    // $(row).find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
+    //     max: solicitud.data.sustancias[dataIndex].cantidad_bodega
+    // });
+
+    //datatable.rows({selected: false}).data();
+    //datatable.row(row).select();
 }

@@ -47,16 +47,7 @@ class ComprasForm(ModelForm):
             'responsable_entrega': Select(attrs={
                 'class': 'form-control select2',
                 'style': 'width: 100%'
-            }),
-            'pedido_compras_publicas': FileInput(attrs={
-                'class': 'form-control',
-            }),
-            'guia_transporte': FileInput(attrs={
-                'class': 'form-control',
-            }),
-            'factura': FileInput(attrs={
-                'class': 'form-control',
-            }),
+            })
         }
 
     def save(self, commit=True):

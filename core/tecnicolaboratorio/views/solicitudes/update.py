@@ -70,6 +70,7 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                                     for dc_new in detalle_solicitud_new:
                                         if dc_old.id == dc_new['id']:
                                             exits_old = True
+                                            break
                                     if exits_old is False:
                                         dc_old.delete()
 
@@ -86,13 +87,14 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                                         if dc_old.id == dc_new['id']:
                                             exits_old = True
                                             item_det_new = dc_old
+                                            break
 
                                     if exits_old is False and item_det_new is None:
                                         item_det_new = SolicitudDetalle()
 
                                     item_det_new.stock_id = stock_selected['id']
                                     item_det_new.solicitud_id = solicitud.id
-                                    item_det_new.cantidad = float(dc_new['cantidad_solicitud'])
+                                    item_det_new.cantidad = float(dc_new['cantidad'])
                                     item_det_new.save()
 
                         else:

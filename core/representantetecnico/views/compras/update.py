@@ -68,6 +68,7 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                                     for dc_new in detalle_compras_new:
                                         if dc_old.id == dc_new['id']:
                                             exits_old = True
+                                            break
                                     if exits_old is False:
                                         dc_old.delete()
 
@@ -84,13 +85,14 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                                         if dc_old.id == dc_new['id']:
                                             exits_old = True
                                             item_det_new = dc_old
+                                            break
 
                                     if exits_old is False and item_det_new is None:
                                         item_det_new = ComprasPublicasDetalle()
 
                                     item_det_new.stock_id = stock_selected['id']
                                     item_det_new.compra_id = compra.id
-                                    item_det_new.cantidad = float(dc_new['cantidad_ingreso'])
+                                    item_det_new.cantidad = float(dc_new['cantidad'])
                                     item_det_new.save()
                         else:
                             data['error'] = 'ha ocurrido un error'

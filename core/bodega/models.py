@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Value as V
+from django.db.models.functions import Coalesce
 from django.forms import model_to_dict
 
 from core.login.models import BaseModel, User
@@ -70,6 +71,8 @@ class Sustancia(BaseModel):
             tipo_movimiento__nombre="addcompra",
             stock__sustancia_id=self.id
         ).aggregate(Sum("cantidad_movimiento"))
+        if cupo_consumido['cantidad_movimiento__sum'] is None:
+            cupo_consumido['cantidad_movimiento__sum'] = 0
         item['cupo_consumido'] = float(cupo_consumido['cantidad_movimiento__sum'])
         if self.unidad_medida is not None:
             item['unidad_medida'] = self.unidad_medida.toJSON()
@@ -91,7 +94,7 @@ class Stock(BaseModel):
     sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, null=True)
     bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, null=True)
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, null=True)
-    cantidad = models.DecimalField(max_digits=9, decimal_places=4)
+    cantidad = models.DecimalField(max_digits=9, decimal_places=4, default=0)
 
     def __str__(self):
         return str(self.id)

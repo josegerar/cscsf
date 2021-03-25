@@ -1,5 +1,6 @@
 {% extends 'list.html' %}
 
+{% load widget_tweaks %}
 {% load static %}
 
 {% block head_list %}
@@ -161,7 +162,7 @@
                                             {% endif %}
                                             <label>Pedido de compras publicas:</label>
                                         </div>
-                                        {{ form.pedido_compras_publicas }}
+                                        {{ form.pedido_compras_publicas|add_class:'form-control' }}
                                     </div>
                                     <div class="form-group">
                                         <div style="display: flex">
@@ -173,7 +174,7 @@
                                             {% endif %}
                                             <label>Guia de transporte:</label>
                                         </div>
-                                        {{ form.guia_transporte }}
+                                        {{ form.guia_transporte|add_class:'form-control' }}
                                     </div>
                                     <div class="form-group">
                                         <div style="display: flex">
@@ -185,7 +186,7 @@
                                             {% endif %}
                                             <label>Factura:</label>
                                         </div>
-                                        {{ form.factura }}
+                                        {{ form.factura|add_class:'form-control' }}
                                     </div>
                                 </div>
                                 <!-- /.card-body -->

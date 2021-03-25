@@ -169,19 +169,12 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
 
-        activePluguinTouchSpinInputRow(row, "cantidad", data.cupo_autorizado - data.cupo_consumido,
+        activePluguinTouchSpinInputRow(row, "cantidad", data.cupo_autorizado,
             0, 0, 0.1);
 
         $(row).find('select[name="bodega_salida"]').on('change.select2', function (e) {
-
             let data_select = $(this).select2('data');
-
             solicitud.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id), row);
-
-            $(row).find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
-                max: solicitud.data.sustancias[dataIndex].cantidad_bodega
-            });
-
         }).select2({
             'theme': 'bootstrap4',
             'language': 'es',

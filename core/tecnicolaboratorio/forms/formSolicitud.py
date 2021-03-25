@@ -36,9 +36,6 @@ class SolicitudForm(ModelForm):
             'responsable_actividad': Select(attrs={
                 'class': 'form-control select2',
                 'style': 'width: 100%'
-            }),
-            'documento_solicitud': FileInput(attrs={
-                'class': 'form-control'
             })
         }
 

@@ -13,39 +13,42 @@ const solicitud = {
         this.list_sustancia();
     },
     add_detalle_solicitud: function (data = []) {
+        $.each(data, function (index, item) {
+            item.cantidad = parseFloat(item.cantidad);
+            item.stock.sustancia.cupo_autorizado = parseFloat(item.stock.sustancia.cupo_autorizado)
+            item.stock.sustancia.cantidad_bodega = 0;
+            item.stock_selected = null;
+        });
         this.data.detalleSolicitud = data;
         this.list_sustancia();
     },
     config_item: function (item) {
         let cantidad = 0;
-        let itemDetalle = {'id': -1, 'cantidad_solicitud': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
         $.each(item.stock, function (istock, vstock) {
-            if (vstock.bodega) {
-                vstock.text = "Bod. " + vstock.bodega.nombre;
-                cantidad += parseFloat(vstock.cantidad);
-            } else if (vstock.laboratorio) vstock.text = "Lab. " + vstock.laboratorio.nombre;
+            if (vstock.bodega) cantidad += parseFloat(vstock.cantidad);
         });
-        item.cantidad_solicitud = 0;
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
         item.cantidad_bodega = 0;
         item.cantidad_bodegas_total = cantidad;
         item.stock_selected = null;
-        return itemDetalle;
+        return {'id': -1, 'cantidad': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
     },
     get_bodegas_item: function (dataIndex) {
         let stock = [];
         $.each(this.data.detalleSolicitud[dataIndex].stock.sustancia.stock, function (istock, vstock) {
-            if (vstock.bodega && parseFloat(vstock.cantidad) > 0) stock.push(vstock);
+            if (vstock.bodega && parseFloat(vstock.cantidad) > 0) {
+                if (!vstock.text) vstock.text = "Bod. " + vstock.bodega.nombre;
+                stock.push(vstock);
+            }
         });
         return stock;
     },
     list_sustancia: function () {
-        console.log(this.data.detalleSolicitud);
         this.datatable.clear();
         this.datatable.rows.add(this.data.detalleSolicitud).draw();
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
-        this.data.detalleSolicitud[index].cantidad_solicitud = nueva_cantidad;
+        this.data.detalleSolicitud[index].cantidad = nueva_cantidad;
     },
     delete_sustancia: function (index) {
         this.data.detalleSolicitud.splice(index, 1);
@@ -69,7 +72,7 @@ const solicitud = {
             error("¡Debe existir al menos 1 sustancia agregada en la solicitud!");
         } else {
             $.each(this.data.detalleSolicitud, function (index, item) {
-                if (item.cantidad_solicitud <= 0) {
+                if (item.cantidad <= 0) {
                     isValidData = false;
                     error(`! La sustancia ${item.nombre} tiene una cantidad a solicitar invalida, por favor verifique ¡`);
                 }
@@ -109,7 +112,7 @@ $(function () {
             },
             {'data': 'stock.sustancia.nombre'},
             {'data': 'id'},
-            {'data': 'cantidad_solicitud'},
+            {'data': 'cantidad'},
             {'data': 'stock.sustancia.cantidad_bodega'},
             {'data': 'stock.sustancia.unidad_medida.nombre'}
         ],
@@ -187,19 +190,12 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
 
-        activePluguinTouchSpinInputRow(row, "cantidad", data.cupo_autorizado - data.cupo_consumido,
-            0, 0, 0.1);
+        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.sustancia.cupo_autorizado,
+            0, data.cantidad, 0.1);
 
         $(row).find('select[name="bodega_salida"]').on('change.select2', function (e) {
-
             let data_select = $(this).select2('data');
-
             solicitud.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id), row);
-
-            $(row).find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
-                max: solicitud.data.detalleSolicitud[dataIndex].cantidad_bodega
-            });
-
         }).select2({
             'theme': 'bootstrap4',
             'language': 'es',

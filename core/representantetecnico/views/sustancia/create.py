@@ -46,7 +46,7 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
                     if sustancia is not None:
                         with transaction.atomic():
                             lugares = json.loads(request.POST['desgloses'])
-                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='add')
+                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancia')
                             sustancia.save()
 
                             for i in lugares:

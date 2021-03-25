@@ -6,7 +6,7 @@ const compra = {
     },
     add_sustancia: function (item) {
         item = this.config_item(item);
-        if (item.cantidad_ingreso + item.cantidad > item.cupo_autorizado) {
+        if (item.cupo_disponible <= 0) {
             message_error("La sustancia " + item.nombre
                 + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
         } else {
@@ -184,7 +184,7 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
 
-        activePluguinTouchSpinInputRow(row, 'cantidad', data.cupo_autorizado - data.cupo_disponible,
+        activePluguinTouchSpinInputRow(row, 'cantidad', data.cupo_disponible,
             0, 0, 0.1);
 
         $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {

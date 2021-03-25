@@ -5,8 +5,8 @@ const compra = {
     },
     add_sustancia: function (item) {
         item = this.config_item(item);
-        if (item.stock.sustancia.cantidad_ingreso + item.stock.sustancia.cantidad > item.stock.sustancia.cupo_autorizado) {
-            message_error("La sustancia " + item.nombre
+        if (item.stock.sustancia.cupo_disponible <= 0) {
+            message_error("La sustancia " + item.stock.sustancia.nombre
                 + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
         } else {
             this.data.detalleCompra.push(item);
@@ -14,28 +14,29 @@ const compra = {
         this.list_sustancia();
     },
     add_detalle_compra: function (data = []) {
+        $.each(data, function (index, item) {
+            item.cantidad = parseFloat(item.cantidad);
+            item.stock.sustancia.cupo_autorizado = parseFloat(item.stock.sustancia.cupo_autorizado)
+            item.stock.sustancia.cupo_disponible = item.stock.sustancia.cupo_autorizado - item.stock.sustancia.cupo_consumido
+        });
         this.data.detalleCompra = data;
         this.list_sustancia();
     },
     config_item: function (item) {
         let cant = 0;
-        let itemDetalle = {'id': -1, 'cantidad': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
-
         $.each(item.stock, function (istock, vstock) {
-            if (vstock.bodega.id) vstock.text = "Bod. " + vstock.bodega.nombre;
-            else vstock.text = "Lab. " + vstock.laboratorio.nombre;
-            cant += parseFloat(vstock.cantidad);
+            if (vstock.bodega) vstock.text = "Bod. " + vstock.bodega.nombre;
+            else if (vstock.laboratorio) vstock.text = "Lab. " + vstock.laboratorio.nombre;
         });
-        item.cantidad_ingreso = 0.0001;
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
-        item.cantidad = cant.toFixed(4);
         item.stock_selected = null;
-        return itemDetalle;
+        item.cupo_disponible = item.cupo_autorizado - item.cupo_consumido;
+        return {'id': -1, 'cantidad': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
     },
     get_stock_item: function (dataIndex) {
         let stock = [];
         $.each(this.data.detalleCompra[dataIndex].stock.sustancia.stock, function (istock, vstock) {
-            if (vstock.bodega.id) {
+            if (vstock.bodega) {
                 vstock.text = "Bod. " + vstock.bodega.nombre;
                 stock.push(vstock);
             }
@@ -47,7 +48,7 @@ const compra = {
         this.datatable.rows.add(this.data.detalleCompra).draw();
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
-        this.data.detalleCompra[index].cantidad_ingreso = nueva_cantidad;
+        this.data.detalleCompra[index].cantidad = nueva_cantidad;
     },
     delete_sustancia: function (index) {
         this.data.detalleCompra.splice(index, 1);
@@ -107,7 +108,7 @@ $(function () {
             {'data': 'stock.sustancia.nombre'},
             {'data': 'id'},
             {'data': 'cantidad'},
-            {'data': 'stock.cantidad'},
+            {'data': 'stock.sustancia.cupo_disponible'},
             {'data': 'stock.sustancia.cupo_autorizado'},
             {'data': 'stock.sustancia.unidad_medida.nombre'}
         ],
@@ -196,7 +197,8 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
 
-        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.sustancia.cupo_autorizado);
+        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.sustancia.cupo_disponible,
+            0, 0, 0.1);
 
         $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
             let data_select = $(this).select2('data');
