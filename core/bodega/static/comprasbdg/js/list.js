@@ -103,7 +103,7 @@ $(function () {
             );
         } else if (action_save === 'revisar') {
             $('#modalConfirmarCompra').modal('hide');
-            $('#frmJustRevision').find('input[name="id_solicitud"]').val(parameters.get("id_solicitud"))
+            $('#frmJustRevision').find('input[name="id_compra"]').val(parameters.get("id_compra"))
             $('#modalJustRevision').modal('show');
         }
     });
@@ -123,7 +123,7 @@ $(function () {
         event.preventDefault();
         let form = this;
         let parameters = new FormData(form);
-        parameters.append('action', 'revisionSolicitud');
+        parameters.append('action', 'revisionCompra');
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
@@ -140,6 +140,8 @@ $(function () {
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('button[rel="confirmarCompra"]').on('click', function (event) {
             $('#modalConfirmarCompra').find('input[name=id_compra]').val(data.id);
+            console.log(data)
+            console.log("xni")
             tbdetallecompra.clear();
             tbdetallecompra.rows.add(data.detallecompra).draw();
             $('#modalConfirmarCompra').modal('show');

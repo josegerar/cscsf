@@ -18,6 +18,7 @@ $(function () {
             {'data': 'guia_transporte'},
             {'data': 'factura'},
             {'data': 'estado'},
+            {'data': 'observacion'},
             {'data': 'id'},
         ],
         'columnDefs': [
@@ -59,6 +60,17 @@ $(function () {
             },
             {
                 'targets': [9],
+                'render': function (data, type, row) {
+                    if (row.estado) {
+                        if (row.estado.estado === 'revision') {
+                            return '<a href="#" rel="openobs">Ver observación</a>'
+                        }
+                    }
+                    return ""
+                }
+            },
+            {
+                'targets': [10],
                 'orderable': false,
                 'render': function (data, type, row) {
                     if (row.estado && row.estado.estado === "almacenado") {
@@ -70,7 +82,10 @@ $(function () {
                     }
                 }
             }
-        ]
+        ],
+        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
+            updateRowsCallback(row, data, dataIndex)
+        }
     });
 
     update_datatable(tblistado, window.location.pathname, data);
@@ -78,4 +93,12 @@ $(function () {
     $('#btnSync').on('click', function (event) {
         update_datatable(tblistado, window.location.pathname, data);
     });
+
+
+    function updateRowsCallback(row, data, dataIndex) {
+        $(row).find('a[rel=openobs]').on('click', function (event) {
+            $('#frmModalObs').find('textarea[name=observacion]').text(data.observacion);
+            $('#modalObs').modal('show');
+        });
+    }
 });

@@ -204,7 +204,7 @@ class ComprasPublicasDetalle(BaseModel):
         if rel_compraspublicas is False:
             item['compra'] = self.compra.toJSON()
         if self.stock is not None:
-            item['stock'] = self.stock.toJSON()
+            item['stock'] = self.stock.toJSON(view_subtance=True,view_stock_substance=True)
         return item
 
     class Meta:

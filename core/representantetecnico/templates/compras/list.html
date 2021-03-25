@@ -41,6 +41,7 @@
         <th scope="col">Guia transporte</th>
         <th scope="col">Estado</th>
         {% if request.user.is_representative %}
+            <th scope="col">Observaciones</th>
             <th scope="col">Opciones</th>
         {% endif %}
     </tr>
@@ -65,6 +66,7 @@
 
 {% block script %}
     {% if request.user.is_representative %}
+        {% include 'solicitudtl/modal/observacion.html' %}
         <script src="{% static 'compras/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
         {% include 'comprasbdg/modal/confirmarCompra.html' %}
