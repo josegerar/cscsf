@@ -19,101 +19,104 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            action = request.POST['action']
-            if action == 'searchdata':
-                data = []
-                for i in Solicitud.objects.all():
-                    data.append(i.toJSON())
-            elif action == 'revisionSolicitud':
-                idsolicitud = request.POST.get('id_solicitud')
-                if idsolicitud is not None:
-                    with transaction.atomic():
-                        solicitud = Solicitud.objects.get(id=idsolicitud)
-                        if solicitud is not None:
-                            estado_solicitud = EstadoTransaccion.objects.get(estado='revision')
-                            if estado_solicitud is not None:
-                                observacion = request.POST.get('observacion')
-                                if observacion is None:
-                                    observacion = ""
-                                solicitud.observacion = observacion
-                                solicitud.estado_solicitud_id = estado_solicitud.id
-                                solicitud.save()
-                            else:
-                                data['error'] = 'ha ocurrido un error'
-                        else:
-                            data['error'] = 'ha ocurrido un error'
-                else:
-                    data['error'] = 'ha ocurrido un error'
-            elif action == 'aprobarSolicitud':
-                idsolicitud = request.POST.get('id_solicitud')
-                if idsolicitud is not None:
-                    with transaction.atomic():
-                        solicitud = Solicitud.objects.get(id=idsolicitud)
-                        if solicitud is not None:
-                            estado_solicitud = EstadoTransaccion.objects.get(estado='aprobado')
-                            if estado_solicitud is not None:
-                                solicitud.estado_solicitud_id = estado_solicitud.id
-                                solicitud.save()
-                            else:
-                                data['error'] = 'ha ocurrido un error'
-                        else:
-                            data['error'] = 'ha ocurrido un error'
-            elif action == 'entregarSustancias':
-                idsolicitud = request.POST.get('id_solicitud')
-                if idsolicitud is not None:
-                    with transaction.atomic():
-                        solicitud = Solicitud.objects.get(id=idsolicitud)
-                        tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
-                        tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancialab')
-                        if tipo_movimiento_del is not None:
-                            estado_solicitud = EstadoTransaccion.objects.get(estado='entregado')
-                            if estado_solicitud is not None:
-                                solicitud.estado_solicitud_id = estado_solicitud.id
-                                solicitud.save()
-                                if solicitud is not None:
-                                    detallesustancia = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
-                                    for i in detallesustancia:
-                                        # verificar si existe cupo para entregar la sustancia
-                                        cupo_consumido = i.stock.sustancia.get_cupo_consumido()
-                                        cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
-                                        if cupo_consumido + float(i.cantidad) > cupo_autorizado:
-                                            raise PermissionDenied(
-                                                'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
-                                                    i.stock.sustancia.nombre)
-                                            )
-                                        else:
-                                            # disminuye stock en bodega
-                                            stockbdg = Stock.objects.get(id=i.stock_id)
-                                            stockbdg.cantidad = stockbdg.cantidad - i.cantidad
-                                            stockbdg.save()
-
-                                            # movimiento de inventario delete de bodega
-                                            inv = Inventario()
-                                            inv.stock_id = i.stock_id
-                                            inv.cantidad_movimiento = i.cantidad
-                                            inv.tipo_movimiento_id = tipo_movimiento_del.id
-                                            inv.save()
-
-                                            # Aumenta el stock de el laboratorio
-                                            stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
-                                                                         sustancia_id=i.stock.sustancia_id)
-                                            stocklab.cantidad = stocklab.cantidad + i.cantidad
-                                            stocklab.save()
-
-                                            # movimiento de inventario addsustancialab en el laboratorio
-                                            invlab = Inventario()
-                                            invlab.stock_id = i.stock_id
-                                            invlab.cantidad_movimiento = i.cantidad
-                                            invlab.tipo_movimiento_id = tipo_movimiento_add.id
-                                            invlab.save()
+            action = request.POST.get('action')
+            if action is not None:
+                if action == 'searchdata':
+                    data = []
+                    for i in Solicitud.objects.all():
+                        data.append(i.toJSON())
+                elif action == 'revisionSolicitud':
+                    idsolicitud = request.POST.get('id')
+                    if idsolicitud is not None:
+                        with transaction.atomic():
+                            solicitud = Solicitud.objects.get(id=idsolicitud)
+                            if solicitud is not None:
+                                estado_solicitud = EstadoTransaccion.objects.get(estado='revision')
+                                if estado_solicitud is not None:
+                                    observacion = request.POST.get('observacion')
+                                    if observacion is None:
+                                        observacion = ""
+                                    solicitud.observacion = observacion
+                                    solicitud.estado_solicitud_id = estado_solicitud.id
+                                    solicitud.save()
                                 else:
-                                    raise Exception(
-                                        'ha ocurrido un error al intentar confirmar la compra'
-                                    )
+                                    data['error'] = 'ha ocurrido un error'
+                            else:
+                                data['error'] = 'ha ocurrido un error'
+                    else:
+                        data['error'] = 'ha ocurrido un error'
+                elif action == 'aprobarSolicitud':
+                    idsolicitud = request.POST.get('id_solicitud')
+                    if idsolicitud is not None:
+                        with transaction.atomic():
+                            solicitud = Solicitud.objects.get(id=idsolicitud)
+                            if solicitud is not None:
+                                estado_solicitud = EstadoTransaccion.objects.get(estado='aprobado')
+                                if estado_solicitud is not None:
+                                    solicitud.estado_solicitud_id = estado_solicitud.id
+                                    solicitud.save()
+                                else:
+                                    data['error'] = 'ha ocurrido un error'
+                            else:
+                                data['error'] = 'ha ocurrido un error'
+                elif action == 'entregarSustancias':
+                    idsolicitud = request.POST.get('id_solicitud')
+                    if idsolicitud is not None:
+                        with transaction.atomic():
+                            solicitud = Solicitud.objects.get(id=idsolicitud)
+                            tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
+                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancialab')
+                            if tipo_movimiento_del is not None:
+                                estado_solicitud = EstadoTransaccion.objects.get(estado='entregado')
+                                if estado_solicitud is not None:
+                                    solicitud.estado_solicitud_id = estado_solicitud.id
+                                    solicitud.save()
+                                    if solicitud is not None:
+                                        detallesustancia = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
+                                        for i in detallesustancia:
+                                            # verificar si existe cupo para entregar la sustancia
+                                            cupo_consumido = i.stock.sustancia.get_cupo_consumido()
+                                            cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
+                                            if cupo_consumido + float(i.cantidad) > cupo_autorizado:
+                                                raise PermissionDenied(
+                                                    'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
+                                                        i.stock.sustancia.nombre)
+                                                )
+                                            else:
+                                                # disminuye stock en bodega
+                                                stockbdg = Stock.objects.get(id=i.stock_id)
+                                                stockbdg.cantidad = stockbdg.cantidad - i.cantidad
+                                                stockbdg.save()
+
+                                                # movimiento de inventario delete de bodega
+                                                inv = Inventario()
+                                                inv.stock_id = i.stock_id
+                                                inv.cantidad_movimiento = i.cantidad
+                                                inv.tipo_movimiento_id = tipo_movimiento_del.id
+                                                inv.save()
+
+                                                # Aumenta el stock de el laboratorio
+                                                stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
+                                                                             sustancia_id=i.stock.sustancia_id)
+                                                stocklab.cantidad = stocklab.cantidad + i.cantidad
+                                                stocklab.save()
+
+                                                # movimiento de inventario addsustancialab en el laboratorio
+                                                invlab = Inventario()
+                                                invlab.stock_id = i.stock_id
+                                                invlab.cantidad_movimiento = i.cantidad
+                                                invlab.tipo_movimiento_id = tipo_movimiento_add.id
+                                                invlab.save()
+                                    else:
+                                        raise Exception(
+                                            'ha ocurrido un error al intentar confirmar la compra'
+                                        )
+                                else:
+                                    data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
                             else:
                                 data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
-                        else:
-                            data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
+                else:
+                    data['error'] = 'Ha ocurrido un error'
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:

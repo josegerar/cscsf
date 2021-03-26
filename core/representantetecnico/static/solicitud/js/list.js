@@ -76,8 +76,8 @@ $(function () {
         let action_save = $(event.originalEvent.submitter).attr('rel');
         let form = this;
         let parameters = new FormData(form);
-        if (action_save === 'entregar') {
-            parameters.append('action', 'entregarSustancias');
+        if (action_save === 'aprobar') {
+            parameters.append('action', 'aprobarSolicitud');
             disableEnableForm(form, true);
             submit_with_ajax(
                 window.location.pathname, parameters

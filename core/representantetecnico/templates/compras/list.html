@@ -70,7 +70,7 @@
         <script src="{% static 'compras/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
         {% include 'comprasbdg/modal/confirmarCompra.html' %}
-        {% include 'solicitudbdg/modal/justRevision.html' %}
+        {% include 'solicitudbdg/modal/../../../../templates/justRevision.html' %}
         <script src="{% static 'comprasbdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         <script src="{% static 'compras/js/list.js' %}"></script>

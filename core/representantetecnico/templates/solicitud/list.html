@@ -47,11 +47,11 @@
 {% block script %}
     {% if request.user.is_representative %}
         {% include 'solicitud/modal/autorizarSolicitud.html' %}
-        {% include 'solicitudbdg/modal/justRevision.html' %}
+        {% include 'sendObs.html' %}
         <script src="{% static 'solicitud/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
         {% include 'solicitudbdg/modal/entregaSustanciaSolicitud.html' %}
-        {% include 'solicitudbdg/modal/justRevision.html' %}
+        {% include 'sendObs.html' %}
         <script src="{% static 'solicitudbdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         {% include 'observacion.html' %}

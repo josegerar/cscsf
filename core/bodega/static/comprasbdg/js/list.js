@@ -99,9 +99,12 @@ $(function () {
                 }
             );
         } else if (action_save === 'revisar') {
-            $('#modalConfirmarCompra').modal('hide');
-            $('#frmJustRevision').find('input[name="id_compra"]').val(parameters.get("id_compra"))
-            $('#modalJustRevision').modal('show');
+            $('#frmSendObs').find('h5').text("Justificaciòn de revisiòn")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Revisión")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-danger")
+            $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_solicitud"))
+            $('#frmSendObs').find('input[name="action"]').val("revisionSolicitud")
+            $('#modalSendObs').modal('show');
         }
     });
 
@@ -111,17 +114,18 @@ $(function () {
             updateRowsCallback(row, data, dataIndex);
         });
 
-    $('#frmJustRevision').on('submit', function (event) {
+    $('#frmSendObs').on('submit', function (event) {
         event.preventDefault();
         let form = this;
         let parameters = new FormData(form);
-        parameters.append('action', 'revisionCompra');
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
             , 'Confirmación'
             , '¿Estas seguro de realizar la siguiente acción?'
             , function (data) {
+                $('#modalConfirmarCompra').modal('hide');
+                $('#modalSendObs').modal('hide');
                 location.reload();
             }, function () {
                 disableEnableForm(form, false);
