@@ -39,9 +39,6 @@
         <th scope="col">Pedido de compras publicas</th>
         <th scope="col">Factura</th>
         <th scope="col">Guia transporte</th>
-        {% if request.user.is_grocer %}
-            <th scope="col">Observaciones</th>
-        {% endif %}
         <th scope="col">Estado</th>
         {% if request.user.is_representative %}
             <th scope="col">Observaciones</th>

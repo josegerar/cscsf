@@ -29,7 +29,6 @@ $(function () {
             {'data': 'pedido_compras_publicas'},
             {'data': 'guia_transporte'},
             {'data': 'factura'},
-            {'data': 'observacion'},
             {'data': 'estado'},
         ],
         'columnDefs': [
@@ -56,17 +55,6 @@ $(function () {
             },
             {
                 'targets': [8],
-                'render': function (data, type, row) {
-                    if (row.estado) {
-                        if (row.estado.estado === 'registrado') {
-                            return '<a href="#" rel="openobs">Ver observación</a>'
-                        }
-                    }
-                    return ""
-                }
-            },
-            {
-                'targets': [9],
                 'orderable': false,
                 'render': function (data, type, row) {
                     if (data.estado === 'registrado') {
@@ -145,10 +133,6 @@ $(function () {
             tbdetallecompra.clear();
             tbdetallecompra.rows.add(data.detallecompra).draw();
             $('#modalConfirmarCompra').modal('show');
-        });
-        $(row).find('a[rel=openobs]').on('click', function (event) {
-            $('#modalObs').find('textarea[name=observacion]').text(data.observacion);
-            $('#modalObs').modal('show');
         });
     }
 });

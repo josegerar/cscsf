@@ -61,9 +61,7 @@ $(function () {
                 'targets': [9],
                 'render': function (data, type, row) {
                     if (row.estado) {
-                        if (row.estado.estado === 'revision') {
                             return '<a href="#" rel="openobs">Ver observación</a>'
-                        }
                     }
                     return ""
                 }
@@ -103,6 +101,10 @@ $(function () {
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('a[rel=openobs]').on('click', function (event) {
             $('#frmModalObs').find('textarea[name=observacion]').text(data.observacion);
+            $('#modalObs').modal('show');
+        });
+        $(row).find('a[rel=openobs]').on('click', function (event) {
+            $('#modalObs').find('textarea[name=observacion]').text(data.observacion);
             $('#modalObs').modal('show');
         });
     }
