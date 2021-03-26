@@ -77,36 +77,35 @@ $(function () {
         let form = this;
         let parameters = new FormData(form);
         if (action_save === 'aprobar') {
-            parameters.append('action', 'aprobarSolicitud');
-            disableEnableForm(form, true);
-            submit_with_ajax(
-                window.location.pathname, parameters
-                , 'Confirmación'
-                , '¿Estas seguro de realizar la siguiente acción?'
-                , function (data) {
-                    location.reload();
-                }, function () {
-                    disableEnableForm(form, false);
-                }
-            );
+            $('#frmSendObs').find('h5').text("Justificacion de Aprovación")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Aprobar solicitud")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-primary")
+            $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_solicitud"))
+            $('#frmSendObs').find('input[name="action"]').val("aprobarSolicitud")
+            $('#modalSendObs').modal('show');
         } else if (action_save === 'revisar') {
-            $('#modalEntregaSustancia').modal('hide');
-            $('#frmJustRevision').find('input[name="id_solicitud"]').val(parameters.get("id_solicitud"))
-            $('#modalJustRevision').modal('show');
+            $('#frmSendObs').find('h5').text("Justificaciòn de revisiòn")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Revisión")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-danger")
+            $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_solicitud"))
+            $('#frmSendObs').find('input[name="action"]').val("revisionSolicitud")
+            $('#modalSendObs').modal('show');
         }
     });
 
-    $('#frmJustRevision').on('submit', function (event) {
+    $('#frmSendObs').on('submit', function (event) {
         event.preventDefault();
         let form = this;
         let parameters = new FormData(form);
-        parameters.append('action', 'revisionSolicitud');
+        parameters.append("tipoobs","rp")
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
             , 'Confirmación'
             , '¿Estas seguro de realizar la siguiente acción?'
             , function (data) {
+                $('#modalAutorizarSolicitud').modal('hide');
+                $('#modalSendObs').modal('hide');
                 location.reload();
             }, function () {
                 disableEnableForm(form, false);

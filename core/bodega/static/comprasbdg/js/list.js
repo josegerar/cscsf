@@ -29,6 +29,7 @@ $(function () {
             {'data': 'pedido_compras_publicas'},
             {'data': 'guia_transporte'},
             {'data': 'factura'},
+            {'data': 'observacion'},
             {'data': 'estado'},
         ],
         'columnDefs': [
@@ -55,6 +56,17 @@ $(function () {
             },
             {
                 'targets': [8],
+                'render': function (data, type, row) {
+                    if (row.estado) {
+                        if (row.estado.estado === 'registrado') {
+                            return '<a href="#" rel="openobs">Ver observación</a>'
+                        }
+                    }
+                    return ""
+                }
+            },
+            {
+                'targets': [9],
                 'orderable': false,
                 'render': function (data, type, row) {
                     if (data.estado === 'registrado') {
@@ -86,24 +98,18 @@ $(function () {
         let form = this;
         let parameters = new FormData(form);
         if (action_save === 'confirmar') {
-            parameters.append('action', 'confirmarCompra');
-            disableEnableForm(form, true);
-            submit_with_ajax(
-                window.location.pathname, parameters
-                , 'Confirmación'
-                , '¿Estas seguro de realizar la siguiente acción?'
-                , function (data) {
-                    location.reload();
-                }, function () {
-                    disableEnableForm(form, false);
-                }
-            );
+            $('#frmSendObs').find('h5').text("Justificaciòn de confirmación")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Confirmar Compra")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("btn btn-primary")
+            $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_compra"))
+            $('#frmSendObs').find('input[name="action"]').val("confirmarCompra")
+            $('#modalSendObs').modal('show');
         } else if (action_save === 'revisar') {
-            $('#frmSendObs').find('h5').text("Justificaciòn de revisiòn")
+            $('#frmSendObs').find('h5').text("Justificaciòn de revisión")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Revisión")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-danger")
-            $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_solicitud"))
-            $('#frmSendObs').find('input[name="action"]').val("revisionSolicitud")
+            $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_compra"))
+            $('#frmSendObs').find('input[name="action"]').val("revisionCompra")
             $('#modalSendObs').modal('show');
         }
     });
@@ -136,11 +142,13 @@ $(function () {
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('button[rel="confirmarCompra"]').on('click', function (event) {
             $('#modalConfirmarCompra').find('input[name=id_compra]').val(data.id);
-            console.log(data)
-            console.log("xni")
             tbdetallecompra.clear();
             tbdetallecompra.rows.add(data.detallecompra).draw();
             $('#modalConfirmarCompra').modal('show');
+        });
+        $(row).find('a[rel=openobs]').on('click', function (event) {
+            $('#modalObs').find('textarea[name=observacion]').text(data.observacion);
+            $('#modalObs').modal('show');
         });
     }
 });

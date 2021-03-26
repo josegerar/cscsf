@@ -27,7 +27,8 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                         data.append(i.toJSON())
                 elif action == 'revisionSolicitud':
                     idsolicitud = request.POST.get('id')
-                    if idsolicitud is not None:
+                    tipoobs = request.POST.get("tipoobs")
+                    if idsolicitud is not None and tipoobs is not None:
                         with transaction.atomic():
                             solicitud = Solicitud.objects.get(id=idsolicitud)
                             if solicitud is not None:
@@ -36,7 +37,10 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                     observacion = request.POST.get('observacion')
                                     if observacion is None:
                                         observacion = ""
-                                    solicitud.observacion = observacion
+                                    if tipoobs == "rp":
+                                        solicitud.observacion_representante = observacion
+                                    elif tipoobs == "bdg":
+                                        solicitud.observacion_bodega = observacion
                                     solicitud.estado_solicitud_id = estado_solicitud.id
                                     solicitud.save()
                                 else:
@@ -47,12 +51,20 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                         data['error'] = 'ha ocurrido un error'
                 elif action == 'aprobarSolicitud':
                     idsolicitud = request.POST.get('id_solicitud')
-                    if idsolicitud is not None:
+                    tipoobs = request.POST.get("tipoobs")
+                    if idsolicitud is not None and tipoobs is not None:
                         with transaction.atomic():
                             solicitud = Solicitud.objects.get(id=idsolicitud)
                             if solicitud is not None:
                                 estado_solicitud = EstadoTransaccion.objects.get(estado='aprobado')
                                 if estado_solicitud is not None:
+                                    observacion = request.POST.get('observacion')
+                                    if observacion is None:
+                                        observacion = ""
+                                    if tipoobs == "rp":
+                                        solicitud.observacion_representante = observacion
+                                    elif tipoobs == "bdg":
+                                        solicitud.observacion_bodega = observacion
                                     solicitud.estado_solicitud_id = estado_solicitud.id
                                     solicitud.save()
                                 else:

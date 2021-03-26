@@ -25,7 +25,8 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                 for i in ComprasPublicas.objects.all():
                     data.append(i.toJSON())
             elif action == 'revisionCompra':
-                idcompra = request.POST.get('id_compra')
+                idcompra = request.POST.get('id')
+                tipoobs = request.POST.get("tipoobs")
                 if idcompra is not None:
                     with transaction.atomic():
                         compras_publicas = ComprasPublicas.objects.get(id=idcompra)
@@ -36,7 +37,10 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                                 observacion = request.POST.get('observacion')
                                 if observacion is None:
                                     observacion = ""
-                                compras_publicas.observacion = observacion
+                                if tipoobs == "rp":
+                                    compras_publicas.observacion_representante = observacion
+                                elif tipoobs == "bdg":
+                                    compras_publicas.observacion_bodega = observacion
                                 compras_publicas.save()
                             else:
                                 data['error'] = 'ha ocurrido un error'
@@ -45,8 +49,9 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                 else:
                     data['error'] = 'ha ocurrido un error'
             elif action == 'confirmarCompra':
-                idcompra = request.POST.get('id_compra')
-                if idcompra is not None:
+                idcompra = request.POST.get('id')
+                tipoobs = request.POST.get("tipoobs")
+                if idcompra is not None and tipoobs is not None:
                     with transaction.atomic():
                         compras_publicas = ComprasPublicas.objects.get(id=idcompra)
                         tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='addcompra')
@@ -76,6 +81,14 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                                             inv.cantidad_movimiento = i.cantidad
                                             inv.tipo_movimiento_id = tipo_movimiento.id
                                             inv.save()
+                                    observacion = request.POST.get('observacion')
+                                    if observacion is None:
+                                        observacion = ""
+                                    if tipoobs == "rp":
+                                        compras_publicas.observacion_representante = observacion
+                                    elif tipoobs == "bdg":
+                                        compras_publicas.observacion_bodega = observacion
+                                    compras_publicas.save()
                                 else:
                                     raise Exception(
                                         'ha ocurrido un error al intentar confirmar la compra'

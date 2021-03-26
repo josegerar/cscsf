@@ -103,6 +103,7 @@ $(function () {
         event.preventDefault();
         let form = this;
         let parameters = new FormData(form);
+        parameters.append("tipoobs","bdg")
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
@@ -128,7 +129,6 @@ $(function () {
         $(row).find('button[rel=entregarSustancias]').on('click', function (event) {
             $('#modalEntregaSustancia').find('input[name=id_solicitud]').val(data.id);
             tbdetallesolicitud.clear();
-            console.log(data.detallesolicitud)
             tbdetallesolicitud.rows.add(data.detallesolicitud).draw();
             $('#modalEntregaSustancia').modal('show');
         });
