@@ -22,7 +22,7 @@ $(function () {
                 'targets': [3],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return get_tag_url_document(data, 'Ver solicitud')
+                    return get_tag_url_document(data, 'Ver')
                 }
             },
             {
@@ -41,7 +41,7 @@ $(function () {
                     } else if (data.estado === 'aprobado') {
                         return "Aprobado"
                     } else if (data.estado === 'entregado') {
-                        return "Entregado"
+                        return '<button rel="recibir_solicitud" class="btn btn-success" >Recibir</button>'
                     } else if (data.estado === 'revision') {
                         return '<label class="btn-danger">Revisión</label>'
                     } else {
@@ -52,12 +52,7 @@ $(function () {
             {
                 'targets': [6],
                 'render': function (data, type, row) {
-                    if (row.estado_solicitud) {
-                        if (row.estado_solicitud.estado === 'revision') {
-                            return '<a href="#" rel="openobs">Ver observación</a>'
-                        }
-                    }
-                    return ""
+                    return '<a rel="openobs" class="nav-link" style="cursor: pointer; text-align: center">Ver</a>'
                 }
             },
             {

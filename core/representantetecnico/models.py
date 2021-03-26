@@ -57,14 +57,16 @@ class Solicitud(BaseModel):
     fecha_autorizacion = models.DateTimeField(editable=False, null=True)
     estado_solicitud = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estados solicitud",
                                          null=True)
-    observacion = models.TextField(verbose_name="Observación", null=True, blank=True)
+    observacion_representante = models.TextField(verbose_name="Observación", null=True, blank=True)
+    observacion_bodega = models.TextField(verbose_name="Observación", null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self):
         item = {'id': self.id, 'nombre_actividad': self.nombre_actividad,
-                'documento': self.get_doc_solicitud(), 'observacion': self.observacion}
+                'documento': self.get_doc_solicitud(), 'observacion_representante': self.observacion_representante,
+                'observacion_bodega': self.observacion_bodega}
         if self.fecha_autorizacion is not None:
             item['fecha_autorizacion'] = self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
         if self.solicitante is not None:

@@ -160,11 +160,11 @@ function get_async_data_callback(url, data, callback, error) {
 function get_tag_url_document(data, comment) {
     let html = '';
     if (data && data.length > 0) {
-        html += '<a target="_blank" href="' + data + '">' + comment + '</a>'
+        html += '<a target="_blank" class="nav-link" style="text-align: center" href="' + data + '">' + comment + '</a>'
     } else {
         html += 'No registrado';
     }
-    return html
+    return html;
 }
 
 function confirm_action(title, content, callback) {
