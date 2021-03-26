@@ -2,7 +2,8 @@
     <div class="modal-dialog modal-lg" role="document">
         <form id="frmDetalleSolicitud" method="post" action=".">
             {% csrf_token %}
-            <input type="hidden" name="id_solicitud" value=""/>
+            <input type="hidden" name="id" value=""/>
+            <input type="hidden" name="action" value=""/>
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Detalle de solicitud</h5>

@@ -44,6 +44,8 @@ $(function () {
                         return '<button rel="recibir_solicitud" class="btn btn-success" >Recibir</button>'
                     } else if (data.estado === 'revision') {
                         return '<label class="btn-danger">Revisión</label>'
+                    } else if (data.estado === "recibido") {
+                        return "Recibido";
                     } else {
                         return ""
                     }
@@ -92,7 +94,7 @@ $(function () {
         ]
     });
 
-    const tbdetalles = $('#tbobservaciones').DataTable({
+    const tbdetalles = $('#tbdetallesolicitud').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
@@ -102,8 +104,8 @@ $(function () {
         "info": false,
         'columns': [
             {'data': 'stock.sustancia.nombre'},
-            {'data': 'cantidad'},
-            {'data': 'observacion'}
+            {'data': 'cantidad_solicitada'},
+            {'data': 'cantidad_entregada'}
         ]
     });
 
@@ -121,14 +123,45 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('a[rel=openobs]').on('click', function (event) {
-            //$('#modalDetalleSolicitud').find('textarea[name=observacion]').text(data.observacion);
-            console.log(data);
-            let observaciones = [];
-            if (data.observacion_bodega) observaciones.push({'observacion': data.observacion_bodega});
-            if (data.observacion_representante) observaciones.push({'observacion': data.observacion_representante});
-            tbobservaciones.clear();
-            tbobservaciones.rows.add(observaciones).draw();
-            $('#modalDetalleSolicitud').modal('show');
+            $('#modalDetalleSolicitud').find('button[type="submit"]').css("display", 'none');
+            $('#modalDetalleSolicitud').find('input[name="action"]').val("");
+            $('#modalDetalleSolicitud').find('input[name="id"]').val("");
+            llenarModalDetalles(data);
+        });
+        $(row).find('button[rel=recibir_solicitud]').on('click', function (event) {
+            $('#modalDetalleSolicitud').find('button[type="submit"]').css("display", 'block');
+            $('#modalDetalleSolicitud').find('input[name="action"]').val("recibirSolicitud");
+            $('#modalDetalleSolicitud').find('input[name="id"]').val(data.id);
+            llenarModalDetalles(data);
         });
     }
+
+    function llenarModalDetalles(data = {}) {
+        let observaciones = [];
+        if (data.observacion_bodega) observaciones.push({'observacion': data.observacion_bodega});
+        if (data.observacion_representante) observaciones.push({'observacion': data.observacion_representante});
+        tbobservaciones.clear();
+        tbobservaciones.rows.add(observaciones).draw();
+        tbdetalles.clear();
+        tbdetalles.rows.add(data.detallesolicitud).draw();
+        $('#modalDetalleSolicitud').modal('show');
+    }
+
+    $('#frmDetalleSolicitud').on('submit', function (event) {
+        event.preventDefault();
+        let form = this;
+        let parameters = new FormData(form);
+        disableEnableForm(form, true);
+        submit_with_ajax(
+            window.location.pathname, parameters
+            , 'Confirmación'
+            , '¿Estas seguro de realizar la siguiente acción?'
+            , function (data) {
+                $('#modalDetalleSolicitud').modal('hide');
+                location.reload();
+            }, function () {
+                disableEnableForm(form, false);
+            }
+        );
+    });
 });
