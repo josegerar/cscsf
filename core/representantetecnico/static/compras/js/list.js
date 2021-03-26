@@ -61,7 +61,9 @@ $(function () {
                 'targets': [9],
                 'render': function (data, type, row) {
                     if (row.estado) {
+                        if (row.estado.estado === 'revision' || row.estado.estado === 'almacenado') {
                             return '<a href="#" rel="openobs">Ver observación</a>'
+                        }
                     }
                     return ""
                 }

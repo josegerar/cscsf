@@ -88,7 +88,7 @@ $(function () {
         if (action_save === 'confirmar') {
             $('#frmSendObs').find('h5').text("Justificaciòn de confirmación")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Confirmar Compra")
-            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("btn btn-primary")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class","btn btn-primary")
             $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_compra"))
             $('#frmSendObs').find('input[name="action"]').val("confirmarCompra")
             $('#modalSendObs').modal('show');
