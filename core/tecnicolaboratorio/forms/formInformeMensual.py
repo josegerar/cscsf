@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from django.forms import *
 
-from core.representantetecnico.models import Solicitud
+from core.representantetecnico.models import InformesMensuales
 from core.tecnicolaboratorio.models import Laboratorio
 
 
-class SolicitudForm(ModelForm):
+class InformeMensualForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -12,29 +14,27 @@ class SolicitudForm(ModelForm):
         self.fields.get('laboratorio').choices = Laboratorio.get_choices_laboratory_user(self.request.user.id)
 
     class Meta:
-        model = Solicitud
+        model = InformesMensuales
         fields = '__all__'
-        exclude = ['estado_solicitud', 'fecha_autorizacion', 'solicitante','observacion']
+        exclude = ['laboratorista']
         widgets = {
             'laboratorio': Select(attrs={
                 'class': 'form-control select2',
                 'style': 'width: 100%'
             }),
-            'tipo_actividad': Select(attrs={
-                'class': 'form-control select2',
-                'style': 'width: 100%'
+            'fecha_inicio': DateInput(format='%Y-%m-%d', attrs={
+                'class': 'form-control datetimepicker-input',
+                'data-target': '#fecha_inicio',
+                'data-toggle': 'datetimepicker',
+                'autocomplete': 'off',
+                'value': datetime.now().strftime('%Y-%m-%d')
             }),
-            'nombre_actividad': TextInput(
-                attrs={
-                    'placeholder': 'Ingrese el nombre del proyecto',
-                    'type': 'text',
-                    'class': 'form-control',
-                    'autocomplete': 'off'
-                }
-            ),
-            'responsable_actividad': Select(attrs={
-                'class': 'form-control select2',
-                'style': 'width: 100%'
+            'fecha_fin': DateInput(format='%Y-%m-%d', attrs={
+                'class': 'form-control datetimepicker-input',
+                'data-target': '#fecha_fin',
+                'data-toggle': 'datetimepicker',
+                'autocomplete': 'off',
+                'value': datetime.now().strftime('%Y-%m-%d')
             })
         }
 

@@ -1,11 +1,7 @@
 $(function () {
-    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-    var data = {'action': 'searchdata'}
-    if (csrfmiddlewaretoken.length > 0) {
-        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-    }
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
 
-    var tbstock = $('#tbstock').DataTable({
+    const tbstock = $('#tbstock').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
@@ -45,7 +41,7 @@ $(function () {
         ]
     });
 
-    var tblistado = $('#tblistado').DataTable({
+    const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
@@ -58,17 +54,30 @@ $(function () {
             {'data': 'descripcion'},
             {'data': 'cupo_autorizado'},
             {'data': 'unidad_medida.nombre'},
+            {'data': 'id'},
             {'data': 'id'}
         ],
         'columnDefs': [
             {
+                'targets': [2],
+                'render': function (data, type, row) {
+                    return '<a rel="ver_observacion" class="btn btn-info"><i class="fas fa-eye"></i></a> '
+                }
+            },
+            {
                 'targets': [5],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    let buttons = '<a rel="viewstocksubstance" class="btn btn-success"><i class="fas fa-eye"></i></a> ';
-                    buttons += '<a href="/sustancias/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
+                    return '<a rel="viewstocksubstance" class="btn btn-info"><i class="fas fa-eye"></i></a> ';
+                }
+            },
+            {
+                'targets': [6],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    let buttons = '<a href="/sustancias/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
                     buttons += '<a href="/sustancias/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
-                    return buttons
+                    return buttons;
                 }
             }
         ],
@@ -78,29 +87,36 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    $('#tblistado tbody').on('click', 'td.details-control', function () {
-        let tr = $(this).closest('tr');
-        let row = tblistado.row(tr);
-        let child = row.child();
-        let data = row.data();
-        if (child) {
-            updateRowsCallback(child, data, row.index());
-        }
-    });
+    addEventListenerOpenDetailRowDatatable('tblistado', tblistado, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
 
     update_datatable(tblistado, window.location.pathname, data);
 
     $('#btnSync').on('click', function (event) {
-        tbstock.clear();
         update_datatable(tblistado, window.location.pathname, data);
     });
+
+    function update_cantiad_total(stock = []) {
+        setTimeout(() => {
+            let cantidad = 0;
+            $.each(stock, function (index, item) {
+                cantidad += parseFloat(item.cantidad);
+            });
+            $('#id_cantidad_total').val(cantidad.toFixed(4));
+        }, 1);
+    }
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('a[rel=viewstocksubstance]').on('click', function (event) {
             activeSelectionRowDatatable(row, tblistado);
+            update_cantiad_total(data.stock);
             tbstock.clear();
             tbstock.rows.add(data.stock).draw();
         });
+        $(row).find('a[rel=ver_observacion]').on('click', function (event) {
+            verObservacion(`Descripcion de la sustancia ${data.nombre}`, data.descripcion, "Descripción:");
+        });
     }
-
 });

@@ -52,6 +52,7 @@
                                         <th scope="col">Descripcion</th>
                                         <th scope="col">Cupo autorizado</th>
                                         <th scope="col">Unidad de medida</th>
+                                        <th scope="col">Stock</th>
                                         <th scope="col">Opciones</th>
                                     </tr>
                                     </thead>
@@ -69,11 +70,16 @@
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
+                                <div class="form-group">
+                                    <label for="id_cantidad_total">Cantidad total:</label>
+                                    <input type="text" name="cantidad_total" class="form-control" autocomplete="off"
+                                           readonly id="id_cantidad_total" value="0">
+                                </div>
                                 <table id="tbstock" class="table">
                                     <thead>
                                     <th scope="col">Tipo lugar</th>
                                     <th scope="col">Nombre</th>
-                                    <th scope="col">Cantidad ingreso</th>
+                                    <th scope="col">Cantidad</th>
                                     </thead>
                                 </table>
                             </div>
@@ -99,5 +105,6 @@
 {% endblock %}
 
 {% block script %}
+    {% include 'observacion.html' %}
     <script src="{% static 'sustancia/js/list.js' %}"></script>
 {% endblock %}

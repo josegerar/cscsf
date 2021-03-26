@@ -1,8 +1,7 @@
 from datetime import datetime
 
 from django.db import models
-from django.db.models import Sum, Value as V
-from django.db.models.functions import Coalesce
+from django.db.models import Sum
 from django.forms import model_to_dict
 
 from core.login.models import BaseModel, User
@@ -31,7 +30,7 @@ class Bodega(BaseModel):
         ordering = ["id"]
 
 
-class UnidadMedida(BaseModel):
+class UnidadMedida(models.Model):
     nombre = models.CharField(max_length=20, verbose_name="Nombre de unidad de medida")
     simbolo = models.CharField(max_length=5, verbose_name="Simbolo de la unidad de medida", null=True)
     descripcion = models.CharField(max_length=200, verbose_name="Descripción", blank=True,
@@ -123,7 +122,7 @@ class Stock(BaseModel):
         ordering = ["id"]
 
 
-class TipoMovimientoInventario(BaseModel):
+class TipoMovimientoInventario(models.Model):
     nombre = models.CharField(max_length=20, verbose_name="Nombre", unique=True)
     descripcion = models.CharField(max_length=200, verbose_name="Descripcion", blank=True, null=True)
 

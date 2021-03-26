@@ -6,13 +6,13 @@ from django.utils import timezone
 from app.settings import MEDIA_URL
 from core.bodega.models import Sustancia, Stock
 from core.login.models import User, BaseModel, Persona
-from core.representantetecnico.files.read import *
-from core.representantetecnico.files.write import *
-from core.representantetecnico.validators import *
+from core.representantetecnico.files.read import BASE_REPOSITORY, rearm_url
+from core.representantetecnico.files.write import create_folder, create_file
+from core.representantetecnico.validators import validate_compras_convocatoria
 from core.tecnicolaboratorio.models import Laboratorio
 
 
-class TipoActividad(BaseModel):
+class TipoActividad(models.Model):
     nombre = models.CharField(max_length=20, verbose_name="Nombre", unique=True)
     descripcion = models.CharField(max_length=200, blank=True, null=True, verbose_name="Descripcion")
     is_active = models.BooleanField(default=True, editable=False)
@@ -27,7 +27,7 @@ class TipoActividad(BaseModel):
         ordering = ["id"]
 
 
-class EstadoTransaccion(BaseModel):
+class EstadoTransaccion(models.Model):
     estado = models.CharField(max_length=100, verbose_name="Estado")
     descripcion = models.CharField(max_length=300, verbose_name="Descripcion", null=True, blank=True)
     is_active = models.BooleanField(default=True, editable=False)
@@ -64,7 +64,7 @@ class Solicitud(BaseModel):
 
     def toJSON(self):
         item = {'id': self.id, 'nombre_actividad': self.nombre_actividad,
-                'documento': self.get_doc_solicitud(), 'observacion':self.observacion}
+                'documento': self.get_doc_solicitud(), 'observacion': self.observacion}
         if self.fecha_autorizacion is not None:
             item['fecha_autorizacion'] = self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
         if self.solicitante is not None:
@@ -156,7 +156,8 @@ class ComprasPublicas(BaseModel):
     def toJSON(self):
         item = {'id': self.id, 'llegada_bodega': self.llegada_bodega, 'hora_llegada_bodega': self.hora_llegada_bodega,
                 'convocatoria': self.convocatoria, 'pedido_compras_publicas': self.get_pedido_compras_publicas(),
-                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura(),'observacion':self.observacion}
+                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura(),
+                'observacion': self.observacion}
         if self.empresa is not None:
             item['empresa'] = self.empresa.toJSON()
         else:
@@ -204,7 +205,7 @@ class ComprasPublicasDetalle(BaseModel):
         if rel_compraspublicas is False:
             item['compra'] = self.compra.toJSON()
         if self.stock is not None:
-            item['stock'] = self.stock.toJSON(view_subtance=True,view_stock_substance=True)
+            item['stock'] = self.stock.toJSON(view_subtance=True, view_stock_substance=True)
         return item
 
     class Meta:
@@ -214,7 +215,55 @@ class ComprasPublicasDetalle(BaseModel):
         ordering = ["id"]
 
 
-class TipoDocumento(BaseModel):
+class InformesMensuales(BaseModel):
+    laboratorista = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="laboratorista")
+    laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio")
+    fecha_inicio = models.DateTimeField()
+    fecha_fin = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.id)
+
+    def toJSON(self):
+        item = {'id': self.id, 'fecha_inicio': self.fecha_inicio.strftime("%Y-%m-%d %H:%M:%S"),
+                'fecha_fin': self.fecha_fin.strftime("%Y-%m-%d %H:%M:%S")}
+        if self.laboratorista is not None:
+            item['laboratorista'] = self.laboratorista.toJSON()
+        if self.laboratorio is not None:
+            item['laboratorio'] = self.laboratorio.toJSON()
+        return item
+
+    class Meta:
+        verbose_name = "Informe mensual"
+        verbose_name_plural = "Informes mensuales"
+        db_table = "informes_mensuales"
+        ordering = ["id"]
+
+
+class InformesMensualesDetalle(BaseModel):
+    informe = models.ForeignKey(InformesMensuales, on_delete=models.CASCADE, verbose_name="Informe")
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
+    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    def toJSON(self, ver_informe=False):
+        item = {'id': self.id, 'cantidad': self.cantidad}
+        if ver_informe:
+            item['informe'] = self.informe.toJSON()
+        if self.stock is not None:
+            item['stock'] = self.stock.toJSON(view_subtance=True, view_stock_substance=True)
+        return item
+
+    class Meta:
+        verbose_name = "Informe mensual Detalle"
+        verbose_name_plural = "Informes mensuales Detalles"
+        db_table = "detalle_informe_mensual"
+        ordering = ["id"]
+
+
+class TipoDocumento(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     descripcion = models.CharField(max_length=300, verbose_name="Descripcion")
     is_active = models.BooleanField(default=True, editable=False)

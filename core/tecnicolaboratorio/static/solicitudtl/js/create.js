@@ -145,7 +145,7 @@ $(function () {
         'language': 'es'
     });
 
-    autocompleteInput("search", "/sustancias/", "search_substance",
+    autocompleteInput("search", "/sustancias/", {'action': "search_substance"},
         function (item) {
             console.log(item);
             solicitud.add_sustancia(item);

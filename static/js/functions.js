@@ -234,11 +234,11 @@ function encodeQueryString(params = {}) {
         : ""
 }
 
-function autocompleteInput(nameInput = "", urlSend = "", actionName = "", selectItemCallBack) {
+function autocompleteInput(nameInput = "", urlSend = "", data = {}, selectItemCallBack) {
     //activar el autocomplete en el buscador
     $(`input[name=${nameInput}`).focus().autocomplete({
         source: function (request, response) {
-            let data = {'action': actionName, 'term': request.term}
+            data['term'] = request.term;
             const url = `${urlSend}${encodeQueryString(data)}`;
             fetch(url, {
                 'method': 'GET',
@@ -308,6 +308,13 @@ function addEventListenerOpenDetailRowDatatable(tableId = "", dataTable,
 function activeSelectionRowDatatable(row, datatable) {
     datatable.$('tr.selected').removeClass('selected');
     $(row).addClass('selected');
+}
+
+function verObservacion(title = "", text = "", labelInput = "") {
+    $("#modalObs").find('h5').text(title);
+    $("#modalObs").find('label').text(labelInput);
+    $("#modalObs").find('textarea').text(text);
+    $("#modalObs").modal("show");
 }
 
 function util() {

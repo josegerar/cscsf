@@ -1,16 +1,28 @@
 {% extends 'list.html' %}
+{% load widget_tweaks %}
 {% load static %}
-{% block header %}
-    {% include 'header.html' %}
-{% endblock %}
+
 {% block head_list %}
+    <link href="{% static 'lib/jquery-ui-1.12.1/jquery-ui.min.css' %}" rel="stylesheet"/>
+    <script src="{% static 'lib/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+
     <link href="{% static 'lib/select2-4.0.13/css/select2.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'lib/select2-4.0.13/css/select2-bootstrap4.min.css' %}" rel="stylesheet"/>
     <script src="{% static 'lib/select2-4.0.13/js/select2.min.js' %}"></script>
     <script src="{% static 'lib/select2-4.0.13/js/i18n/es.js' %}"></script>
 
+    <script src="{% static 'lib/moment-2.25.3/moment-with-locales.js' %}"></script>
+    <script src="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <link href="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.css' %}" rel="stylesheet"/>
+
     <script src="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.js' %}"></script>
     <link href="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.css' %}" rel="stylesheet"/>
+
+    <link href="{% static 'compras/css/create.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block header %}
+    {% include 'header.html' %}
 {% endblock %}
 
 {% block content %}
@@ -27,83 +39,101 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-8">
                             <div class="card card-secondary">
                                 <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Desglose de sustancia </h3>
+                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias
+                                        solicitadas
+                                    </h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="id_search">Buscador de sustancias:</label>
+                                        <div class="input-group">
+                                            <input id="id_search" name="search"
+                                                   placeholder="Ingrese el nombre de la sustancia a buscar"
+                                                   autocomplete="off" type="text" class="form-control">
+                                            <span class="input-group-append">
+                                            <button type="button" rel="cleansearch" class="btn btn-danger btn-flat">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <button rel="removeall" type="button" class="btn btn-danger btn-xs btn-flat">
+                                        Eliminar todas las sustancias
+                                    </button>
+                                    <hr>
                                     <table id="tblistado" class="table">
                                         <thead>
-                                        <th scope="col">Tipo lugar</th>
-                                        <th scope="col">Nombre</th>
-                                        <th scope="col">Cantidad ingreso</th>
+                                        <th scope="col">Accion</th>
+                                        <th scope="col">Sustancia</th>
+                                        <th scope="col">Bodega</th>
+                                        <th scope="col">Cantidad solicitada</th>
+                                        <th scope="col">Cantidad actual</th>
+                                        <th scope="col">Unidad de medida</th>
                                         </thead>
                                     </table>
                                 </div>
                                 <!-- /.card-body -->
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="card card-secondary">
                                 <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-atom"></i> Datos de la sustancia</h3>
+                                    <h3 class="card-title"><i class="fas fa-atom"></i> Datos del informe</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
                                     <div class="form-group">
                                         <div style="display: flex">
-                                            {% if form.nombre.field.required %}
+                                            {% if form.laboratorio.field.required %}
                                                 <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
                                                     <i class="fa fa-asterisk fa-xs" aria-hidden="true"
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                            <label>Nombre de la sustancia:</label>
+                                            <label>Laboratorio:</label>
                                         </div>
-                                        {{ form.nombre }}
+                                        {{ form.laboratorio }}
                                     </div>
                                     <div class="form-group">
                                         <div style="display: flex">
-                                            {% if form.unidad_medida.field.required %}
+                                            {% if form.fecha_inicio.field.required %}
                                                 <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
                                                     <i class="fa fa-asterisk fa-xs" aria-hidden="true"
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                            <label>Unidad de medida:</label>
+                                            <label>Fecha de inicio:</label>
                                         </div>
-                                        {{ form.unidad_medida }}
+                                        <div class="input-group date" id="fecha_inicio" data-target-input="nearest">
+                                            {{ form.fecha_inicio }}
+                                            <div class="input-group-append" data-target="#fecha_inicio"
+                                                 data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <div style="display: flex">
-                                            {% if form.descripcion.field.required %}
+                                            {% if form.fecha_fin.field.required %}
                                                 <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
                                                     <i class="fa fa-asterisk fa-xs" aria-hidden="true"
                                                        style="color: red"></i>
                                                 </div>
                                             {% endif %}
-                                            <label>Descripcion:</label>
+                                            <label>Fecha de inicio:</label>
                                         </div>
-                                        {{ form.descripcion }}
-                                    </div>
-                                    <div class="form-group">
-                                        <div style="display: flex">
-                                            {% if form.cupo_autorizado.field.required %}
-                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
-                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
-                                                       style="color: red"></i>
-                                                </div>
-                                            {% endif %}
-                                            <label>Cupo autorizado:</label>
+                                        <div class="input-group date" id="fecha_fin" data-target-input="nearest">
+                                            {{ form.fecha_fin }}
+                                            <div class="input-group-append" data-target="#fecha_fin"
+                                                 data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
                                         </div>
-                                        {{ form.cupo_autorizado }}
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="id_cantidad_total">Cantidad total:</label>
-                                        <input type="text" name="cantidad_total" class="form-control" autocomplete="off"
-                                               readonly id="id_cantidad_total" value="0">
                                     </div>
                                 </div>
                                 <!-- /.card-body -->
@@ -140,32 +170,42 @@
 
 {% block script %}
     {% if action == 'add' %}
-        <script src="{% static 'sustancia/js/create.js' %}"></script>
+        <script src="{% static 'informesmensuales/js/create.js' %}"></script>
     {% elif action == 'edit' %}
-        <script src="{% static 'sustancia/js/update.js' %}"></script>
+        <script src="{% static 'informesmensuales/js/list.js' %}"></script>
     {% endif %}
 
     <script type="application/javascript">
         $(function () {
+            //envio de datos al servidor
             $('form').on('submit', function (event) {
                 event.preventDefault();
                 let form = this;
                 let action_save = $(event.originalEvent.submitter).attr('rel');
-                let parameters = new FormData(form);
-                parameters.append('desgloses', JSON.stringify(sustancias.data.desgloses));
-                disableEnableForm(form, true);
-                submit_with_ajax(
-                    undefined,
-                    parameters,
-                    'Confirmación',
-                    '¿Estas seguro de realizar la siguiente acción?',
-                    function (data) {
-                        if (action_save === 'save') location.href = '{{ url_list }}';
-                        else if (action_save === 'othersave') location.reload();
-                    }, function () {
-                        disableEnableForm(form, false);
-                    }
-                );
+                informe.verify_send_data(function () {
+                    let parameters = new FormData(form);
+
+                    {% if action == 'add' %}
+                        parameters.append('sustancias', JSON.stringify(informe.data.sustancias));
+                    {% elif action == 'edit' %}
+                        parameters.append('detalle_informe', JSON.stringify(informe.data.detalleInforme));
+                    {% endif %}
+
+                    disableEnableForm(form, true);
+                    submit_with_ajax(
+                        window.location.pathname, parameters
+                        , 'Confirmación'
+                        , '¿Estas seguro de realizar la siguiente acción?'
+                        , function (data) {
+                            if (action_save === 'save') location.href = '{{ url_list }}';
+                            else if (action_save === 'othersave') location.reload();
+                        }, function () {
+                            disableEnableForm(form, false);
+                        }
+                    );
+                }, function (message) {
+                    message_info(message);
+                });
             });
         });
     </script>

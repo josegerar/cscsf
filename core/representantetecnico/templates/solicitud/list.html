@@ -54,7 +54,7 @@
         {% include 'solicitudbdg/modal/justRevision.html' %}
         <script src="{% static 'solicitudbdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
-        {% include 'solicitudtl/modal/observacion.html' %}
+        {% include 'observacion.html' %}
         <script src="{% static 'solicitudtl/js/list.js' %}"></script>
     {% endif %}
 {% endblock %}

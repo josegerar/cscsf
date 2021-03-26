@@ -66,7 +66,7 @@
 
 {% block script %}
     {% if request.user.is_representative %}
-        {% include 'solicitudtl/modal/observacion.html' %}
+        {% include 'observacion.html' %}
         <script src="{% static 'compras/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
         {% include 'comprasbdg/modal/confirmarCompra.html' %}

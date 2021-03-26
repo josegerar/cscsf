@@ -171,7 +171,7 @@ $(function () {
     });
 
     //activar el autocomplete en el buscador
-    autocompleteInput("search", "/sustancias/", "search_substance",
+    autocompleteInput("search", "/sustancias/", {'action': "search_substance"},
         function (item) {
             compra.add_sustancia(item);
         });
