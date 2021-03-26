@@ -1,4 +1,21 @@
 {% extends 'create.html' %}
+{% load static %}
 {% block header %}
     {% include 'header.html' %}
+{% endblock %}
+{% block detallesform %}
+    <table id="tbroles" class="table">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Rol</th>
+            <th scope="col">Estado</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+{% endblock %}
+{% block script %}
+    <script src="{% static 'personas/js/create.js' %}"></script>
 {% endblock %}
