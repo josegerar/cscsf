@@ -23,7 +23,7 @@
         <th scope="col">Fecha autorización</th>
         <th scope="col">Estado</th>
         {% if request.user.is_laboratory_worker %}
-            <th scope="col">Observaciones</th>
+            <th scope="col">Detalles</th>
             <th scope="col">Opciones</th>
         {% endif %}
     </tr>
@@ -55,6 +55,7 @@
         <script src="{% static 'solicitudbdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         {% include 'observacion.html' %}
+        {% include 'solicitudtl/modal/verdetalles.html' %}
         <script src="{% static 'solicitudtl/js/list.js' %}"></script>
     {% endif %}
 {% endblock %}

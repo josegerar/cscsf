@@ -100,13 +100,17 @@ class Solicitud(BaseModel):
 class SolicitudDetalle(BaseModel):
     solicitud = models.ForeignKey(Solicitud, on_delete=models.CASCADE, verbose_name="Solicitud")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
-    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
+    cantidad_solicitada = models.DecimalField(verbose_name="Cantidad solicitada", decimal_places=4, max_digits=8,
+                                              null=True)
+    cantidad_entregada = models.DecimalField(verbose_name="Cantidad entregada", decimal_places=4, max_digits=8,
+                                             null=True)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self, ver_solicitud=False):
-        item = {'id': self.id, 'cantidad': self.cantidad}
+        item = {'id': self.id, 'cantidad_solicitada': self.cantidad_solicitada,
+                'cantidad_entregada': self.cantidad_entregada}
         if self.solicitud is not None:
             if ver_solicitud:
                 item['solicitud'] = self.solicitud.toJSON()

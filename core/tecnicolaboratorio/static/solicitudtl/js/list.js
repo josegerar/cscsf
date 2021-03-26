@@ -14,7 +14,7 @@ $(function () {
             {'data': 'documento'},
             {'data': 'id'},
             {'data': 'estado_solicitud'},
-            {'data': 'observacion'},
+            {'data': 'id'},
             {'data': 'id'}
         ],
         'columnDefs': [
@@ -79,6 +79,34 @@ $(function () {
         }
     });
 
+    const tbobservaciones = $('#tbobservaciones').DataTable({
+        'responsive': true,
+        'autoWidth': false,
+        'destroy': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        "info": false,
+        'columns': [
+            {'data': 'observacion'}
+        ]
+    });
+
+    const tbdetalles = $('#tbobservaciones').DataTable({
+        'responsive': true,
+        'autoWidth': false,
+        'destroy': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        "info": false,
+        'columns': [
+            {'data': 'stock.sustancia.nombre'},
+            {'data': 'cantidad'},
+            {'data': 'observacion'}
+        ]
+    });
+
     update_datatable(tblistado, window.location.pathname, data);
 
     $('#btnSync').on('click', function (event) {
@@ -93,8 +121,14 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('a[rel=openobs]').on('click', function (event) {
-            $('#frmModalObs').find('textarea[name=observacion]').text(data.observacion);
-            $('#modalObs').modal('show');
+            //$('#modalDetalleSolicitud').find('textarea[name=observacion]').text(data.observacion);
+            console.log(data);
+            let observaciones = [];
+            if (data.observacion_bodega) observaciones.push({'observacion': data.observacion_bodega});
+            if (data.observacion_representante) observaciones.push({'observacion': data.observacion_representante});
+            tbobservaciones.clear();
+            tbobservaciones.rows.add(observaciones).draw();
+            $('#modalDetalleSolicitud').modal('show');
         });
     }
 });
