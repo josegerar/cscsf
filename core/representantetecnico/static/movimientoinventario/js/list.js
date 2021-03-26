@@ -1,6 +1,5 @@
 $(function () {
-    const csrfmiddlewaretoken = getCookie("csrftoken");
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': csrfmiddlewaretoken};
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,

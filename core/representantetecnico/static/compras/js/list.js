@@ -1,15 +1,14 @@
 $(function () {
-    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-    var data = {'action': 'searchdata'}
-    if (csrfmiddlewaretoken.length > 0) {
-        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-    }
-    var tblistado = $('#tblistado').DataTable({
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
+    const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
         'columns': [
-            {'data': 'id'},
+            {
+                "className": 'details-control',
+                'data': 'id'
+            },
             {'data': 'empresa.nombre'},
             {'data': 'llegada_bodega'},
             {'data': 'hora_llegada_bodega'},
@@ -93,6 +92,12 @@ $(function () {
     $('#btnSync').on('click', function (event) {
         update_datatable(tblistado, window.location.pathname, data);
     });
+
+    // Add event listener for opening and closing details
+    addEventListenerOpenDetailRowDatatable('tblistado', tblistado, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
 
 
     function updateRowsCallback(row, data, dataIndex) {

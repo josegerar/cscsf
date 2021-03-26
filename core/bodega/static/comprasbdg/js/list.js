@@ -1,10 +1,7 @@
 $(function () {
-    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-    var data = {'action': 'searchdata'}
-    if (csrfmiddlewaretoken.length > 0) {
-        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-    }
-    var tbdetallecompra = $('#tbdetallecompra').DataTable({
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
+
+    const tbdetallecompra = $('#tbdetallecompra').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
@@ -16,7 +13,7 @@ $(function () {
         ]
     });
 
-    var tblistado = $('#tblistado').DataTable({
+    const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
@@ -60,12 +57,12 @@ $(function () {
                 'targets': [8],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if (data.estado == 'registrado') {
+                    if (data.estado === 'registrado') {
                         var buttons = '<button rel="confirmarCompra" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Confirmar</button>';
                         return buttons
-                    } else if (data.estado == 'almacenado') {
+                    } else if (data.estado === 'almacenado') {
                         return "Almacenado"
-                    } else if (data.estado == 'revision') {
+                    } else if (data.estado === 'revision') {
                         return '<label class="btn-danger">Revisión</label>'
                     } else {
                         return ""
@@ -109,15 +106,10 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    $('#tblistado tbody').on('click', 'td.details-control', function () {
-        let tr = $(this).closest('tr');
-        let row = tblistado.row(tr);
-        let child = row.child();
-        let data = row.data();
-        if (child) {
-            updateRowsCallback(child, data, row.index());
-        }
-    });
+    addEventListenerOpenDetailRowDatatable('tblistado', tblistado, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
 
     $('#frmJustRevision').on('submit', function (event) {
         event.preventDefault();

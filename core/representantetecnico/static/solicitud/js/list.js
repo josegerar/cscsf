@@ -17,7 +17,10 @@ $(function () {
         'autoWidth': false,
         'destroy': true,
         'columns': [
-            {'data': 'id'},
+            {
+                "className": 'details-control',
+                'data': 'id'
+            },
             {'data': 'solicitante'},
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
@@ -58,7 +61,7 @@ $(function () {
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
-            updateRowsCallback(row,data,dataIndex)
+            updateRowsCallback(row, data, dataIndex)
         }
     });
 
@@ -69,11 +72,11 @@ $(function () {
     });
 
     $('#frmAutorizarSolicitud').on('submit', function (event) {
-         event.preventDefault();
+        event.preventDefault();
         let action_save = $(event.originalEvent.submitter).attr('rel');
         let form = this;
         let parameters = new FormData(form);
-        if (action_save == 'entregar') {
+        if (action_save === 'entregar') {
             parameters.append('action', 'entregarSustancias');
             disableEnableForm(form, true);
             submit_with_ajax(
@@ -86,14 +89,14 @@ $(function () {
                     disableEnableForm(form, false);
                 }
             );
-        } else if (action_save == 'revisar') {
+        } else if (action_save === 'revisar') {
             $('#modalEntregaSustancia').modal('hide');
             $('#frmJustRevision').find('input[name="id_solicitud"]').val(parameters.get("id_solicitud"))
             $('#modalJustRevision').modal('show');
         }
     });
 
-        $('#frmJustRevision').on('submit', function (event) {
+    $('#frmJustRevision').on('submit', function (event) {
         event.preventDefault();
         let form = this;
         let parameters = new FormData(form);
@@ -111,12 +114,16 @@ $(function () {
         );
     });
 
+    addEventListenerOpenDetailRowDatatable('tblistado', tblistado, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallback(row, data, dataIndex);
+        });
+
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('button[rel="confirmarSolicitud"]').on('click', function (event) {
             $('#modalAutorizarSolicitud').find('input[name=id_solicitud]').val(data.id);
-             tbdetallesolicitud.clear();
-             console.log(data.detallesolicitud)
-             tbdetallesolicitud.rows.add(data.detallesolicitud).draw();
+            tbdetallesolicitud.clear();
+            tbdetallesolicitud.rows.add(data.detallesolicitud).draw();
             $('#modalAutorizarSolicitud').modal('show');
         });
     }

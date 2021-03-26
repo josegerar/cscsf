@@ -1,14 +1,9 @@
 $(function () {
-    var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-    var data = {'action': 'searchdata'}
-    if (csrfmiddlewaretoken.length > 0) {
-        data['csrfmiddlewaretoken'] = csrfmiddlewaretoken[0].value
-    }
-    var tblistado = $('#tblistado').DataTable({
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
+    const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
-        'deferRender': true,
         'columns': [
             {'data': 'id'},
             {'data': 'tipo'},

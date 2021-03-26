@@ -153,7 +153,6 @@ $(function () {
 
     get_async_data_callback(window.location.pathname, data,
         function (response) {
-            console.log(response);
             solicitud.add_detalle_solicitud(response);
         },
         function (error) {
@@ -168,7 +167,6 @@ $(function () {
 
     autocompleteInput("search", "/sustancias/", {'action': "search_substance"},
         function (item) {
-            console.log(item);
             solicitud.add_sustancia(item);
         });
 

@@ -27,6 +27,16 @@ const sustancias = {
     },
     update_cantidad_desglose: function (cantidad, index) {
         this.data.desgloses[index].cantidad_ingreso = cantidad;
+        this.update_cantiad_total();
+    },
+    update_cantiad_total: function () {
+        setTimeout(() => {
+            let cantidad = 0;
+            $.each(sustancias.data.desgloses, function (index, item) {
+                cantidad += item.cantidad_ingreso
+            });
+            $('#id_cantidad_total').val(cantidad.toFixed(4));
+        }, 1);
     }
 }
 
