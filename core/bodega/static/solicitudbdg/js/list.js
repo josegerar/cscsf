@@ -1,15 +1,63 @@
+const solicitud_entrega = {
+    data: {
+        detalles: []
+    },
+    datatable: null,
+    add_detalles: function (detalles) {
+        this.data.detalles = detalles;
+        this.config_items();
+        this.list_detalles();
+    },
+    config_items: function () {
+        $.each(this.data.detalles, function (index, item) {
+            if (!item.cantidad_entregada || parseFloat(item.cantidad_entregada) <= 0) item.cantidad_entregada = 0;
+            if (!item.cantidad_solicitada || parseFloat(item.cantidad_solicitada) <= 0) item.cantidad_solicitada = 0;
+        });
+    },
+    format_data_send: function () {
+        let data = []
+        $.each(this.data.detalles, function (index, item) {
+            data.push({'id': item.id, 'cantidad_entrega': item.cantidad_entregada});
+        });
+        return data;
+    },
+    list_detalles: function () {
+        this.datatable.clear();
+        this.datatable.rows.add(this.data.detalles).draw();
+    },
+    update_cantidad_entrega: function (nueva_cantidad, index) {
+        this.data.detalles[index].cantidad_entregada = nueva_cantidad;
+    }
+}
+
 $(function () {
     const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
-    var tbdetallesolicitud = $('#tbdetallesolicitud').DataTable({
+    solicitud_entrega.datatable = $('#tbdetallesolicitud').DataTable({
         'responsive': true,
         'autoWidth': false,
         'destroy': true,
         'columns': [
-            {'data': 'stock.bodega.nombre'},
+            {
+                "className": 'details-control',
+                'data': 'id'
+            },
             {'data': 'stock.sustancia.nombre'},
-            {'data': 'cantidad'},
+            {'data': 'cantidad_solicitada'},
+            {'data': 'cantidad_entregada'},
             {'data': 'stock.cantidad'}
-        ]
+        ],
+        'columnDefs': [
+            {
+                'targets': [3],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    return '<input value="' + data + '" type="text" name="cantidad" class="form-control form-control-sm input-sm" autocomplete="off"/>';
+                }
+            }
+        ],
+        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
+            updateRowsCallbackDetalle(row, data, dataIndex);
+        }
     });
 
     const tblistado = $('#tblistado').DataTable({
@@ -26,14 +74,14 @@ $(function () {
             {'data': 'nombre_actividad'},
             {'data': 'documento'},
             {'data': 'id'},
-            {'data': 'estado_solicitud'}
+            {'data': 'estado_solicitud.estado'}
         ],
         'columnDefs': [
             {
                 'targets': [4],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return get_tag_url_document(data, 'Ver solicitud')
+                    return get_tag_url_document(data, 'Ver')
                 }
             },
             {
@@ -48,15 +96,18 @@ $(function () {
                 'targets': [6],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if (data.estado === 'registrado') {
+                    if (data === 'registrado') {
                         return "Registrado";
-                    } else if (data.estado === 'entregado') {
+                    } else if (data === 'entregado') {
                         return "Entregado";
-                    } else if (data.estado === 'revision') {
+                    } else if (data === 'revision') {
                         return '<label class="btn-danger">Revisión</label>'
-                    } else if (data.estado === 'aprobado') {
+                    } else if (data === 'recibido') {
+                        return "Recibido"
+                    } else if (data === 'aprobado') {
                         return '<button rel="entregarSustancias" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Entregar</button>';
                     }
+                    return data;
                 }
             }
         ],
@@ -77,18 +128,12 @@ $(function () {
         let form = this;
         let parameters = new FormData(form);
         if (action_save === 'entregar') {
-            parameters.append('action', 'entregarSustancias');
-            disableEnableForm(form, true);
-            submit_with_ajax(
-                window.location.pathname, parameters
-                , 'Confirmación'
-                , '¿Estas seguro de realizar la siguiente acción?'
-                , function (data) {
-                    location.reload();
-                }, function () {
-                    disableEnableForm(form, false);
-                }
-            );
+            $('#frmSendObs').find('h5').text("Entregar sustancia")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Entregar")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-primary")
+            $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_solicitud"))
+            $('#frmSendObs').find('input[name="action"]').val("entregarSolicitud")
+            $('#modalSendObs').modal('show');
         } else if (action_save === 'revisar') {
             $('#frmSendObs').find('h5').text("Justificaciòn de revisiòn")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Revisión")
@@ -103,7 +148,8 @@ $(function () {
         event.preventDefault();
         let form = this;
         let parameters = new FormData(form);
-        parameters.append("tipoobs","bdg")
+        parameters.append("tipoobs", "bdg");
+        parameters.append("detalles", JSON.stringify(solicitud_entrega.format_data_send()));
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
@@ -128,9 +174,23 @@ $(function () {
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('button[rel=entregarSustancias]').on('click', function (event) {
             $('#modalEntregaSustancia').find('input[name=id_solicitud]').val(data.id);
-            tbdetallesolicitud.clear();
-            tbdetallesolicitud.rows.add(data.detallesolicitud).draw();
+            solicitud_entrega.add_detalles(data.detallesolicitud);
             $('#modalEntregaSustancia').modal('show');
+        });
+    }
+
+    // Add event listener for opening and closing details
+    addEventListenerOpenDetailRowDatatable('tbdetallesolicitud', tblistado, 'td.details-control',
+        function (row, data, dataIndex) {
+            updateRowsCallbackDetalle(row, data, dataIndex);
+        });
+
+    function updateRowsCallbackDetalle(row, data, dataIndex) {
+        activePluguinTouchSpinInputRow(row, 'cantidad', parseFloat(data.stock.cantidad),
+            0, 0, 0.1);
+        $(row).find('input[name="cantidad"]').on('change', function (event) {
+            let nueva_cantidad = parseFloat($(this).val());
+            solicitud_entrega.update_cantidad_entrega(nueva_cantidad, dataIndex);
         });
     }
 });

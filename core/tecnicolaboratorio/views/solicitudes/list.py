@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -73,25 +75,35 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                     data['error'] = 'ha ocurrido un error'
                             else:
                                 data['error'] = 'ha ocurrido un error'
-                elif action == 'entregarSustancias':
-                    idsolicitud = request.POST.get('id_solicitud')
-                    if idsolicitud is not None:
+                elif action == 'entregarSolicitud':
+                    idsolicitud = request.POST.get('id')
+                    detalle_solicitud = request.POST.get('detalles')
+                    observacion_solicitud = request.POST.get('observacion')
+                    if idsolicitud is not None and detalle_solicitud is not None and observacion_solicitud is not None:
                         with transaction.atomic():
+                            detalle_solicitud = json.loads(detalle_solicitud)
                             solicitud = Solicitud.objects.get(id=idsolicitud)
                             tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
                             tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancialab')
-                            if tipo_movimiento_del is not None:
+                            if tipo_movimiento_del is not None and tipo_movimiento_add is not None:
                                 estado_solicitud = EstadoTransaccion.objects.get(estado='entregado')
                                 if estado_solicitud is not None:
                                     solicitud.estado_solicitud_id = estado_solicitud.id
+                                    solicitud.observacion_bodega = observacion_solicitud
                                     solicitud.save()
                                     if solicitud is not None:
-                                        detallesustancia = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
-                                        for i in detallesustancia:
+                                        detallesolicitud = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
+                                        for i in detallesolicitud:
+                                            # actualiza la cantidad a entregar
+                                            for ds_new in detalle_solicitud:
+                                                if ds_new['id'] == i.id:
+                                                    i.cantidad_entregada = float(ds_new['cantidad_entrega'])
+                                                    break
+                                            i.save()
                                             # verificar si existe cupo para entregar la sustancia
                                             cupo_consumido = i.stock.sustancia.get_cupo_consumido()
                                             cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
-                                            if cupo_consumido + float(i.cantidad) > cupo_autorizado:
+                                            if cupo_consumido + float(i.cantidad_entregada) > cupo_autorizado:
                                                 raise PermissionDenied(
                                                     'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
                                                         i.stock.sustancia.nombre)
@@ -99,26 +111,26 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                             else:
                                                 # disminuye stock en bodega
                                                 stockbdg = Stock.objects.get(id=i.stock_id)
-                                                stockbdg.cantidad = stockbdg.cantidad - i.cantidad
+                                                stockbdg.cantidad = float(stockbdg.cantidad) - i.cantidad_entregada
                                                 stockbdg.save()
 
                                                 # movimiento de inventario delete de bodega
                                                 inv = Inventario()
                                                 inv.stock_id = i.stock_id
-                                                inv.cantidad_movimiento = i.cantidad
+                                                inv.cantidad_movimiento = i.cantidad_entregada
                                                 inv.tipo_movimiento_id = tipo_movimiento_del.id
                                                 inv.save()
 
                                                 # Aumenta el stock de el laboratorio
                                                 stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
                                                                              sustancia_id=i.stock.sustancia_id)
-                                                stocklab.cantidad = stocklab.cantidad + i.cantidad
+                                                stocklab.cantidad = float(stocklab.cantidad) + i.cantidad_entregada
                                                 stocklab.save()
 
                                                 # movimiento de inventario addsustancialab en el laboratorio
                                                 invlab = Inventario()
                                                 invlab.stock_id = i.stock_id
-                                                invlab.cantidad_movimiento = i.cantidad
+                                                invlab.cantidad_movimiento = i.cantidad_entregada
                                                 invlab.tipo_movimiento_id = tipo_movimiento_add.id
                                                 invlab.save()
                                     else:

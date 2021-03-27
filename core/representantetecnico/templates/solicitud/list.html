@@ -6,6 +6,11 @@
     {% include 'header.html' %}
 {% endblock %}
 
+{% block head_list %}
+    <script src="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.js' %}"></script>
+    <link href="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.css' %}" rel="stylesheet"/>
+{% endblock %}
+
 {% block filtrostable %}
 
 {% endblock %}
@@ -14,7 +19,7 @@
     <thead>
     <tr>
         <th scope="col">#</th>
-        {% if request.user.is_representative %}
+        {% if request.user.is_representative or request.user.is_grocer %}
             <th scope="col">Solicitante</th>
         {% endif %}
         <th scope="col">Laboratorio</th>

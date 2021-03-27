@@ -1,6 +1,6 @@
 <div id="modalEntregaSustancia" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
-        <form id="frmEntregaSustancia" method="post" action="../../../static/solicitudbdg/modal">
+        <form id="frmEntregaSustancia" method="post" action=".">
             {% csrf_token %}
             <input type="hidden" name="id_solicitud" value=""/>
             <div class="modal-content">
@@ -13,9 +13,10 @@
                 <div class="modal-body">
                     <table id="tbdetallesolicitud" class="table">
                         <thead>
-                        <th scope="col"><label>Bodega: </label></th>
+                        <th scope="col">#</th>
                         <th scope="col"><label>Nombre de sustancia: </label></th>
                         <th scope="col"><label>Cantidad solicitada: </label></th>
+                        <th scope="col"><label>Cantidad a entregar: </label></th>
                         <th scope="col"><label>Cantidad actual: </label></th>
                         </thead>
                     </table>
