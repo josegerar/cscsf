@@ -59,45 +59,49 @@
             </div>
             <!-- /.card-body -->
         </form>
+        {% block send_form %}
+            <script>
+                $(function () {
+                    $('form').on('submit', function (event) {
+                        event.preventDefault();
+                        let action_save = $(event.originalEvent.submitter).attr('rel');
+                        const form = this;
+                        const parameters = new FormData(form);
+                        disableEnableForm(form, true);
+                        submit_with_ajax(
+                            window.location.pathname, parameters
+                            , 'Confirmación'
+                            , '¿Estas seguro de realizar la siguiente acción?'
+                            , function callback(data) {
+                                if (action_save === 'save') location.href = '{{ url_list }}';
+                                else if (action_save === 'othersave') location.reload();
+                            }, function cancelOrError() {
+                                disableEnableForm(form, false);
+                            }
+                        );
+                    });
+                });
+            </script>
+        {% endblock %}
         <script>
             $(function () {
                 $('.select2').select2({
                     'theme': 'bootstrap4',
                     'language': 'es'
                 });
-
-                $('form').on('submit', function (event) {
-                    event.preventDefault();
-                    let action_save = $(event.originalEvent.submitter).attr('rel');
-                    const form = this;
-                    const parameters = new FormData(form);
-                    disableEnableForm(form, true);
-                    submit_with_ajax(
-                        window.location.pathname, parameters
-                        , 'Confirmación'
-                        , '¿Estas seguro de realizar la siguiente acción?'
-                        , function callback(data) {
-                            if (action_save === 'save') location.href = '{{ url_list }}';
-                            else if (action_save === 'othersave') location.reload();
-                        }, function cancelOrError() {
-                            disableEnableForm(form, false);
-                        }
-                    );
-                });
-            });
-            {% if form.errors %}
-                var errors = '';
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        errors += '{{ error }}\n'
+                {% if form.errors %}
+                    var errors = '';
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            errors += '{{ error }}\n'
+                        {% endfor %}
                     {% endfor %}
-                {% endfor %}
-                Swal.fire({
-                    icon: 'error',
-                    title: '¡Error!',
-                    text: errors,
-                });
-            {% endif %}
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: errors,
+                    });
+                {% endif %}
         </script>
     </div>
 {% endblock %}

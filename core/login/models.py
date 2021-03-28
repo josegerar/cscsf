@@ -23,6 +23,61 @@ class Persona(BaseModel):
         item['imagen'] = self.get_imagen()
         return item
 
+    def get_username(self, key=""):
+        parts = self.get_names_part()
+        if parts is not None:
+            username = parts[0][0:1]
+            username += parts[2]
+            username += parts[3][0:1]
+            username += key
+            username = str(username).lower()
+            username_temp = username
+            count = 0
+            while self.username_exists(username):
+                count += 1
+                username = username_temp + str(count)
+            return username
+        return None
+
+    def get_names_part(self):
+        parts = ["", "", "", ""]
+        nombre_array = self.nombre.strip().split(sep=" ")
+        apellido_array = self.apellido.strip().split(sep=" ")
+        if len(nombre_array) > 1 and len(apellido_array) > 1:
+            parts[0] = nombre_array[0]
+            parts[1] = nombre_array[1]
+            parts[2] = apellido_array[0]
+            parts[3] = apellido_array[1]
+            return parts
+        return None
+
+    @staticmethod
+    def username_exists(username):
+        if User.objects.filter(username=username).exists():
+            return True
+        return False
+
+    @staticmethod
+    def validate_new_users(users):
+        list_roles = ["representante", "laboratorista", "bodeguero"]
+        list_roles_temp = []
+        is_valid = True
+
+        if len(users) > 3:
+            return False
+
+        for item in users:
+            rol_selected = item["rol_selected"]
+            if rol_selected['value'] in list_roles_temp:
+                is_valid = False
+                break
+            if rol_selected['value'] in list_roles:
+                list_roles_temp.append(rol_selected['value'])
+            else:
+                is_valid = False
+                break
+        return is_valid
+
     def get_imagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
@@ -77,6 +132,22 @@ class User(AbstractUser, BaseModel):
         choices = [('', '---------')]
         choices += [(o.id, o.get_user_info()) for o in User.objects.filter(is_grocer=True)]
         return choices
+
+    @staticmethod
+    def verify_email_person(email, person_id):
+        if User.objects.filter(email=email).exclude(persona_id=person_id).count() == 0:
+            return True
+        return False
+
+    @staticmethod
+    def validate_domain_email(email):
+        email = str(email).strip()
+        if email.__contains__("@"):
+            domain = email.split('@')[1]
+            domain_list = ["uteq.edu.ec", ]
+            if domain in domain_list:
+                return email
+        return None
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.

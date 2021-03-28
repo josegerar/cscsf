@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'core.base.apps.BaseConfig',
 
     # external apps
-    'widget_tweaks'
+    'widget_tweaks',
+    'naomi'
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,13 @@ LOGOUT_REDIRECT_URL = '/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+EMAIL_HOST = "smtp.googlemail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "cristhian.crypton@gmail.com"
+EMAIL_HOST_PASSWORD = "1207334184.Qwerty"
+EMAIL_USE_TLS = True
+
+if DEBUG:
+    EMAIL_BACKEND = "naomi.mail.backends.naomi.NaomiBackend"
+    EMAIL_FILE_PATH = "G:/cscsf/cssf proyect/tmp"

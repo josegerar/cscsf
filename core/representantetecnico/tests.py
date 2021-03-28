@@ -21,6 +21,7 @@ from core.representantetecnico.models import User
 
 print(authenticate(username='jgarcia', password='123456'))
 print(User.objects.all())
+#User.objects.create_user()
 #
 # g = Group.objects.all()
 # print(g)
