@@ -58,10 +58,10 @@ urlpatterns = [
     path('empresas/delete/<int:pk>/', EmpresaDeleteView.as_view(), name="eliminarempresa"),
 
     # investigadores
-    path('investigadores/', PersonaListView.as_view(), name="personas"),
-    path('investigadores/registro/', PersonaCreateView.as_view(), name="registropersonas"),
-    path('investigadores/update/<int:pk>/', PersonasUpdateView.as_view(), name="actualizacionpersonas"),
-    path('investigadores/delete/<int:pk>/', PersonasDeleteView.as_view(), name="eliminarpersonas"),
+    path('personas/', PersonaListView.as_view(), name="personas"),
+    path('personas/registro/', PersonaCreateView.as_view(), name="registropersonas"),
+    path('personas/update/<int:pk>/', PersonasUpdateView.as_view(), name="actualizacionpersonas"),
+    path('personas/delete/<int:pk>/', PersonasDeleteView.as_view(), name="eliminarpersonas"),
 
     # repositorio
     path('repositorio/', RepositorioListView.as_view(), name="repositorio"),

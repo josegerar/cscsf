@@ -8,13 +8,12 @@ from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin, PassRequestToFormViewMixin
-from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle, InformesMensuales
+from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle
 from core.tecnicolaboratorio.forms.formInformeMensual import InformeMensualForm
-from core.tecnicolaboratorio.forms.formSolicitud import SolicitudForm
 
 
 class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
-                          PassRequestToFormViewMixin, CreateView):
+                                  PassRequestToFormViewMixin, CreateView):
     permission_required = ('representantetecnico.add_informesmensuales',)
     model = InformesMensuales
     form_class = InformeMensualForm
@@ -43,22 +42,28 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
                 if action == 'add':
                     form = self.get_form()
                     if form.is_valid():
-                        solicitud = form.instance
-                        estadosolicitud = EstadoTransaccion.objects.get(estado='registrado')
-                        if solicitud is not None and estadosolicitud is not None:
+                        informe = form.instance
+                        if informe is not None:
                             with transaction.atomic():
+                                if InformesMensuales.verify_month_exist_with_year(informe.mes.id,
+                                                                                  informe.laboratorio.id):
+                                    raise Exception(
+                                        'Ya existe un informe registrado con este mes para este año con el'
+                                        'laboratorio {}'.format(informe.laboratorio.nombre)
+                                    )
                                 sustancias = json.loads(request.POST['sustancias'])
-                                solicitud.estado_solicitud_id = estadosolicitud.id
-                                solicitud.solicitante_id = request.user.id
-                                solicitud.save()
+                                informe.laboratorista_id = request.user.id
+                                informe.save()
 
                                 for i in sustancias:
-                                    stock_selected = i['stock_selected']
-                                    det = SolicitudDetalle()
-                                    det.stock_id = stock_selected['id']
-                                    det.solicitud_id = solicitud.id
-                                    det.cantidad = float(i['cantidad_solicitud'])
+                                    det = InformesMensualesDetalle()
+                                    det.stock_id = i['id']
+                                    det.informe_id = informe.id
+                                    det.cantidad = float(i['cantidad_consumida'])
                                     det.save()
+                                data["id"] = informe.id
+                                data["url"] = reverse_lazy('tl:actualizacioninformesmensuales',
+                                                           kwargs={'pk': informe.id})
                         else:
                             data['error'] = 'Ha ocurrido un error'
                     else:

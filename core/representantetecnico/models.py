@@ -54,6 +54,7 @@ class Solicitud(BaseModel):
     responsable_actividad = models.ForeignKey(Persona, on_delete=models.CASCADE,
                                               verbose_name="Responsable de actividad")
     documento_solicitud = models.FileField(upload_to='solicitud/%Y/%m/%d', null=True)
+    codigo_solicitud = models.CharField(max_length=50, verbose_name="Codigo de solicitud", null=True)
     fecha_autorizacion = models.DateTimeField(editable=False, null=True)
     estado_solicitud = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estados solicitud",
                                          null=True)
@@ -66,7 +67,7 @@ class Solicitud(BaseModel):
     def toJSON(self):
         item = {'id': self.id, 'nombre_actividad': self.nombre_actividad,
                 'documento': self.get_doc_solicitud(), 'observacion_representante': self.observacion_representante,
-                'observacion_bodega': self.observacion_bodega}
+                'observacion_bodega': self.observacion_bodega, 'codigo_solicitud': self.codigo_solicitud}
         if self.fecha_autorizacion is not None:
             item['fecha_autorizacion'] = self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
         if self.solicitante is not None:
@@ -221,23 +222,52 @@ class ComprasPublicasDetalle(BaseModel):
         ordering = ["id"]
 
 
+class Mes(models.Model):
+    nombre = models.CharField(max_length=20, verbose_name="Nombre del mes")
+    numero = models.IntegerField(verbose_name="Numero de mes")
+
+    def __str__(self):
+        return str(self.nombre)
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
+
+    class Meta:
+        verbose_name = "Mes"
+        verbose_name_plural = "Meses"
+        db_table = "mes"
+        ordering = ["id"]
+
+
 class InformesMensuales(BaseModel):
     laboratorista = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="laboratorista")
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio")
-    fecha_inicio = models.DateTimeField()
-    fecha_fin = models.DateTimeField()
+    mes = models.ForeignKey(Mes, on_delete=models.CASCADE, verbose_name="Mes", null=True)
+    is_editable = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self):
-        item = {'id': self.id, 'fecha_inicio': self.fecha_inicio.strftime("%Y-%m-%d %H:%M:%S"),
-                'fecha_fin': self.fecha_fin.strftime("%Y-%m-%d %H:%M:%S")}
+        item = {'id': self.id, 'editable': self.is_editable}
         if self.laboratorista is not None:
             item['laboratorista'] = self.laboratorista.toJSON()
         if self.laboratorio is not None:
             item['laboratorio'] = self.laboratorio.toJSON()
+        if self.laboratorio is not None:
+            item['mes'] = self.mes.toJSON()
         return item
+
+    @staticmethod
+    def verify_month_exist_with_year(month_id, lab_id):
+        if InformesMensuales.objects.filter(
+                mes_id=month_id,
+                date_creation__year=timezone.now().year,
+                laboratorio_id=lab_id
+        ).exists():
+            return True
+        return False
 
     class Meta:
         verbose_name = "Informe mensual"
@@ -285,13 +315,25 @@ class TipoDocumento(models.Model):
 
 
 class Documento(BaseModel):
-    solicitud = models.ForeignKey(Solicitud, on_delete=models.PROTECT, blank=True, null=True)
-    compra_publica = models.ForeignKey(ComprasPublicas, on_delete=models.PROTECT, blank=True, null=True)
-    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, blank=True, null=True)
-    url_documento = models.CharField(max_length=200, unique=True)
+    informe_mensual_detalle = models.ForeignKey(InformesMensualesDetalle, on_delete=models.CASCADE, null=True)
+    documento = models.FileField(upload_to='documentos/%Y/%m/%d', null=True)
+    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return str(self.id)
+
+    def toJSON(self):
+        item = {"id": self.id, "documento": self.get_documento()}
+        if self.tipo_documento is not None:
+            item["tipo_documento"] = self.tipo_documento.nombre
+        if self.informe_mensual_detalle is not None:
+            item["informe_mensual_detalle"] = self.informe_mensual_detalle.id
+        return item
+
+    def get_documento(self):
+        if self.documento:
+            return '{}{}'.format(MEDIA_URL, self.documento)
+        return ''
 
     class Meta:
         verbose_name = "Documento"

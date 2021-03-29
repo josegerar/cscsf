@@ -39,6 +39,57 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="row">
+                        <div class="col-lg-4">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-atom"></i> Datos del informe</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <div style="display: flex">
+                                            {% if form.laboratorio.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Laboratorio:</label>
+                                        </div>
+                                        {% if action == 'add' %}
+                                            {{ form.laboratorio }}
+                                        {% elif action == 'edit' %}
+                                            {{ form.laboratorio|attr:'readonly'|attr:'disabled' }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="display: flex">
+                                            {% if form.mes.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Mes:</label>
+                                        </div>
+                                        {% if action == 'add' %}
+                                            {{ form.mes }}
+                                        {% elif action == 'edit' %}
+                                            {{ form.mes|attr:'readonly'|attr:'disabled' }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="display: flex">
+                                            <label>Año:</label>
+                                        </div>
+                                        {% if action == 'edit' %}
+                                            {{ form.year|attr:'readonly'|attr:'disabled' }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
                         <div class="col-lg-8">
                             <div class="card card-secondary">
                                 <div class="card-header">
@@ -68,73 +119,16 @@
                                     <hr>
                                     <table id="tblistado" class="table">
                                         <thead>
-                                        <th scope="col">Accion</th>
-                                        <th scope="col">Sustancia</th>
-                                        <th scope="col">Bodega</th>
-                                        <th scope="col">Cantidad solicitada</th>
-                                        <th scope="col">Cantidad actual</th>
-                                        <th scope="col">Unidad de medida</th>
+                                        <tr>
+                                            <th scope="col">Accion</th>
+                                            <th scope="col">Sustancia</th>
+                                            <th scope="col">Laboratorio</th>
+                                            <th scope="col">Unidad de medida</th>
+                                            <th scope="col">Cantidad laboratorio</th>
+                                            <th scope="col">Cantidad consumida</th>
+                                        </tr>
                                         </thead>
                                     </table>
-                                </div>
-                                <!-- /.card-body -->
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="card card-secondary">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-atom"></i> Datos del informe</h3>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <div style="display: flex">
-                                            {% if form.laboratorio.field.required %}
-                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
-                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
-                                                       style="color: red"></i>
-                                                </div>
-                                            {% endif %}
-                                            <label>Laboratorio:</label>
-                                        </div>
-                                        {{ form.laboratorio }}
-                                    </div>
-                                    <div class="form-group">
-                                        <div style="display: flex">
-                                            {% if form.fecha_inicio.field.required %}
-                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
-                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
-                                                       style="color: red"></i>
-                                                </div>
-                                            {% endif %}
-                                            <label>Fecha de inicio:</label>
-                                        </div>
-                                        <div class="input-group date" id="fecha_inicio" data-target-input="nearest">
-                                            {{ form.fecha_inicio }}
-                                            <div class="input-group-append" data-target="#fecha_inicio"
-                                                 data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div style="display: flex">
-                                            {% if form.fecha_fin.field.required %}
-                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
-                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
-                                                       style="color: red"></i>
-                                                </div>
-                                            {% endif %}
-                                            <label>Fecha de inicio:</label>
-                                        </div>
-                                        <div class="input-group date" id="fecha_fin" data-target-input="nearest">
-                                            {{ form.fecha_fin }}
-                                            <div class="input-group-append" data-target="#fecha_fin"
-                                                 data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <!-- /.card-body -->
                             </div>
@@ -144,18 +138,27 @@
                 <!-- /.card-body -->
                 <div class="card-footer">
                     {% csrf_token %}
-                    <button rel="save" type="submit" class="btn btn-primary btn-flat">
-                        <i class="fas fa-save"></i>
-                        {% if action == 'add' %}
-                            Guardar registro
-                        {% elif action == 'edit' %}
-                            Actualizar registro
-                        {% endif %}
-                    </button>
                     {% if action == 'add' %}
-                        <button rel="othersave" type="submit" class="btn btn-secondary btn-flat">
+                        <button rel="save" type="submit" class="btn btn-primary btn-flat">
+                            <i class="fas fa-save"></i>
+                            Guardar
+                        </button>
+                        <button rel="savenext" type="submit" class="btn btn-secondary btn-flat">
+                            <i class="fas fa-save"></i>
+                            Guardar y continuar editando
+                        </button>
+                        <button rel="savereload" type="submit" class="btn btn-dark btn-flat">
                             <i class="fas fa-random"></i>
                             Guardar y añadir otro
+                        </button>
+                    {% elif action == 'edit' %}
+                        <button rel="savereload" type="submit" class="btn btn-primary btn-flat">
+                            <i class="fas fa-save"></i>
+                            Actualizar y continuar editando
+                        </button>
+                        <button rel="save" type="submit" class="btn btn-secondary btn-flat">
+                            <i class="fas fa-random"></i>
+                            Actualizar registro
                         </button>
                     {% endif %}
                     <a href="{{ url_list }}" class="btn btn-primary btn-danger">
@@ -172,7 +175,7 @@
     {% if action == 'add' %}
         <script src="{% static 'informesmensuales/js/create.js' %}"></script>
     {% elif action == 'edit' %}
-        <script src="{% static 'informesmensuales/js/list.js' %}"></script>
+        <script src="{% static 'informesmensuales/js/update.js' %}"></script>
     {% endif %}
 
     <script type="application/javascript">
@@ -197,8 +200,14 @@
                         , 'Confirmación'
                         , '¿Estas seguro de realizar la siguiente acción?'
                         , function (data) {
+                            console.log(data)
                             if (action_save === 'save') location.href = '{{ url_list }}';
-                            else if (action_save === 'othersave') location.reload();
+                            else if (action_save === 'savereload') location.reload();
+                            else if (action_save === 'savenext') {
+                                if (data.url) location.href = data.url
+                                else location.reload();
+                            }
+
                         }, function () {
                             disableEnableForm(form, false);
                         }

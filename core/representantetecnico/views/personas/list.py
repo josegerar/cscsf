@@ -9,7 +9,7 @@ from core.representantetecnico.models import Persona
 
 
 class PersonaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
-    permission_required = ('representantetecnico.view_persona',)
+    permission_required = ('login.view_persona',)
     model = Persona
     template_name = "personas/list.html"
 

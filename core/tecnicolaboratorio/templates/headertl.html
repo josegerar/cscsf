@@ -19,8 +19,13 @@
                 <li class="nav-item">
                     <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a href="{% url 'tl:solicitudes' %}" class="nav-link">Solicitudes</a>
+                <li class="nav-item dropdown">
+                    <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       class="nav-link dropdown-toggle">Informes</a>
+                    <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
+                        <li><a href="{% url 'tl:solicitudes' %}" class="dropdown-item">Solicitudes</a></li>
+                        <li><a href="{% url 'tl:informesmensuales' %}" class="dropdown-item">Informes mensuales</a></li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a href="{% url 'rp:sustancias' %}" class="nav-link">Stock</a>
@@ -32,8 +37,7 @@
                     <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                         <li><a href="{% url 'tl:registrosolicitud' %}" class="dropdown-item">Solicitud - entrega de
                             sustancia</a></li>
-                        </li>
-                        <li><a href="{% url 'tl:registroinformesmensuales' %}" class="dropdown-item">Informes</a></li>
+                        <li><a href="{% url 'tl:registroinformesmensuales' %}" class="dropdown-item">Informes mensuales</a></li>
                     </ul>
                 </li>
             </ul>

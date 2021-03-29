@@ -28,7 +28,7 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
             if self.object.estado_solicitud is not None:
                 if self.object.estado_solicitud.estado == 'aprobado' or self.object.estado_solicitud.estado == 'entregado':
                     messages.error(request, 'solicitud de entrega de sustancia ya aprobado o entregado')
-                    messages.error(request, 'No es posible su eliminación')
+                    messages.error(request, 'No es posible actualizar')
                     messages.error(request, 'Pongase en contacto con el administrador del sistema')
                     return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)

@@ -7,10 +7,16 @@ from core.tecnicolaboratorio.models import Laboratorio
 
 
 class InformeMensualForm(ModelForm):
+    year = CharField(widget=TextInput(attrs={
+        'class': 'form-control',
+        'value': ''
+    }))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
+        if self.instance is not None:
+            self.fields.get('year').widget.attrs['value'] = self.instance.date_creation.year
         self.fields.get('laboratorio').choices = Laboratorio.get_choices_laboratory_user(self.request.user.id)
 
     class Meta:
@@ -22,19 +28,9 @@ class InformeMensualForm(ModelForm):
                 'class': 'form-control select2',
                 'style': 'width: 100%'
             }),
-            'fecha_inicio': DateInput(format='%Y-%m-%d', attrs={
-                'class': 'form-control datetimepicker-input',
-                'data-target': '#fecha_inicio',
-                'data-toggle': 'datetimepicker',
-                'autocomplete': 'off',
-                'value': datetime.now().strftime('%Y-%m-%d')
-            }),
-            'fecha_fin': DateInput(format='%Y-%m-%d', attrs={
-                'class': 'form-control datetimepicker-input',
-                'data-target': '#fecha_fin',
-                'data-toggle': 'datetimepicker',
-                'autocomplete': 'off',
-                'value': datetime.now().strftime('%Y-%m-%d')
+            'mes': Select(attrs={
+                'class': 'form-control select2',
+                'style': 'width: 100%'
             })
         }
 

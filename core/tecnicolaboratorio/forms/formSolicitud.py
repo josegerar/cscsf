@@ -14,7 +14,7 @@ class SolicitudForm(ModelForm):
     class Meta:
         model = Solicitud
         fields = '__all__'
-        exclude = ['estado_solicitud', 'fecha_autorizacion', 'solicitante','observacion']
+        exclude = ['estado_solicitud', 'fecha_autorizacion', 'solicitante', 'observacion']
         widgets = {
             'laboratorio': Select(attrs={
                 'class': 'form-control select2',
@@ -35,7 +35,15 @@ class SolicitudForm(ModelForm):
             'responsable_actividad': Select(attrs={
                 'class': 'form-control select2',
                 'style': 'width: 100%'
-            })
+            }),
+            'codigo_solicitud': TextInput(
+                attrs={
+                    'placeholder': 'Ingrese el codigo de la solicitud',
+                    'type': 'text',
+                    'class': 'form-control',
+                    'autocomplete': 'off'
+                }
+            ),
         }
 
     def save(self, commit=True):

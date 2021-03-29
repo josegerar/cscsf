@@ -4,3 +4,4 @@ from core.representantetecnico.models import *
 
 admin.site.register(TipoActividad)
 admin.site.register(EstadoTransaccion)
+admin.site.register(Mes)

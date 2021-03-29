@@ -1,1 +1,6 @@
-/tmp/*.html
+tmp/
+media/
+node_modules/
+
+# dotenv
+.env

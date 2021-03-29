@@ -5,7 +5,7 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia
+from core.bodega.models import Sustancia, Stock
 
 
 class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -29,14 +29,28 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
         data = {}
         try:
             action = request.GET.get('action')
-            if action is not None and action == 'search_substance':
-                data = []
-                substances = Sustancia.objects.filter(nombre__icontains=request.GET['term'])[0:10]
-                for i in substances:
-                    substance = i.toJSON(view_stock=True)
-                    substance['value'] = i.nombre
-                    data.append(substance)
-                return JsonResponse(data, safe=False)
+            if action is not None:
+                if action == 'search_substance':
+                    data = []
+                    substances = Sustancia.objects.filter(nombre__icontains=request.GET['term'])[0:10]
+                    for i in substances:
+                        substance = i.toJSON(view_stock=True)
+                        substance['value'] = i.nombre
+                        data.append(substance)
+                    return JsonResponse(data, safe=False)
+                elif action == 'search_substance_lab':
+                    data = []
+                    code_lab = request.GET.get('code_lab')
+                    if code_lab is not None:
+                        for stock in Stock.objects.filter(laboratorio_id=code_lab)[0:10]:
+                            if stock.sustancia is not None and stock.sustancia.unidad_medida is not None:
+                                data.append({
+                                    'id': stock.id,
+                                    'value': stock.sustancia.nombre,
+                                    'unidad_medida': stock.sustancia.unidad_medida.nombre,
+                                    'cantidad_lab': stock.cantidad
+                                })
+                    return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)
         return super().get(request, *args, **kwargs)

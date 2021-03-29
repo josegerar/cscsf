@@ -135,9 +135,9 @@ class User(AbstractUser, BaseModel):
 
     @staticmethod
     def verify_email_person(email, person_id):
-        if User.objects.filter(email=email).exclude(persona_id=person_id).count() == 0:
-            return True
-        return False
+        if User.objects.filter(email=email).exclude(persona_id=person_id).exists():
+            return False
+        return True
 
     @staticmethod
     def validate_domain_email(email):
