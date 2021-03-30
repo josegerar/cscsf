@@ -1,4 +1,4 @@
-<div id="modalAgregarDesglose" class="modal fade" tabindex="-1" role="dialog">
+<div id="modalAgregarDesglose" class="modal fade" tabindex="-1" role="dialog" style="z-index: 1051">
     <div class="modal-dialog modal-lg" role="document">
         <form id="frmAgregarDesglose" method="post" action="." enctype="multipart/form-data">
             {% csrf_token %}
@@ -94,14 +94,19 @@
                 , 'Confirmación'
                 , '¿Estas seguro de realizar la siguiente acción?'
                 , function (data) {
-                    console.log(data);
+                    let id_detalle = $('#frmAgregarDesglose').find('input[name="id_detalle"]').val();
+                    informe.listConsumosSustanciaDetalleInforme(id_detalle);
                     $('#modalAgregarDesglose').modal('hide');
                     disableEnableForm(form, false);
                 }, function (error) {
-                    console.log(error);
                     disableEnableForm(form, false);
                 }
             );
+        });
+
+        $('#modalAgregarDesglose').on('hidden.bs.modal', function (e) {
+            $('#frmAgregarDesglose').find('input[name="documento"]').val("");
+            $('#frmAgregarDesglose').find('input[name="cantidad"]').val(0);
         });
     });
 </script>

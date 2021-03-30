@@ -1,5 +1,5 @@
 <div id="modalDetalleConsumoSustanciaInforme" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" style="max-width: 80%;" role="document">
         <form id="frmDetalleConsumoSustanciaInforme" method="post" action=".">
             {% csrf_token %}
             <input type="hidden" name="id_detalle" value=""/>
@@ -14,7 +14,7 @@
                 </div>
                 <div class="modal-body">
                     <button rel="add_consumo" type="button" class="btn btn-secondary btn-flat btn-block">
-                        <i class="fas fa-user-plus"></i>
+                        <i class="fas fa-plus"></i>
                         Agregar consumo
                     </button>
                     <br>
@@ -23,7 +23,7 @@
                         <tr>
                             <th scope="col"><label>Solicitud: </label></th>
                             <th scope="col"><label>Cantidad Solicitada: </label></th>
-                            <th scope="col"><label>Investigador/Docente: </label></th>
+                            <th scope="col"><label>Investigador / Docente: </label></th>
                             <th scope="col"><label>Cantidad consumida total: </label></th>
                             <th scope="col"><label>Cantidad consumida: </label></th>
                             <th scope="col"><label>Cantidad disponible: </label></th>
@@ -33,8 +33,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Recibir</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </form>

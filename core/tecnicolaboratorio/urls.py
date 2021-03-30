@@ -2,6 +2,8 @@ from django.urls import path
 
 from core.tecnicolaboratorio.views.desglose_sustancia_informe_mensual.create import \
     DesgloseSustanciaInformeMensualCreateView
+from core.tecnicolaboratorio.views.desglose_sustancia_informe_mensual.delete import \
+    DesgloseSustanciaInformeMensualDeleteView
 from core.tecnicolaboratorio.views.desglose_sustancia_informe_mensual.list import \
     DesgloseSustanciaInformeMensualListView
 from core.tecnicolaboratorio.views.informes_mensuales.create import InformesMensualesCreateView
@@ -33,4 +35,6 @@ urlpatterns = [
          name="informesmensualesdesglose"),
     path('informes-mensuales/desglose-sustancia/registro/', DesgloseSustanciaInformeMensualCreateView.as_view(),
          name="registroinformesmensualesdesglose"),
+    path('informes-mensuales/desglose-sustancia/delete/<int:pk>/', DesgloseSustanciaInformeMensualDeleteView.as_view(),
+         name="eliminarinformesmensualesdesglose"),
 ]

@@ -171,12 +171,14 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                 if action == 'search_solicitudes_recibidas':
                     data = []
                     sustancia_id = int(request.GET.get('sustancia_id'))
-                    lab_id = (request.GET.get('lab_id'))
+                    lab_id = int(request.GET.get('lab_id'))
+                    det_inf = int(request.GET.get('det_inf'))
                     estado_solicitud = EstadoTransaccion.objects.get(estado="recibido")
                     for i in SolicitudDetalle.objects.filter(stock__sustancia_id=sustancia_id,
                                                              solicitud__laboratorio_id=lab_id,
                                                              solicitud__solicitante_id=request.user.id,
-                                                             solicitud__estado_solicitud_id=estado_solicitud.id):
+                                                             solicitud__estado_solicitud_id=estado_solicitud.id) \
+                            .exclude(desgloseinfomemensualdetalle__informe_mensual_detalle_id=det_inf):
                         item = {'id': i.id, 'cantidad_solicitada': i.cantidad_solicitada,
                                 'cantidad_consumida': i.cantidad_consumida,
                                 'text': "{} {}".format(i.solicitud.codigo_solicitud, i.solicitud.nombre_actividad),

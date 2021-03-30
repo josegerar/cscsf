@@ -32,7 +32,8 @@ class DesgloseSustanciaInformeMensualCreateView(LoginRequiredMixin, ValidatePerm
                             with transaction.atomic():
                                 if desglose_sustancia_informe_mensual.cantidad <= 0:
                                     raise Exception('Debe ingresar una cantidad de cosumo valida')
-                                solicitud_detalle = SolicitudDetalle.objects.get(id=id_detalle)
+                                solicitud_detalle = SolicitudDetalle.objects.get(
+                                    id=desglose_sustancia_informe_mensual.solicitud_detalle_id)
                                 if solicitud_detalle is None:
                                     raise Exception("Error en los datos")
                                 solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida + desglose_sustancia_informe_mensual.cantidad
