@@ -10,6 +10,7 @@ class IndexView(TemplateView):
 def list_view(request):
     # dictionary for initial data with
     # field names as keys
-    context = {"username": "papas", "email": "papas@uteq.edu.ec",
+    context = {"name": "Kevin Jordan", "username": "kchevesc", "email": "kchevesc2012@uteq.edu.ec",
+               "urllogin": request.build_absolute_uri("/"),
                "logo": request.build_absolute_uri(static('img/uteq/logoUTEQoriginal1.png'))}
     return render(request, "correo/correo.html", context)

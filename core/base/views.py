@@ -11,3 +11,4 @@ class DashBoard(LoginRequiredMixin, IsUserUCSCSF, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = "Dashboard"
         return context
+
