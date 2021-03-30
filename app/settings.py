@@ -147,3 +147,4 @@ EMAIL_USE_TLS = True
 if DEBUG:
     EMAIL_BACKEND = "naomi.mail.backends.naomi.NaomiBackend"
     EMAIL_FILE_PATH = "G:/cscsf/cssf proyect/tmp"
+

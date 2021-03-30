@@ -1,5 +1,6 @@
 const informe = {
     datatable: null,
+    datatable_desgloses: null,
     data: {
         detalleInforme: [],
         laboratorio: null
@@ -93,6 +94,42 @@ $(function () {
         }
     });
 
+    informe.datatable_desgloses = $('#tbdesglosesustanciainforme').DataTable({
+        'responsive': true,
+        'autoWidth': false,
+        'destroy': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        'info': false,
+        'columns': [
+            {'data': 'solicitud'},
+            {'data': 'cantidad_solicitada'},
+            {'data': 'responsable_actividad'},
+            {'data': 'cantidad_consumida_total'},
+            {'data': 'cantidad_consumida'},
+            {'data': 'id'},
+            {'data': 'id'},
+        ],
+        'columnDefs': [
+            {
+                'targets': [5],
+                'render': function (data, type, row) {
+                    return parseFloat(row.cantidad_solicitada) - parseFloat(row.cantidad_consumida_total)
+                }
+            },
+            {
+                'targets': [6],
+                'render': function (data, type, row) {
+                    return '<button rel="remove_desglose" class="btn btn-danger"><i class="fas fa-trash"></i></button>'
+                }
+            }
+        ],
+        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
+            updateRowsCallbackDesgloses(row, data, dataIndex);
+        }
+    });
+
     get_list_data_ajax_loading(window.location.pathname, {'action': 'informe_detail'}, function (res_data) {
         informe.add_details(res_data);
     });
@@ -175,41 +212,64 @@ $(function () {
         });
 
         $(row).find('a[rel="movimientos"]').on('click', function (event) {
-            get_list_data_ajax_loading('/solicitudes/', {
-                    'action': 'search_solicitudes_recibidas',
-                    'sustancia_id': data.sustancia.id,
-                    'lab_id': parseFloat(informe.data.laboratorio.id)
+            get_list_data_ajax_loading('/informes-mensuales/desglose-sustancia/', {
+                    'action': 'search_desglose_sustancia',
+                    'detalle_informe_id': data.id
                 },
                 function (res_data) {
-                    if (res_data.length === 0) {
-                        message_info("No hay solicitudes recibidas con esta sustancia registradas en el sistema");
-                        return false;
-                    }
-                    $('#frmAgregarDesglose').find('select[name="solicitud"]').select2({
-                        'theme': 'bootstrap4',
-                        'language': 'es',
-                        'data': res_data
-                    });
-                    $('#frmAgregarDesglose').find('select[name="solicitud"]').on('change.select2', function (e) {
-                        let data_select = $(this).select2('data');
-                        let cantidad_solicitada = parseFloat(data_select[0].cantidad_solicitada);
-                        let cantidad_consumida = parseFloat(data_select[0].cantidad_consumida);
-
-                        $('#frmAgregarDesglose').find('input[name="id_detalle"]').val(data_select[0].id);
-                        $('#frmAgregarDesglose').find('h5').text(`Registrar consumo de sustancia ${data.sustancia.nombre}`)
-                        $('#frmAgregarDesglose').find('input[name="investigador"]').val(data_select[0].consumidor);
-                        $('#frmAgregarDesglose').find('input[name="cantidad_solicitada"]').val(cantidad_solicitada);
-                        $('#frmAgregarDesglose').find('input[name="cantidad_consumida"]').val(cantidad_consumida);
-                        $('#frmAgregarDesglose').find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
-                            max: cantidad_solicitada - cantidad_consumida
-                        });
-                    });
-                    $('#frmAgregarDesglose').find('select[name="solicitud"]').trigger('change.select2');
-                    $('#modalAgregarDesglose').modal({
+                    console.log(res_data)
+                    informe.datatable_desgloses.clear();
+                    informe.datatable_desgloses.rows.add(res_data).draw();
+                    $('#frmDetalleConsumoSustanciaInforme').find('h5').text(`Lista de desgloses de sustancia ${data.sustancia.nombre}`)
+                    $('#frmDetalleConsumoSustanciaInforme').find('input[name="sustancia_id"]').val(data.sustancia.id);
+                    $('#frmDetalleConsumoSustanciaInforme').find('input[name="sustancia_nombre"]').val(data.sustancia.nombre);
+                    $('#modalDetalleConsumoSustanciaInforme').modal({
                         backdrop: 'static',
                         show: true
                     });
                 });
         });
+    }
+
+    //evento para agregar un nuevo desglose de consumo de sustancia del informe
+    $('#frmDetalleConsumoSustanciaInforme').find('button[rel="add_consumo"]').on('click', function (event) {
+        let sustancia_id = $('#frmDetalleConsumoSustanciaInforme').find('input[name="sustancia_id"]').val();
+        let sustancia_nombre = $('#frmDetalleConsumoSustanciaInforme').find('input[name="sustancia_nombre"]').val();
+
+        get_list_data_ajax_loading('/solicitudes/', {
+                'action': 'search_solicitudes_recibidas',
+                'sustancia_id': parseInt(sustancia_id),
+                'lab_id': parseFloat(informe.data.laboratorio.id)
+            },
+            function (res_data) {
+                $('#frmAgregarDesglose').find('select[name="solicitud_detalle"]').select2({
+                    'theme': 'bootstrap4',
+                    'language': 'es',
+                    'data': res_data
+                });
+                $('#frmAgregarDesglose').find('select[name="solicitud_detalle"]').on('change.select2', function (e) {
+                    let data_select = $(this).select2('data');
+                    let cantidad_solicitada = parseFloat(data_select[0].cantidad_solicitada);
+                    let cantidad_consumida = parseFloat(data_select[0].cantidad_consumida);
+
+                    $('#frmAgregarDesglose').find('input[name="id_detalle"]').val(data_select[0].id);
+                    $('#frmAgregarDesglose').find('h5').text(`Registrar consumo de sustancia ${sustancia_nombre}`)
+                    $('#frmAgregarDesglose').find('input[name="investigador"]').val(data_select[0].consumidor);
+                    $('#frmAgregarDesglose').find('input[name="cantidad_solicitada"]').val(cantidad_solicitada);
+                    $('#frmAgregarDesglose').find('input[name="cantidad_consumida"]').val(cantidad_consumida);
+                    $('#frmAgregarDesglose').find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
+                        max: cantidad_solicitada - cantidad_consumida
+                    });
+                });
+                $('#frmAgregarDesglose').find('select[name="solicitud_detalle"]').trigger('change.select2');
+                $('#modalAgregarDesglose').modal({
+                    backdrop: 'static',
+                    show: true
+                });
+            });
+    });
+
+    function updateRowsCallbackDesgloses(row, data, dataIndex) {
+
     }
 });
