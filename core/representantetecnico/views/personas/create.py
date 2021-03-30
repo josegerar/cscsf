@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import mail
 from django.db import transaction
 from django.http import JsonResponse
+from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.template.loader import get_template
@@ -97,7 +98,12 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                     elif rol_selected["value"] == "bodeguero":
                                         new_user.is_grocer = True
 
-                                    context_email = {'email': new_user.email, "username": new_user.username}
+                                    context_email = {"name": "{} {}".format(persona.nombre, persona.apellido),
+                                                     "username": new_user.username,
+                                                     "email": new_user.email,
+                                                     "urllogin": request.build_absolute_uri("/"),
+                                                     "logo": request.build_absolute_uri(
+                                                         static('img/uteq/logoUTEQoriginal1.png'))}
                                     content_email = template_email.render(context_email)
                                     email_send = mail.EmailMultiAlternatives(
                                         "Nuevo usuario",
