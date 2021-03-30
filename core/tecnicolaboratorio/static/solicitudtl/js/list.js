@@ -68,7 +68,7 @@ $(function () {
                             return "Aprobado";
                         } else if (row.estado_solicitud.estado === "revision" || row.estado_solicitud.estado === "registrado") {
                             let buttons = '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                            buttons += '<a href="/solicitudes/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
+                            buttons += '<a href="/solicitudes/delete/' + row.id + '/" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
                             return buttons;
                         }
                     }

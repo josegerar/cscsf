@@ -15,8 +15,10 @@ class InformeMensualForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        if self.instance is not None:
+        if self.instance is not None and self.instance.date_creation is not None:
             self.fields.get('year').widget.attrs['value'] = self.instance.date_creation.year
+        else:
+            self.fields.get('year').widget.attrs['value'] = datetime.now().year
         self.fields.get('laboratorio').choices = Laboratorio.get_choices_laboratory_user(self.request.user.id)
 
     class Meta:

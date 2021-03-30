@@ -86,11 +86,11 @@ function submit_with_ajax(
                             callback(data);
                         } else {
                             message_error(data.error);
-                            cancelOrError()
+                            cancelOrError(data.error)
                         }
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         message_error(errorThrown);
-                        cancelOrError();
+                        cancelOrError(errorThrown);
                     }).always(function (data) {
                         Loading.hide();
                     });
@@ -100,7 +100,7 @@ function submit_with_ajax(
                 text: "No",
                 btnClass: 'btn-red',
                 action: function () {
-                    cancelOrError();
+                    cancelOrError("");
                 }
             },
         }
@@ -315,6 +315,37 @@ function verObservacion(title = "", text = "", labelInput = "") {
     $("#modalObs").find('label').text(labelInput);
     $("#modalObs").find('textarea').text(text);
     $("#modalObs").modal("show");
+}
+
+function get_list_data_ajax_loading(url = "", data = {}, callback) {
+    Loading.show();
+    get_list_data_ajax(url, data, function (response) {
+        Loading.hide();
+        callback(response);
+    }, function (error) {
+        Loading.hide();
+    });
+}
+
+function get_list_data_ajax(url = "", data = {}, callback, error_call) {
+    url = `${url}${encodeQueryString(data)}`;
+    fetch(url, {
+        'method': 'GET',
+        'credentials': 'include',
+        'Content-Type': 'application/json',
+        'headers': {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+        }
+    })
+        .then(res => res.json())
+        .then((json) => {
+            callback(json);
+        }).catch(error => {
+        console.log(error);
+        error_call(error);
+    });
 }
 
 function util() {

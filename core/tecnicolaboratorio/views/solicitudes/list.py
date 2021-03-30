@@ -163,6 +163,31 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
             data["error"] = str(e)
         return JsonResponse(data, safe=False)
 
+    def get(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.GET.get('action')
+            if action is not None:
+                if action == 'search_solicitudes_recibidas':
+                    data = []
+                    sustancia_id = int(request.GET.get('sustancia_id'))
+                    lab_id = (request.GET.get('lab_id'))
+                    estado_solicitud = EstadoTransaccion.objects.get(estado="recibido")
+                    for i in SolicitudDetalle.objects.filter(stock__sustancia_id=sustancia_id,
+                                                             solicitud__laboratorio_id=lab_id,
+                                                             solicitud__solicitante_id=request.user.id,
+                                                             solicitud__estado_solicitud_id=estado_solicitud.id):
+                        item = {'id': i.id, 'cantidad_solicitada': i.cantidad_solicitada,
+                                'cantidad_consumida': i.cantidad_consumida,
+                                'text': "{} {}".format(i.solicitud.codigo_solicitud, i.solicitud.nombre_actividad),
+                                'consumidor': "{} {}".format(i.solicitud.responsable_actividad.nombre,
+                                                             i.solicitud.responsable_actividad.apellido)}
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
+        except Exception as e:
+            data['error'] = str(e)
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Solicitudes registradas"

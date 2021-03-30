@@ -48,7 +48,7 @@ const informe = {
         this.data.sustancias[index].cantidad_consumida = nueva_cantidad;
     },
     verify_sustance_exist: function (new_item) {
-        exist = false;
+        let exist = false;
         $.each(this.data.sustancias, function (index, item) {
             if (new_item.id === item.id) {
                 exist = true;
@@ -140,21 +140,10 @@ $(function () {
                 'action': "search_substance_lab",
                 'code_lab': code_lab
             }
-            let url = `/sustancias/${encodeQueryString(data)}`;
-            fetch(url, {
-                'method': 'GET',
-                'credentials': 'include',
-                'Content-Type': 'application/json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
-                },
-            })
-                .then(res => res.json())
-                .then((json) => {
-                    response(json);
-                });
+            get_list_data_ajax('/sustancias/', data, function (res_data) {
+                console.log(res_data);
+                response(res_data);
+            });
         },
         delay: 400,
         minLength: 1,

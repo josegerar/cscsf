@@ -80,9 +80,6 @@ const compra = {
 };
 
 $(function () {
-    //token csrf django
-    const csrfmiddlewaretoken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]').value;
-
     //activar datatable a detalle de sustancias
     //asignar datable a objeto manejador de datos de la compra
     compra.datatable = $('#tblistado').DataTable({

@@ -28,7 +28,7 @@
 {% block content %}
     <div class="content">
         <div class="card card-default">
-            <form method="post" action="." enctype="multipart/form-data">
+            <form id="frmCrearInforme" method="post" action="." enctype="multipart/form-data">
                 <input type="hidden" name="action" value="{{ action }}"/>
                 <div class="card-header">
                     <h3 class="card-title">
@@ -82,9 +82,7 @@
                                         <div style="display: flex">
                                             <label>Año:</label>
                                         </div>
-                                        {% if action == 'edit' %}
-                                            {{ form.year|attr:'readonly'|attr:'disabled' }}
-                                        {% endif %}
+                                        {{ form.year|attr:'readonly'|attr:'disabled' }}
                                     </div>
                                 </div>
                                 <!-- /.card-body -->
@@ -122,10 +120,15 @@
                                         <tr>
                                             <th scope="col">Accion</th>
                                             <th scope="col">Sustancia</th>
-                                            <th scope="col">Laboratorio</th>
+                                            {% if action == 'add' %}
+                                                <th scope="col">Laboratorio</th>
+                                            {% endif %}
                                             <th scope="col">Unidad de medida</th>
                                             <th scope="col">Cantidad laboratorio</th>
                                             <th scope="col">Cantidad consumida</th>
+                                            {% if action == 'edit' %}
+                                                <th scope="col">Movimientos</th>
+                                            {% endif %}
                                         </tr>
                                         </thead>
                                     </table>
@@ -175,13 +178,14 @@
     {% if action == 'add' %}
         <script src="{% static 'informesmensuales/js/create.js' %}"></script>
     {% elif action == 'edit' %}
+        {% include 'informesmensuales/modal/agregardesglose.html' %}
         <script src="{% static 'informesmensuales/js/update.js' %}"></script>
     {% endif %}
 
     <script type="application/javascript">
         $(function () {
             //envio de datos al servidor
-            $('form').on('submit', function (event) {
+            $('#frmCrearInforme').on('submit', function (event) {
                 event.preventDefault();
                 let form = this;
                 let action_save = $(event.originalEvent.submitter).attr('rel');

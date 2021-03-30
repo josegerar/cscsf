@@ -47,6 +47,7 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                 data.append({
                                     'id': stock.id,
                                     'value': stock.sustancia.nombre,
+                                    'sustancia_id': stock.sustancia.id,
                                     'unidad_medida': stock.sustancia.unidad_medida.nombre,
                                     'cantidad_lab': stock.cantidad
                                 })

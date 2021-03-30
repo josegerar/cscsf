@@ -102,16 +102,18 @@ class SolicitudDetalle(BaseModel):
     solicitud = models.ForeignKey(Solicitud, on_delete=models.CASCADE, verbose_name="Solicitud")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
     cantidad_solicitada = models.DecimalField(verbose_name="Cantidad solicitada", decimal_places=4, max_digits=8,
-                                              null=True)
+                                              null=True, default=0)
     cantidad_entregada = models.DecimalField(verbose_name="Cantidad entregada", decimal_places=4, max_digits=8,
-                                             null=True)
+                                             null=True, default=0)
+    cantidad_consumida = models.DecimalField(verbose_name="Cantidad consumida", decimal_places=4, max_digits=8,
+                                             null=True, default=0)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self, ver_solicitud=False):
         item = {'id': self.id, 'cantidad_solicitada': self.cantidad_solicitada,
-                'cantidad_entregada': self.cantidad_entregada}
+                'cantidad_entregada': self.cantidad_entregada, 'cantidad_consumida': self.cantidad_consumida}
         if self.solicitud is not None:
             if ver_solicitud:
                 item['solicitud'] = self.solicitud.toJSON()
@@ -299,33 +301,17 @@ class InformesMensualesDetalle(BaseModel):
         ordering = ["id"]
 
 
-class TipoDocumento(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre")
-    descripcion = models.CharField(max_length=300, verbose_name="Descripcion")
-    is_active = models.BooleanField(default=True, editable=False)
-
-    def __str__(self):
-        return str(self.nombre)
-
-    class Meta:
-        verbose_name = "Tipo de Documento"
-        verbose_name_plural = "Tipos de Documentos"
-        db_table = "tipo_documento"
-        ordering = ["id"]
-
-
-class Documento(BaseModel):
+class DesgloseInfomeMensualDetalle(BaseModel):
     informe_mensual_detalle = models.ForeignKey(InformesMensualesDetalle, on_delete=models.CASCADE, null=True)
-    documento = models.FileField(upload_to='documentos/%Y/%m/%d', null=True)
-    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, null=True)
+    documento = models.FileField(upload_to='informemensual/sustancias/desglose/%Y/%m/%d', null=True)
+    solicitud_detalle = models.ForeignKey(SolicitudDetalle, on_delete=models.CASCADE, null=True, blank=True)
+    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self):
         item = {"id": self.id, "documento": self.get_documento()}
-        if self.tipo_documento is not None:
-            item["tipo_documento"] = self.tipo_documento.nombre
         if self.informe_mensual_detalle is not None:
             item["informe_mensual_detalle"] = self.informe_mensual_detalle.id
         return item
@@ -336,9 +322,9 @@ class Documento(BaseModel):
         return ''
 
     class Meta:
-        verbose_name = "Documento"
-        verbose_name_plural = "Documentos"
-        db_table = "documento"
+        verbose_name = "Desglose mensual"
+        verbose_name_plural = "Desgloses mesuales"
+        db_table = "desglose_detalle_informe_mensual"
         ordering = ["id"]
 
 

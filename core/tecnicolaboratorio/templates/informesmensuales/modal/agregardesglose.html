@@ -1,0 +1,107 @@
+<div id="modalAgregarDesglose" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="frmAgregarDesglose" method="post" action="." enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="id_detalle" value=""/>
+            <input type="hidden" name="action" value="add"/>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar consumo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div style="display: flex">
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+                            <label for="id_documento">Documento:</label>
+                        </div>
+                        <input type="file" name="documento" style="cursor: pointer" required="" id="id_documento"
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display: flex">
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+                            <label for="id_solicitud">Solicitud proyecto/actividad:</label>
+                        </div>
+                        <select name="solicitud" class="form-control select2" style="width: 100%" required=""
+                                id="id_solicitud">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_investigador">Investigador/Docente:</label>
+                        <input type="text" name="investigador" class="form-control"
+                               placeholder="Investigador/Docente" required=""
+                               id="id_investigador" readonly disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_cantidad_solicitada">Cantidad solicitada:</label>
+                        <input rel="cantidad" type="text" name="cantidad_solicitada" class="form-control"
+                               placeholder="Cantidad solicitada" required=""
+                               id="id_cantidad_solicitada" readonly disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_cantidad_consumida">Cantidad consumida:</label>
+                        <input rel="cantidad" type="text" name="cantidad_consumida" class="form-control"
+                               placeholder="Cantidad consumida" required=""
+                               id="id_cantidad_consumida" readonly disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display: flex">
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+                            <label for="id_cantidad">Cantidad consumo:</label>
+                        </div>
+                        <input rel="cantidad" type="text" name="cantidad" class="form-control" placeholder="Cantidad"
+                               required=""
+                               id="id_cantidad">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="application/javascript">
+    $(function () {
+        $('#frmAgregarDesglose').on('submit', function (event) {
+            event.preventDefault();
+            let form = this;
+            const consumo = parseFloat($('#frmAgregarDesglose').find('input[name="cantidad"]').val())
+            if (consumo <= 0) {
+                message_error("Debe ingresar una cantidad de consumo valida");
+                return false;
+            }
+            let parameters = new FormData(form);
+            disableEnableForm(form, true);
+            submit_with_ajax(
+                "{% url 'tl:registroinformesmensualesdesglose' %}"
+                , parameters
+                , 'Confirmación'
+                , '¿Estas seguro de realizar la siguiente acción?'
+                , function (data) {
+                    console.log(data);
+                    $('#modalAgregarDesglose').modal('hide');
+                    disableEnableForm(form, false);
+                }, function (error) {
+                    console.log(error);
+                    disableEnableForm(form, false);
+                }
+            );
+        });
+    });
+</script>
