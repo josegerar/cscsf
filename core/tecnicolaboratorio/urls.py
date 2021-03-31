@@ -28,7 +28,7 @@ urlpatterns = [
     path('informes-mensuales/registro/', InformesMensualesCreateView.as_view(), name="registroinformesmensuales"),
     path('informes-mensuales/update/<int:pk>/', InformesMensualesUpdateView.as_view(),
          name="actualizacioninformesmensuales"),
-    path('informes-mensuales/delete/<int:pk>/', SolicitudDeleteView.as_view(), name="eliminarinformesmensuales"),
+    #path('informes-mensuales/delete/<int:pk>/', SolicitudDeleteView.as_view(), name="eliminarinformesmensuales"),
 
     # informes mensuales desglose
     path('informes-mensuales/desglose-sustancia/', DesgloseSustanciaInformeMensualListView.as_view(),

@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'list.html' %}
 
-</body>
-</html>
+{% load static %}
+
+{% block header %}
+    {% include 'header.html' %}
+{% endblock %}
+
+{% block head_list %}
+
+{% endblock %}
+
+{% block filtrostable %}
+
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Laboratorio</th>
+        <th scope="col">Mes</th>
+        <th scope="col">Año</th>
+        <th scope="col">Detalles</th>
+        <th scope="col">Archivar</th>
+        <th scope="col">Editar</th>
+        <th scope="col">Eliminar</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+{% endblock %}
+
+{% block buttons_list %}
+    {% if request.user.is_laboratory_worker %}
+        <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+            <i class="fas fa-plus"></i>
+            Nuevo registro
+        </a>
+    {% endif %}
+    <button id="btnSync" type="button" class="btn btn-primary btn-success">
+        <i class="fas fa-sync"></i>
+        Actualizar
+    </button>
+{% endblock %}
+
+{% block script %}
+    {% if request.user.is_representative %}
+
+    {% elif request.user.is_grocer %}
+
+    {% elif request.user.is_laboratory_worker %}
+        <script src="{% static 'informesmensuales/js/list.js' %}"></script>
+    {% endif %}
+{% endblock %}
