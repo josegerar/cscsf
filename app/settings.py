@@ -144,7 +144,10 @@ EMAIL_HOST_USER = "cristhian.crypton@gmail.com"
 EMAIL_HOST_PASSWORD = "1207334184.Qwerty"
 EMAIL_USE_TLS = True
 
-if DEBUG:
-    EMAIL_BACKEND = "naomi.mail.backends.naomi.NaomiBackend"
-    EMAIL_FILE_PATH = "G:/cscsf/cssf proyect/tmp"
+# if DEBUG:
+#     EMAIL_BACKEND = "naomi.mail.backends.naomi.NaomiBackend"
+#     EMAIL_FILE_PATH = "G:/cscsf/cssf proyect/tmp"
+
+
+
 
