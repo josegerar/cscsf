@@ -35,9 +35,16 @@ class ValidatePermissionRequiredMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.has_perms(self.get_perms()):
-            return super().dispatch(request, *args, **kwargs)
-        messages.error(request, 'No tiene permiso para entrar a este módulo')
-        messages.error(request, 'Pongase en contacto con el administrador del sistema')
+            if request.user.is_pass_update:
+                if request.user.persona is not None:
+                    if request.user.persona.is_info_update:
+                        return super().dispatch(request, *args, **kwargs)
+                messages.error(request, 'No ha actualizado su información')
+            else:
+                messages.error(request, 'No tiene permiso de ingresar al sistema, cambie su contraseña inicial')
+        else:
+            messages.error(request, 'No tiene permiso para entrar a este módulo')
+            messages.error(request, 'Pongase en contacto con el administrador del sistema')
         return HttpResponseRedirect(self.get_url_redirect())
 
 

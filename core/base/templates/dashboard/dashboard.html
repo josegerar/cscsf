@@ -1,4 +1,5 @@
 {% extends 'main.html' %}
+{% load static %}
 {% block header %}
     {% if request.user.is_representative %}
         {% include 'headerrp.html' %}
@@ -17,4 +18,19 @@
     {% elif request.user.is_laboratory_worker %}
         {% include 'hometl.html' %}
     {% endif %}
+    {% include 'modal/changePassword.html' %}
+    {% if request.user.is_pass_update is False %}
+        <script>
+            $(function () {
+                $('#modalChangePass').find('button[rel=btnCancel]').remove();
+                $('#modalChangePass').modal({
+                    backdrop: 'static',
+                    show: true
+                });
+            });
+        </script>
+    {% endif %}
+{% endblock %}
+{% block script %}
+<script src="{% static 'dashboad/changePassword.js' %}"></script>
 {% endblock %}

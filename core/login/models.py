@@ -14,6 +14,7 @@ class Persona(BaseModel):
     telefono = models.CharField(max_length=10, verbose_name="Telefono", null=True, blank=True)
     imagen = models.ImageField(upload_to="users/%Y/%m/%d", null=True, blank=True)
     is_active = models.BooleanField(default=True, editable=False)
+    is_info_update = models.BooleanField(default=False, editable=False)
 
     def __str__(self):
         return self.nombre + " " + self.apellido
@@ -93,6 +94,8 @@ class Persona(BaseModel):
 
 class User(AbstractUser, BaseModel):
     persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name="Persona", null=True)
+    is_pass_update = models.BooleanField(default=False, editable=False)
+    codeconfirm = models.CharField( max_length=200,null=True, blank= True)
     is_representative = models.BooleanField(
         _('Es representante técnico'),
         default=False,
