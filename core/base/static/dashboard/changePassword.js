@@ -30,8 +30,8 @@ $(function () {
     $('button[rel=sendCode]').on('click', function (event) {
         event.preventDefault();
         let parameters = new FormData();
-        parameters.append("action", "sendCodeConfirm")
-        parameters.append("csrfmiddlewaretoken", getCookie("csrftoken"))
+        parameters.append("action", "sendCodeConfirm");
+        parameters.append("csrfmiddlewaretoken", getCookie("csrftoken"));
         submit_with_ajax(
             window.location.pathname, parameters
             , 'Confirmación'

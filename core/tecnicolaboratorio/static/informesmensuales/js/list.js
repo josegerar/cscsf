@@ -69,6 +69,27 @@ $(function () {
     });
 
     function updateRowsCallback(row, data, dataIndex) {
-
+        $(row).find('button[rel=archivar_informe]').on('click', function (event) {
+            let parameters = new FormData();
+            parameters.append("action", "archivar_informe");
+            parameters.append("informe_id", data.id);
+            parameters.append("csrfmiddlewaretoken", getCookie("csrftoken"));
+            submit_with_ajax(
+                window.location.pathname, parameters
+                , 'Confirmación'
+                , `¿Estas seguro de realizar la siguiente acción? Una vez archivado, 
+                ya no podra realizar operaciones de edicción o eliminación del informe`
+                , function (data) {
+                    get_list_data_ajax_loading(window.location.pathname, data, function (response) {
+                        if (response.length > 0) {
+                            tblistado.clear();
+                            tblistado.rows.add(response).draw();
+                        }
+                    });
+                }, function () {
+                    disableEnableForm(form, false);
+                }
+            );
+        });
     }
 });

@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import DesgloseInfomeMensualDetalle, SolicitudDetalle
+from core.representantetecnico.models import DesgloseInfomeMensualDetalle
 
 
 class DesgloseSustanciaInformeMensualDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):

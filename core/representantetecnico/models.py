@@ -204,7 +204,7 @@ class ComprasPublicas(BaseModel):
 class ComprasPublicasDetalle(BaseModel):
     compra = models.ForeignKey(ComprasPublicas, on_delete=models.CASCADE, verbose_name="Compra")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
-    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
+    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True, default=0)
 
     def __str__(self):
         return str(self.id)
@@ -281,7 +281,7 @@ class InformesMensuales(BaseModel):
 class InformesMensualesDetalle(BaseModel):
     informe = models.ForeignKey(InformesMensuales, on_delete=models.CASCADE, verbose_name="Informe")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
-    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
+    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True, default=0)
 
     def __str__(self):
         return str(self.id)
@@ -305,7 +305,7 @@ class DesgloseInfomeMensualDetalle(BaseModel):
     informe_mensual_detalle = models.ForeignKey(InformesMensualesDetalle, on_delete=models.CASCADE, null=True)
     documento = models.FileField(upload_to='informemensual/sustancias/desglose/%Y/%m/%d', null=True)
     solicitud_detalle = models.ForeignKey(SolicitudDetalle, on_delete=models.CASCADE, null=True, blank=True)
-    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True)
+    cantidad = models.DecimalField(verbose_name="cantidad", decimal_places=4, max_digits=8, null=True, default=0)
 
     def __str__(self):
         return str(self.id)

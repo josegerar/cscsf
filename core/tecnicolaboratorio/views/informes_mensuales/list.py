@@ -1,14 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import TipoMovimientoInventario, Stock, Inventario
-from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle, InformesMensuales
+from core.bodega.models import Inventario, TipoMovimientoInventario
+from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle
 
 
 class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -36,6 +36,44 @@ class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMi
         except Exception as e:
             data['error'] = str(e)
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST.get('action')
+            if action is not None:
+                if action == 'archivar_informe':
+                    with transaction.atomic():
+                        informe_id = request.POST.get('informe_id')
+                        informe = InformesMensuales.objects.get(id=informe_id)
+                        tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='deletelab')
+                        if informe is None and tipo_movimiento_del is not None:
+                            raise Exception("Error al ejecutar la operación, recargue la pagina y vuelva a intentarlo")
+                        for det in informe.informesmensualesdetalle_set.all():
+                            cantidad_desglose = det.desgloseinfomemensualdetalle_set.all().aggregate(Sum("cantidad"))
+                            if cantidad_desglose["cantidad__sum"] != det.cantidad:
+                                raise Exception("La cantidad desglosada total del consumo no coincide con"
+                                                "la cantidad descrita en el detalle del informe para la"
+                                                "sustancia {}".format(det.stock.sustancia.nombre))
+                            stock = det.stock
+                            stock.cantidad = stock.cantidad - det.cantidad
+                            stock.save()
+
+                            inv = Inventario()
+                            inv.stock_id = stock.id
+                            inv.cantidad_movimiento = det.cantidad
+                            inv.tipo_movimiento_id = tipo_movimiento_del.id
+                            inv.save()
+
+                        informe.is_editable = False
+                        informe.save()
+                else:
+                    data['error'] = 'Ha ocurrido un error3'
+            else:
+                data['error'] = 'Ha ocurrido un error4'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
