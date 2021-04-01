@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.forms import *
 
 from core.representantetecnico.models import InformesMensuales
@@ -7,18 +5,10 @@ from core.tecnicolaboratorio.models import Laboratorio
 
 
 class InformeMensualForm(ModelForm):
-    year = CharField(widget=TextInput(attrs={
-        'class': 'form-control',
-        'value': ''
-    }))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        if self.instance is not None and self.instance.date_creation is not None:
-            self.fields.get('year').widget.attrs['value'] = self.instance.date_creation.year
-        else:
-            self.fields.get('year').widget.attrs['value'] = datetime.now().year
         self.fields.get('laboratorio').choices = Laboratorio.get_choices_laboratory_user(self.request.user.id)
 
     class Meta:
@@ -33,6 +23,10 @@ class InformeMensualForm(ModelForm):
             'mes': Select(attrs={
                 'class': 'form-control select2',
                 'style': 'width: 100%'
+            }),
+            'year': TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Año'
             })
         }
 

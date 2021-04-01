@@ -8,7 +8,7 @@ from django.views.generic import ListView
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import Inventario, TipoMovimientoInventario
-from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle
+from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle, Mes
 
 
 class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -32,6 +32,24 @@ class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMi
                             'is_editable': i.is_editable
                         }
                         data.append(item)
+                    return JsonResponse(data, safe=False)
+                elif action == 'informe_detail':
+                    data = []
+                    informe_id = request.GET.get('informe_id')
+                    for i in InformesMensualesDetalle.objects.filter(informe_id=informe_id):
+                        data.append({
+                            'id': i.id,
+                            'sustancia': {'id': i.stock.sustancia.id, 'nombre': i.stock.sustancia.nombre},
+                            'unidad_medida': i.stock.sustancia.unidad_medida.nombre,
+                            'cantidad_consumida': i.cantidad,
+                            'cantidad_lab': i.stock.cantidad
+                        })
+                    return JsonResponse(data, safe=False)
+                elif action == 'search_months_dsp':
+                    data = []
+                    year = request.GET.get('year')
+                    for y in Mes.objects.all().exclude(informesmensuales__year=year):
+                        data.append({'id': y.id, 'text': y.nombre})
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)

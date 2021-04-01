@@ -1,8 +1,9 @@
 import json
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -20,6 +21,14 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
     template_name = "informesmensuales/create.html"
     success_url = reverse_lazy("tl:informesmensuales")
     url_redirect = success_url
+
+    def dispatch(self, request, *args, **kwargs):
+        if InformesMensuales.objects.filter(is_editable=True).exists():
+            messages.error(request, 'Aun existen informes por archivar')
+            messages.error(request, 'Debe archivar todos los informes antes de crear otro')
+            messages.error(request, 'Pongase en contacto con el administrador del sistema')
+            return HttpResponseRedirect(self.success_url)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -45,10 +54,10 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
                         informe = form.instance
                         if informe is not None:
                             with transaction.atomic():
-                                if InformesMensuales.verify_month_exist_with_year(informe.mes.id,
+                                if InformesMensuales.verify_month_exist_with_year(informe.mes.id, informe.year,
                                                                                   informe.laboratorio.id):
                                     raise Exception(
-                                        'Ya existe un informe registrado con este mes para este año con el'
+                                        'Ya existe un informe registrado con este mes para este año con el '
                                         'laboratorio {}'.format(informe.laboratorio.nombre)
                                     )
                                 sustancias = json.loads(request.POST['sustancias'])

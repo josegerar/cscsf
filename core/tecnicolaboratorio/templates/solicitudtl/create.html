@@ -1,4 +1,5 @@
 {% extends 'list.html' %}
+
 {% load widget_tweaks %}
 {% load static %}
 
@@ -49,9 +50,9 @@
                                 <!-- /.card-header -->
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Buscador de sustancias:</label>
+                                        <label for="search_substance">Buscador de sustancias:</label>
                                         <div class="input-group">
-                                            <input name="search"
+                                            <input id="search_substance" name="search"
                                                    placeholder="Ingrese el nombre de la sustancia a buscar"
                                                    autocomplete="off" type="text" class="form-control">
                                             <span class="input-group-append">
@@ -66,14 +67,16 @@
                                         Eliminar todas las sustancias
                                     </button>
                                     <hr>
-                                    <table id="tblistado" class="table">
+                                    <table id="tblistado" class="table" style="width: 100%">
                                         <thead>
-                                        <th scope="col">Accion</th>
-                                        <th scope="col">Sustancia</th>
-                                        <th scope="col">Bodega</th>
-                                        <th scope="col">Cantidad solicitada</th>
-                                        <th scope="col">Cantidad actual</th>
-                                        <th scope="col">Unidad de medida</th>
+                                        <tr>
+                                            <th scope="col">Accion</th>
+                                            <th scope="col">Sustancia</th>
+                                            <th scope="col">Bodega</th>
+                                            <th scope="col">Cantidad solicitada</th>
+                                            <th scope="col">Cantidad actual</th>
+                                            <th scope="col">Unidad de medida</th>
+                                        </tr>
                                         </thead>
                                     </table>
                                 </div>
@@ -135,7 +138,7 @@
                                         </div>
                                         {{ form.responsable_actividad }}
                                     </div>
-                                <div class="form-group">
+                                    <div class="form-group">
                                         <div style="display: flex">
                                             {% if form.codigo_solicitud.field.required %}
                                                 <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">

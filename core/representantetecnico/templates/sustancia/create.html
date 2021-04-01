@@ -1,8 +1,7 @@
 {% extends 'list.html' %}
+
 {% load static %}
-{% block header %}
-    {% include 'header.html' %}
-{% endblock %}
+
 {% block head_list %}
     <link href="{% static 'lib/select2-4.0.13/css/select2.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'lib/select2-4.0.13/css/select2-bootstrap4.min.css' %}" rel="stylesheet"/>
@@ -34,7 +33,7 @@
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
-                                    <table id="tblistado" class="table">
+                                    <table id="tblistado" class="table" style="width: 100%">
                                         <thead>
                                         <th scope="col">Tipo lugar</th>
                                         <th scope="col">Nombre</th>

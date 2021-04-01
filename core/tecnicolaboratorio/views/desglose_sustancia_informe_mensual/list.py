@@ -28,7 +28,8 @@ class DesgloseSustanciaInformeMensualListView(LoginRequiredMixin, ValidatePermis
                                 'cantidad_consumida': i.cantidad,
                                 'responsable_actividad': "{} {}".format(
                                     i.solicitud_detalle.solicitud.responsable_actividad.nombre,
-                                    i.solicitud_detalle.solicitud.responsable_actividad.apellido)
+                                    i.solicitud_detalle.solicitud.responsable_actividad.apellido),
+                                'documento': i.get_documento()
                                 }
                         data.append(item)
                     return JsonResponse(data, safe=False)

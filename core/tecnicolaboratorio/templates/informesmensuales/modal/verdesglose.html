@@ -18,7 +18,7 @@
                         Agregar consumo
                     </button>
                     <br>
-                    <table id="tbdesglosesustanciainforme" class="table">
+                    <table id="tbdesglosesustanciainforme" class="table" style="width: 100%">
                         <thead>
                         <tr>
                             <th scope="col"><label>Solicitud: </label></th>
@@ -27,12 +27,19 @@
                             <th scope="col"><label>Cantidad consumida total: </label></th>
                             <th scope="col"><label>Cantidad consumida: </label></th>
                             <th scope="col"><label>Cantidad disponible: </label></th>
-                            <th scope="col"><label>Acciones: </label></th>
+                            <th scope="col"><label>Documento: </label></th>
+                            {% if action == 'edit' %}
+                                <th scope="col"><label>Acciones: </label></th>
+                            {% endif %}
                         </tr>
                         </thead>
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <button rel="btnSync" type="button" class="btn btn-primary btn-success">
+                        <i class="fas fa-sync"></i>
+                        Actualizar
+                    </button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>

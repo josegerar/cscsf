@@ -122,6 +122,7 @@ $(function () {
             {'data': 'cantidad_consumida_total'},
             {'data': 'cantidad_consumida'},
             {'data': 'id'},
+            {'data': 'documento'},
             {'data': 'id'},
         ],
         'columnDefs': [
@@ -133,6 +134,13 @@ $(function () {
             },
             {
                 'targets': [6],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    return get_tag_url_document(data, 'Ver')
+                }
+            },
+            {
+                'targets': [7],
                 'render': function (data, type, row) {
                     return '<button rel="remove_desglose" type="button" class="btn btn-danger"><i class="fas fa-trash"></i></button>'
                 }
@@ -143,9 +151,12 @@ $(function () {
         }
     });
 
-    get_list_data_ajax_loading(window.location.pathname, {'action': 'informe_detail'}, function (res_data) {
-        informe.add_details(res_data);
-    });
+    let informe_id = $('#frmCrearInforme').find('input[name=id_informe]').val();
+
+    get_list_data_ajax_loading('/informes-mensuales/', {'action': 'informe_detail', 'informe_id': informe_id}
+        , function (res_data) {
+            informe.add_details(res_data);
+        });
 
     //activar plugin select2 a los select del formulario
     $('.select2').select2({

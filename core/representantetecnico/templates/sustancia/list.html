@@ -2,10 +2,6 @@
 
 {% load static %}
 
-{% block header %}
-    {% include 'header.html' %}
-{% endblock %}
-
 {% block filtrostable %}
 
 {% endblock %}
@@ -44,7 +40,7 @@
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <table id="tblistado" class="table">
+                                <table id="tblistado" class="table" style="width: 100%">
                                     <thead>
                                     <tr>
                                         <th scope="col">#</th>
@@ -75,7 +71,7 @@
                                     <input type="text" name="cantidad_total" class="form-control" autocomplete="off"
                                            readonly id="id_cantidad_total" value="0">
                                 </div>
-                                <table id="tbstock" class="table">
+                                <table id="tbstock" class="table" style="width: 100%">
                                     <thead>
                                     <th scope="col">Tipo lugar</th>
                                     <th scope="col">Nombre</th>

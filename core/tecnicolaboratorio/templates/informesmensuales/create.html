@@ -1,4 +1,5 @@
 {% extends 'list.html' %}
+
 {% load widget_tweaks %}
 {% load static %}
 
@@ -30,6 +31,9 @@
         <div class="card card-default">
             <form id="frmCrearInforme" method="post" action="." enctype="multipart/form-data">
                 <input type="hidden" name="action" value="{{ action }}"/>
+                {% if action == 'edit' %}
+                    <input type="hidden" name="id_informe" value="{{ form.instance.id }}"/>
+                {% endif %}
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-{{ icontitle }}"></i>
@@ -64,6 +68,22 @@
                                     </div>
                                     <div class="form-group">
                                         <div style="display: flex">
+                                            {% if form.year.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Año:</label>
+                                        </div>
+                                        {% if action == 'add' %}
+                                            {{ form.year }}
+                                        {% elif action == 'edit' %}
+                                            {{ form.year|attr:'readonly'|attr:'disabled' }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="display: flex">
                                             {% if form.mes.field.required %}
                                                 <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
                                                     <i class="fa fa-asterisk fa-xs" aria-hidden="true"
@@ -77,12 +97,6 @@
                                         {% elif action == 'edit' %}
                                             {{ form.mes|attr:'readonly'|attr:'disabled' }}
                                         {% endif %}
-                                    </div>
-                                    <div class="form-group">
-                                        <div style="display: flex">
-                                            <label>Año:</label>
-                                        </div>
-                                        {{ form.year|attr:'readonly'|attr:'disabled' }}
                                     </div>
                                 </div>
                                 <!-- /.card-body -->
@@ -115,7 +129,7 @@
                                         Eliminar todas las sustancias
                                     </button>
                                     <hr>
-                                    <table id="tblistado" class="table">
+                                    <table id="tblistado" class="table" style="width: 100%;">
                                         <thead>
                                         <tr>
                                             <th scope="col">Accion</th>
@@ -205,7 +219,6 @@
                         , 'Confirmación'
                         , '¿Estas seguro de realizar la siguiente acción?'
                         , function (data) {
-                            console.log(data)
                             if (action_save === 'save') location.href = '{{ url_list }}';
                             else if (action_save === 'savereload') location.reload();
                             else if (action_save === 'savenext') {

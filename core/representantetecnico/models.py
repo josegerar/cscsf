@@ -246,26 +246,27 @@ class InformesMensuales(BaseModel):
     laboratorista = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="laboratorista")
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio")
     mes = models.ForeignKey(Mes, on_delete=models.CASCADE, verbose_name="Mes", null=True)
+    year = models.IntegerField(default=timezone.now().year, verbose_name="Año")
     is_editable = models.BooleanField(default=True, editable=False)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self):
-        item = {'id': self.id, 'editable': self.is_editable}
+        item = {'id': self.id, 'editable': self.is_editable, 'year': self.year}
         if self.laboratorista is not None:
             item['laboratorista'] = self.laboratorista.toJSON()
         if self.laboratorio is not None:
             item['laboratorio'] = self.laboratorio.toJSON()
-        if self.laboratorio is not None:
+        if self.mes is not None:
             item['mes'] = self.mes.toJSON()
         return item
 
     @staticmethod
-    def verify_month_exist_with_year(month_id, lab_id):
+    def verify_month_exist_with_year(month_id, year, lab_id):
         if InformesMensuales.objects.filter(
                 mes_id=month_id,
-                date_creation__year=timezone.now().year,
+                year=year,
                 laboratorio_id=lab_id
         ).exists():
             return True

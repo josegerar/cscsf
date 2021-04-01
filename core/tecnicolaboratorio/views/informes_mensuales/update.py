@@ -47,27 +47,6 @@ class InformesMensualesUpdateView(LoginRequiredMixin, ValidatePermissionRequired
         ]
         return context
 
-    def get(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.GET.get('action')
-            if action is not None:
-                if action == 'informe_detail':
-                    data = []
-                    informe_id = kwargs.get("pk")
-                    for i in InformesMensualesDetalle.objects.filter(informe_id=informe_id):
-                        data.append({
-                            'id': i.id,
-                            'sustancia': {'id': i.stock.sustancia.id, 'nombre': i.stock.sustancia.nombre},
-                            'unidad_medida': i.stock.sustancia.unidad_medida.nombre,
-                            'cantidad_consumida': i.cantidad,
-                            'cantidad_lab': i.stock.cantidad
-                        })
-                    return JsonResponse(data, safe=False)
-        except Exception as e:
-            data['error'] = str(e)
-        return super().get(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         data = {}
         try:

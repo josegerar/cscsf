@@ -348,11 +348,11 @@ function get_list_data_ajax(url = "", data = {}, callback, error_call) {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
         }
-    })
-        .then(res => res.json())
-        .then((json) => {
-            callback(json);
-        }).catch(error => {
+    }).then(function (response) {
+        return response.json();
+    }).then(function (json) {
+        callback(json);
+    }).catch(function (error) {
         console.log(error);
         error_call(error);
     });

@@ -5,27 +5,35 @@ const Loading = {
     loading: null,
     spin: null,
     wrapper: null,
+    backdrop: null,
     hide: function () {
         // Comprueba que exista el HTML
         if (this.loading && this.wrapper && this.spin) {
             // Oculta el HTML de "cargando..." quitando la clase .show
             this.spin.classList.remove('show_loading');
 
-            // Borra el HTML
+            setTimeout(function () {
+                Loading.loading.classList.remove("loading_spinner_custom");
+            }, 100);
+
+            setTimeout(function () {
+                Loading.backdrop.classList.remove("loading-backdrop");
+            }, 200);
+
             setTimeout(function () {
                 Loading.wrapper.classList.remove("content_loading_opacity");
-                Loading.loading.classList.remove("loading_spinner_custom");
-            }, 500);
+            }, 300);
         }
 
     },
     show: function () {
-        if (this.loading && this.wrapper && this.spin) {
+        if (this.loading && this.wrapper && this.spin && this.backdrop) {
             //this.spin.style.top = "calc(50vh - var(--scrollbar-height));"
             //this.spin.style.left = "calc(50vw - var(--scrollbar-width));"
             this.spin.style.setProperty('top', 'calc(var(--scrollbar-height))');
             this.spin.style.setProperty('left', 'calc(var(--scrollbar-width))');
             this.loading.classList.add('loading_spinner_custom');
+            this.backdrop.classList.add('loading-backdrop');
             this.wrapper.classList.add('content_loading_opacity');
             this.spin.classList.add('show_loading');
         } else {
@@ -54,6 +62,10 @@ const Loading = {
         this.spin = document.createElement('div');
         this.spin.classList.add("spin_custom");
         this.loading.appendChild(this.spin);
+
+        this.backdrop = document.createElement('div');
+        this.backdrop.classList.add("loading-backdrop");
+        this.loading.appendChild(this.backdrop);
 
         this.wrapper = this.loading.querySelector('.main-container-load');
 

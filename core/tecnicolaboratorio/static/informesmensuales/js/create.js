@@ -118,12 +118,6 @@ $(function () {
         }
     });
 
-    //activar plugin select2 a los select del formulario
-    $('.select2').select2({
-        'theme': 'bootstrap4',
-        'language': 'es'
-    });
-
     $('input[name=search]').focus().autocomplete({
         source: function (request, response) {
             let code_lab = informe.data.laboratorio
@@ -141,7 +135,6 @@ $(function () {
                 'code_lab': code_lab
             }
             get_list_data_ajax('/sustancias/', data, function (res_data) {
-                console.log(res_data);
                 response(res_data);
             });
         },
@@ -173,7 +166,35 @@ $(function () {
     $('select[name=laboratorio]').on('change.select2', function (e) {
         let data_select = $(this).select2('data');
         informe.update_laboratorio_seleted(data_select[0]);
+    }).select2({
+        'theme': 'bootstrap4',
+        'language': 'es'
     });
+
+
+    let year_act = moment().year();
+
+    $('input[name=year]').on('change', function (evt) {
+        get_list_data_ajax('/informes-mensuales/', {'action': 'search_months_dsp', 'year': $(this).val()}
+            , function (response) {
+                $('select[name=mes]').html('').select2({
+                    'theme': 'bootstrap4',
+                    'language': 'es',
+                    'data': response
+                });
+            }, function (error) {
+                console.log(error)
+            });
+    }).TouchSpin({
+        'verticalbuttons': true,
+        'min': year_act - 1,
+        'max': year_act + 1,
+        'step': 1,
+        'verticalupclass': 'glyphicon glyphicon-plus',
+        'verticaldownclass': 'glyphicon glyphicon-minus'
+    });
+
+    $('input[name=year]').trigger("change");
 
     function updateRowsCallback(row, data, dataIndex) {
 
