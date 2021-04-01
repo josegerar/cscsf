@@ -24,7 +24,7 @@ const informe = {
     },
     delete_sustancia: function (index) {
         this.data.sustancias.splice(index, 1);
-        this.list_sustancia();
+        this.list_sustancias();
     },
     delete_all_sustancias: function () {
         if (this.data.sustancias.length === 0) return false;
@@ -33,7 +33,7 @@ const informe = {
             '¿Esta seguro de eliminar todas las sustancias del detalle?',
             function () {
                 informe.data.sustancias = [];
-                informe.list_sustancia();
+                informe.list_sustancias();
             }
         );
     },
