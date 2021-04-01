@@ -7,12 +7,12 @@ $(function () {
         let act = parameters.get("passact");
         let nueva = parameters.get("pass")
         let nueva2 = parameters.get("pass2")
-        if (act == nueva) {
-            message_info("La nueva contraseña debe ser diferente a la actual");
-            return false
-        }
         if (nueva !== nueva2) {
             message_info("La contraseña nueva de confirmación es diferente a la contraseña nueva");
+            return false
+        }
+        if (act === nueva) {
+            message_info("La nueva contraseña debe ser diferente a la actual");
             return false
         }
         disableEnableForm(form, true);

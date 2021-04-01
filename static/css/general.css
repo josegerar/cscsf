@@ -9,3 +9,16 @@
 table.dataTable tbody tr.selected {
     background-color: #B0BED9;
 }
+
+.help {
+    font-size: 11px;
+    color: #999;
+}
+
+.help ul li {
+    display: block;
+}
+
+.help ul {
+    padding-inline-start: unset;
+}

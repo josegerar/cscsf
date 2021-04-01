@@ -1,16 +1,26 @@
 function message_error(obj) {
+    let title = "¡Error!"
+    try {
+        if (typeof obj === "string") {
+            let myObject = (0, eval)('(' + obj + ')');
+            if (myObject) obj = myObject;
+        }
+    } catch (e) {
+        console.log(e);
+    }
     let html = '';
     if (typeof (obj) === 'object') {
-        html = '<ul style="text-align: left;">';
+        title = "¡Errores!"
+        html = '<ul style="text-align: left; padding-inline-start: unset;">';
         $.each(obj, function (key, value) {
-            html += '<li>' + key + ': ' + value + '</li>';
+            html += '<li style="display: block;">' + (key + 1) + ': ' + value + '</li>';
         });
         html += '</ul>';
     } else {
         html = '<p>' + obj + '</p>';
     }
     Swal.fire({
-        'title': '¡Error!',
+        'title': title,
         'html': html,
         'icon': 'error'
     });

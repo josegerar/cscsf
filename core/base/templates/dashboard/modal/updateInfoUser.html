@@ -1,0 +1,84 @@
+{% load custom_filters %}
+
+<div id="modalUpdateInfo" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="frmUpdateInfo" method="post" action="." autocomplete="off">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_info_user"/>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Actualizacion de información</h5>
+                    <button rel="btnCancel" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div style="display: flex">
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+                            <label for="id_nombre">Nombres:</label>
+                        </div>
+
+                        <input type="text" name="nombre" placeholder="Ingrese los nombres" class="form-control"
+                               autocomplete="off" maxlength="100" required="" id="id_nombre"
+                               value="{{ request.user.persona|view_prop:"nombre" }}">
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex">
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+                            <label for="id_apellido">Apellidos:</label>
+                        </div>
+                        <input type="text" name="apellido" placeholder="Ingrese los apellidos" class="form-control"
+                               autocomplete="off" maxlength="100" required="" id="id_apellido"
+                               value="{{ request.user.persona|view_prop:"apellido" }}">
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex">
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+                            <label for="id_cedula">Cedula:</label>
+                        </div>
+                        <input type="text" name="cedula" placeholder="Ingrese el numero de cedula" minlength="10"
+                               onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57"
+                               class="form-control" autocomplete="off" maxlength="10" required="" id="id_cedula"
+                               value="{{ request.user.persona|view_prop:"cedula" }}">
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex">
+                            <label for="id_telefono">Telefono:</label>
+                        </div>
+                        <input type="text" name="telefono" placeholder="Ingrese el numero de telefono" minlength="10"
+                               onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57"
+                               class="form-control" autocomplete="off" maxlength="10" id="id_telefono"
+                               value="{{ request.user.persona|view_prop:"telefono" }}">
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-10">
+                                <div style="display: flex">
+                                    <label for="id_imagen">Imagen:</label>
+                                </div>
+                                <input type="file" name="imagen" accept="image/*" class=" form-control" id="id_imagen">
+                            </div>
+                            <div class="col-2">
+                                <img style="width: 100%; height: 100%" id="imagenPrevisualizacion"
+                                     src="{{ request.user.persona|get_url_image:"imagen" }}" alt=""/>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button rel="btnChangePass" type="submit" class="btn btn-primary">Actualizar información</button>
+                    <button rel="btnCancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

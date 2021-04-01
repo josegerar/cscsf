@@ -40,6 +40,7 @@ class ValidatePermissionRequiredMixin(object):
                     if request.user.persona.is_info_update:
                         return super().dispatch(request, *args, **kwargs)
                 messages.error(request, 'No ha actualizado su información')
+                return HttpResponseRedirect(reverse_lazy('dashboard'))
             else:
                 messages.error(request, 'No tiene permiso de ingresar al sistema, cambie su contraseña inicial')
         else:

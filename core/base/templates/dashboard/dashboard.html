@@ -18,7 +18,8 @@
     {% elif request.user.is_laboratory_worker %}
         {% include 'hometl.html' %}
     {% endif %}
-    {% include 'modal/changePassword.html' %}
+    {% include 'dashboard/modal/changePassword.html' %}
+    {% include 'dashboard/modal/updateInfoUser.html' %}
     {% if request.user.is_pass_update is False %}
         <script>
             $(function () {
@@ -29,8 +30,21 @@
                 });
             });
         </script>
+    {% else %}
+        {% if request.user.persona is None or request.user.persona.is_info_update is False %}
+            <script>
+                $(function () {
+                    $('#modalUpdateInfo').find('button[rel=btnCancel]').remove();
+                    $('#modalUpdateInfo').modal({
+                        backdrop: 'static',
+                        show: true
+                    });
+                });
+            </script>
+        {% endif %}
     {% endif %}
 {% endblock %}
 {% block script %}
-<script src="{% static 'dashboad/changePassword.js' %}"></script>
+    <script src="{% static 'dashboard/changePassword.js' %}"></script>
+    <script src="{% static 'dashboard/updateInfoUser.js' %}"></script>
 {% endblock %}
