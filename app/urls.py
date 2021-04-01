@@ -20,7 +20,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from core.base.views import DashBoard
-from core.homepage.views import list_view, list_view1, list_view2
 
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin"),
@@ -29,9 +28,6 @@ urlpatterns = [
     path('', include("core.bodega.urls")),
     path('', include('core.login.urls')),
     path('dashboard/', DashBoard.as_view(), name="dashboard"),
-    path('prueba-correo/', list_view),
-    path('change-correo/', list_view1),
-    path('confirm-correo/', list_view2)
 ]
 
 if settings.DEBUG:

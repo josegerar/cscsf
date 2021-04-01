@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # apps
-    'core.homepage.apps.HomepageConfig',
     'core.bodega.apps.BodegaConfig',
     'core.representantetecnico.apps.RepresentantetecnicoConfig',
     'core.tecnicolaboratorio.apps.TecnicolaboratorioConfig',
