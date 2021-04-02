@@ -1,5 +1,5 @@
 $(function () {
-    const $seleccionArchivos = document.querySelector("#id_imagen"),
+    const $seleccionArchivos = document.querySelector("#id_imagen2"),
         $imagenPrevisualizacion = document.querySelector("#imagenPrevisualizacion");
 
     // Escuchar cuando cambie

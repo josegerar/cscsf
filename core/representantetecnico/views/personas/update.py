@@ -10,7 +10,7 @@ from core.representantetecnico.models import Persona
 
 
 class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
-    permission_required = ('representantetecnico.change_persona',)
+    permission_required = ('login.change_persona',)
     model = Persona
     form_class = PersonaForm
     template_name = 'personas/create.html'
@@ -23,7 +23,6 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Actualizar personas"
         context['icontitle'] = "edit"
         context['url_list'] = self.success_url

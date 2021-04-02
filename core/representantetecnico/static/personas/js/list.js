@@ -11,7 +11,6 @@ $(function () {
             {'data': 'apellido'},
             {'data': 'cedula'},
             {'data': 'tipo'}
-
         ],
         'columnDefs': [
             {

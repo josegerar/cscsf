@@ -5,6 +5,7 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
+from core.login.models import User
 from core.representantetecnico.models import Persona
 
 
@@ -13,28 +14,37 @@ class PersonaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
     model = Persona
     template_name = "personas/list.html"
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         data = {}
         try:
-            action = request.POST['action']
-            if action == 'searchdata':
-                data = []
-                for i in Persona.objects.all():
-                    data.append(i.toJSON())
-            else:
-                data['error'] = 'Ha ocurrido un error'
+            action = request.GET.get('action')
+            if action is not None:
+                if action == 'searchdata':
+                    data = []
+                    type_data = request.GET.get('type')
+                    id_data = request.GET.get('id')
+                    if type_data == 'lab':
+                        query = Persona.objects.filter(user_creation_id=request.user.id)
+                    else:
+                        query = Persona.objects.all()
+                    for per in query:
+                        item = {'id': per.id, 'nombre': per.nombre, 'apellido': per.apellido, 'cedula': per.cedula,
+                                'is_del': True}
+                        if User.objects.filter(persona_id=per.id).exists():
+                            item["is_del"] = False
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
         except Exception as e:
-            data["error"] = str(e)
-        return JsonResponse(data, safe=False)
+            data['error'] = str(e)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
-        context['title'] = "Personas"
+        context['title'] = "Investigadores / Docentes"
         context['icontitle'] = "user-friends"
         context['create_url'] = reverse_lazy('rp:registropersonas')
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
-            {"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"}
+            {"uridj": reverse_lazy('rp:personas'), "uriname": "Investigadores"}
         ]
         return context

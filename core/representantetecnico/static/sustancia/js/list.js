@@ -98,7 +98,7 @@ $(function () {
         update_datatable(tblistado, window.location.pathname, data);
     });
 
-    function update_cantiad_total(stock = []) {
+    function update_cantiad_total_stock(stock = []) {
         setTimeout(() => {
             let cantidad = 0;
             $.each(stock, function (index, item) {

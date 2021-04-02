@@ -49,77 +49,78 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                         persona = form.instance
                         if persona is not None:
                             with transaction.atomic():
-                                usuarios = json.loads(request.POST['usuarios'])
-                                is_valid_new_users = Persona.validate_new_users(users=usuarios)
-                                if is_valid_new_users is False:
-                                    raise Exception(
-                                        'Ocurrio un error al crear un usuario, '
-                                        'por favor verifique la información a registrar del usuario'
-                                    )
-                                template_email = get_template("correo/correo.html")
-                                mails_sending = []
-                                connection = mail.get_connection()
-                                connection.open()
                                 persona.save()
-                                for user_item in usuarios:
-                                    username = persona.get_username(key="")
-                                    rol_selected = user_item["rol_selected"]
-                                    estado_selected = user_item["estado_selected"]
-                                    if username is None:
+                                if request.user.is_representative:
+                                    usuarios = json.loads(request.POST['usuarios'])
+                                    is_valid_new_users = Persona.validate_new_users(users=usuarios)
+                                    if is_valid_new_users is False:
                                         raise Exception(
                                             'Ocurrio un error al crear un usuario, '
-                                            'por favor verifique la información a registrar'
+                                            'por favor verifique la información a registrar del usuario'
                                         )
-                                    email_verified = User.validate_domain_email(user_item["email"])
-                                    if email_verified is None:
+                                    template_email = get_template("correo/correo.html")
+                                    mails_sending = []
+                                    connection = mail.get_connection()
+                                    connection.open()
+                                    for user_item in usuarios:
+                                        username = persona.get_username(key="")
+                                        rol_selected = user_item["rol_selected"]
+                                        estado_selected = user_item["estado_selected"]
+                                        if username is None:
+                                            raise Exception(
+                                                'Ocurrio un error al crear un usuario, '
+                                                'por favor verifique la información a registrar'
+                                            )
+                                        email_verified = User.validate_domain_email(user_item["email"])
+                                        if email_verified is None:
+                                            raise Exception(
+                                                'Ocurrio un error al crear un usuario, '
+                                                'correo electronico {} no valido'.format(user_item["email"])
+                                            )
+                                        email_person = User.verify_email_person(email_verified, persona.id)
+                                        if email_person is False:
+                                            raise Exception(
+                                                'Ocurrio un error al crear un usuario, '
+                                                'correo electronico {} ya utilizado por otro usuario'.format(
+                                                    user_item["email"])
+                                            )
+                                        new_user = User.objects.create_user(username=username, email=email_verified,
+                                                                            password=persona.cedula)
+                                        new_user.persona_id = persona.id
+                                        if estado_selected["value"] == "habilitado":
+                                            new_user.is_active = True
+                                        else:
+                                            new_user.is_active = False
+
+                                        if rol_selected["value"] == "representante":
+                                            new_user.is_representative = True
+                                        elif rol_selected["value"] == "laboratorista":
+                                            new_user.is_laboratory_worker = True
+                                        elif rol_selected["value"] == "bodeguero":
+                                            new_user.is_grocer = True
+
+                                        context_email = {"name": "{} {}".format(persona.nombre, persona.apellido),
+                                                         "username": new_user.username,
+                                                         "email": new_user.email,
+                                                         "urllogin": request.build_absolute_uri("/"),
+                                                         "logo": request.build_absolute_uri(
+                                                             static('img/uteq/logoUTEQoriginal1.png'))}
+                                        content_email = template_email.render(context_email)
+                                        email_send = mail.EmailMultiAlternatives(
+                                            "Nuevo usuario",
+                                            "Unidad de control de sustancias catalogadas, sujetas a fizcalización",
+                                            EMAIL_HOST_USER,
+                                            [email_verified]
+                                        )
+                                        email_send.attach_alternative(content_email, "text/html")
+                                        mails_sending.append(email_send)
+                                        new_user.save()
+                                    res_messages_email = connection.send_messages(mails_sending)
+                                    if res_messages_email != 1:
                                         raise Exception(
-                                            'Ocurrio un error al crear un usuario, '
+                                            'Ocurrio un error al intentar verificar un correo electronico, '
                                             'correo electronico {} no valido'.format(user_item["email"])
                                         )
-                                    email_person = User.verify_email_person(email_verified, persona.id)
-                                    if email_person is False:
-                                        raise Exception(
-                                            'Ocurrio un error al crear un usuario, '
-                                            'correo electronico {} ya utilizado por otro usuario'.format(
-                                                user_item["email"])
-                                        )
-                                    new_user = User.objects.create_user(username=username, email=email_verified,
-                                                                        password=persona.cedula)
-                                    new_user.persona_id = persona.id
-                                    if estado_selected["value"] == "habilitado":
-                                        new_user.is_active = True
-                                    else:
-                                        new_user.is_active = False
-
-                                    if rol_selected["value"] == "representante":
-                                        new_user.is_representative = True
-                                    elif rol_selected["value"] == "laboratorista":
-                                        new_user.is_laboratory_worker = True
-                                    elif rol_selected["value"] == "bodeguero":
-                                        new_user.is_grocer = True
-
-                                    context_email = {"name": "{} {}".format(persona.nombre, persona.apellido),
-                                                     "username": new_user.username,
-                                                     "email": new_user.email,
-                                                     "urllogin": request.build_absolute_uri("/"),
-                                                     "logo": request.build_absolute_uri(
-                                                         static('img/uteq/logoUTEQoriginal1.png'))}
-                                    content_email = template_email.render(context_email)
-                                    email_send = mail.EmailMultiAlternatives(
-                                        "Nuevo usuario",
-                                        "Unidad de control de sustancias catalogadas, sujetas a fizcalización",
-                                        EMAIL_HOST_USER,
-                                        [email_verified]
-                                    )
-                                    email_send.attach_alternative(content_email, "text/html")
-                                    mails_sending.append(email_send)
-                                    new_user.save()
-                                res_messages_email = connection.send_messages(mails_sending)
-                                if res_messages_email != 1:
-                                    raise Exception(
-                                        'Ocurrio un error al intentar verificar un correo electronico, '
-                                        'correo electronico {} no valido'.format(user_item["email"])
-                                    )
                         else:
                             data['error'] = 'Ha ocurrido un error'
                     else:

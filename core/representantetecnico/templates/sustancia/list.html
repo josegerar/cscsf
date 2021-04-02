@@ -2,86 +2,74 @@
 
 {% load static %}
 
-{% block content %}
-    <div class="content">
-        <div class="card card-default">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-{{ icontitle }}"></i>
-                    {{ title }}
-                </h3>
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="card card-secondary">
-                            <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-boxes"></i> Sustancias</h3>
-                            </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <table id="tblistado" class="table" style="width: 100%">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Nombre</th>
-                                        <th scope="col">Descripcion</th>
-                                        <th scope="col">Cupo autorizado</th>
-                                        <th scope="col">Unidad de medida</th>
-                                        <th scope="col">Stock</th>
-                                        <th scope="col">Opciones</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.card-body -->
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card card-secondary">
-                            <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-atom"></i>Stock de sustancia</h3>
-                            </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <div class="form-group">
-                                    <label for="id_cantidad_total">Cantidad total:</label>
-                                    <input type="text" name="cantidad_total" class="form-control" autocomplete="off"
-                                           readonly id="id_cantidad_total" value="0">
-                                </div>
-                                <table id="tbstock" class="table" style="width: 100%">
-                                    <thead>
-                                    <th scope="col">Tipo lugar</th>
-                                    <th scope="col">Nombre</th>
-                                    <th scope="col">Cantidad</th>
-                                    </thead>
-                                </table>
-                            </div>
-                            <!-- /.card-body -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- /.card-body -->
-            <div class="card-footer">
-                {% csrf_token %}
-                <a href="{{ create_url }}" class="btn btn-primary btn-flat">
-                    <i class="fas fa-plus"></i>
-                    Nuevo registro
-                </a>
-                <button id="btnSync" type="button" class="btn btn-primary btn-success">
-                    <i class="fas fa-sync"></i>
-                    Actualizar
-                </button>
-            </div>
-        </div>
-    </div>
+{% block filtrostable %}
+    <li class="nav-item">
+        <a rel="search" data-id="0" data-action="searchdata" data-type="todo" class="nav-link"
+           style="cursor: pointer">
+            <i class="far fa-list-alt"></i>
+            <p>Todo <i class="right fas fa-angle-left"></i></p>
+        </a>
+    </li>
+<li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="far fa-calendar-alt"></i>
+            <p>
+                Unidad medida
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview" style="display: none;">
+            {% for unidad in unidades %}
+                <li class="nav-item">
+                    <a rel="search" data-id="{{ unidad.id }}" data-action="searchdata" data-type="un_med"
+                       class="nav-link"
+                       style="cursor: pointer">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{ unidad.nombre }}</p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+{% endblock %}
+
+{% block contenttable %}
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Descripcion</th>
+        <th scope="col">Cupo autorizado</th>
+        <th scope="col">Unidad de medida</th>
+        <th scope="col">Stock</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Opciones</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+{% endblock %}
+
+{% block buttons_list %}
+    {% if request.user.is_representative %}
+        <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+            <i class="fas fa-plus"></i>
+            Nuevo registro
+        </a>
+    {% endif %}
+    <button id="btnSync" type="button" class="btn btn-primary btn-success">
+        <i class="fas fa-sync"></i>
+        Actualizar
+    </button>
 {% endblock %}
 
 {% block script %}
     {% include 'observacion.html' %}
-    <script src="{% static 'sustancia/js/list.js' %}"></script>
+    {% include 'sustancia/modal/verStock.html' %}
+    {% if request.user.is_representative %}
+        <script src="{% static 'sustancia/js/list.js' %}"></script>
+    {% elif request.user.is_laboratory_worker %}
+        <script src="{% static 'sustanciastl/js/list.js' %}"></script>
+    {% endif %}
 {% endblock %}

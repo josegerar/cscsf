@@ -27,7 +27,6 @@ function message_error(obj) {
 }
 
 function message_info(message = '') {
-    console.log(message)
     Swal.fire({
         'title': '¡Notificacion!',
         'html': `<p>${message}</p>`,
@@ -125,7 +124,6 @@ function update_datatable(datatable, url, data) {
         'data': data,
         'dataType': 'json'
     }).done(function (response) {
-        console.log(response)
         if (!response.hasOwnProperty('error')) {
             if (response.length > 0) {
                 Loading.hide();
@@ -318,6 +316,16 @@ function addEventListenerOpenDetailRowDatatable(tableId = "", dataTable,
 function activeSelectionRowDatatable(row, datatable) {
     datatable.$('tr.selected').removeClass('selected');
     $(row).addClass('selected');
+}
+
+function update_cantiad_total_stock(stock = [], selector_input = "") {
+    setTimeout(() => {
+        let cantidad = 0;
+        $.each(stock, function (index, item) {
+            cantidad += parseFloat(item.cantidad);
+        });
+        $(selector_input).val(cantidad.toFixed(4));
+    }, 1);
 }
 
 function verObservacion(title = "", text = "", labelInput = "") {

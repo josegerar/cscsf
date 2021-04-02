@@ -13,31 +13,33 @@
 {% endblock %}
 
 {% block detallesform %}
-    <button rel="add_user" type="button" class="btn btn-secondary btn-flat btn-block">
-        <i class="fas fa-user-plus"></i>
-        Agregar usuario
-    </button>
-    <br>
-    <table id="tbroles" class="table">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Correo</th>
-            <th scope="col">Rol</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-    <div class="alert alert-info alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-        <h5><i class="icon fas fa-info"></i> Nota!</h5>
-        Solo seran validos usuarios con correo intitucional admitidos para registro.<br>
-        No podra tener mas de un usuario por cada rol.<br>
-        Si crea mas de un usuario por persona, solo podra agregar un usuario por cada rol de sistema.
-    </div>
+    {% if request.user.is_representative %}
+        <button rel="add_user" type="button" class="btn btn-secondary btn-flat btn-block">
+            <i class="fas fa-user-plus"></i>
+            Agregar usuario
+        </button>
+        <br>
+        <table id="tbroles" class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Correo</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div class="alert alert-info alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-info"></i> Nota!</h5>
+            Solo seran validos usuarios con correo intitucional admitidos para registro.<br>
+            No podra tener mas de un usuario por cada rol.<br>
+            Si crea mas de un usuario por persona, solo podra agregar un usuario por cada rol de sistema.
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block send_form %}
@@ -48,29 +50,39 @@
                 event.preventDefault();
                 let form = this;
                 let action_save = $(event.originalEvent.submitter).attr('rel');
-                usuarios.verify_send_data(function () {
-                    let parameters = new FormData(form);
+                let parameters = new FormData(form);
+                disableEnableForm(form, true);
+                {% if request.user.is_representative %}
                     parameters.append('usuarios', JSON.stringify(usuarios.data.usuarios));
-                    disableEnableForm(form, true);
-                    submit_with_ajax(
-                        window.location.pathname, parameters
-                        , 'Confirmación'
-                        , '¿Estas seguro de realizar la siguiente acción?'
-                        , function (data) {
-                            if (action_save === 'save') location.href = '{{ url_list }}';
-                            else if (action_save === 'othersave') location.reload();
-                        }, function () {
-                            disableEnableForm(form, false);
-                        }
-                    );
-                }, function (message) {
-                    message_info(message);
-                });
+                    usuarios.verify_send_data(function () {
+                        submitForm(parameters, action_save, form);
+                    }, function (message) {
+                        message_info(message);
+                    });
+                {% elif request.user.is_laboratory_worker %}
+                    submitForm(parameters, action_save, form);
+                {% endif %}
             });
+
+            function submitForm(parameters, action_save, form) {
+                submit_with_ajax(
+                    window.location.pathname, parameters
+                    , 'Confirmación'
+                    , '¿Estas seguro de realizar la siguiente acción?'
+                    , function (data) {
+                        if (action_save === 'save') location.href = '{{ url_list }}';
+                        else if (action_save === 'othersave') location.reload();
+                    }, function () {
+                        disableEnableForm(form, false);
+                    }
+                );
+            }
         });
     </script>
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'personas/js/create.js' %}"></script>
+    {% if request.user.is_representative %}
+        <script src="{% static 'personas/js/create.js' %}"></script>
+    {% endif %}
 {% endblock %}

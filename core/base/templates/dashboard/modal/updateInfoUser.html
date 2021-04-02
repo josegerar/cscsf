@@ -18,11 +18,11 @@
                             <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
                                 <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
                             </div>
-                            <label for="id_nombre">Nombres:</label>
+                            <label for="id_nombre2">Nombres:</label>
                         </div>
 
                         <input type="text" name="nombre" placeholder="Ingrese los nombres" class="form-control"
-                               autocomplete="off" maxlength="100" required="" id="id_nombre"
+                               autocomplete="off" maxlength="100" required="" id="id_nombre2"
                                value="{{ request.user.persona|view_prop:"nombre" }}">
                     </div>
                     <div class="form-group">
@@ -30,10 +30,10 @@
                             <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
                                 <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
                             </div>
-                            <label for="id_apellido">Apellidos:</label>
+                            <label for="id_apellido2">Apellidos:</label>
                         </div>
                         <input type="text" name="apellido" placeholder="Ingrese los apellidos" class="form-control"
-                               autocomplete="off" maxlength="100" required="" id="id_apellido"
+                               autocomplete="off" maxlength="100" required="" id="id_apellido2"
                                value="{{ request.user.persona|view_prop:"apellido" }}">
                     </div>
                     <div class="form-group">
@@ -41,29 +41,29 @@
                             <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
                                 <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
                             </div>
-                            <label for="id_cedula">Cedula:</label>
+                            <label for="id_cedula2">Cedula:</label>
                         </div>
                         <input type="text" name="cedula" placeholder="Ingrese el numero de cedula" minlength="10"
                                onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57"
-                               class="form-control" autocomplete="off" maxlength="10" required="" id="id_cedula"
+                               class="form-control" autocomplete="off" maxlength="10" required="" id="id_cedula2"
                                value="{{ request.user.persona|view_prop:"cedula" }}">
                     </div>
                     <div class="form-group">
                         <div style="display: flex">
-                            <label for="id_telefono">Telefono:</label>
+                            <label for="id_telefono2">Telefono:</label>
                         </div>
                         <input type="text" name="telefono" placeholder="Ingrese el numero de telefono" minlength="10"
                                onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57"
-                               class="form-control" autocomplete="off" maxlength="10" id="id_telefono"
+                               class="form-control" autocomplete="off" maxlength="10" id="id_telefono2"
                                value="{{ request.user.persona|view_prop:"telefono" }}">
                     </div>
                     <div class="form-group">
                         <div class="row">
                             <div class="col-10">
                                 <div style="display: flex">
-                                    <label for="id_imagen">Imagen:</label>
+                                    <label for="id_imagen2">Imagen:</label>
                                 </div>
-                                <input type="file" name="imagen" accept="image/*" class=" form-control" id="id_imagen">
+                                <input type="file" name="imagen" accept="image/*" class=" form-control" id="id_imagen2">
                             </div>
                             <div class="col-2">
                                 <img style="width: 100%; height: 100%" id="imagenPrevisualizacion"

@@ -25,10 +25,9 @@
                     <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                         <li><a href="{% url 'tl:solicitudes' %}" class="dropdown-item">Solicitudes</a></li>
                         <li><a href="{% url 'tl:informesmensuales' %}" class="dropdown-item">Informes mensuales</a></li>
+                        <li><a href="{% url 'rp:sustancias' %}" class="dropdown-item">Stock de sustancias</a></li>
+                        <li><a href="{% url 'rp:personas' %}" class="dropdown-item">Investigadores</a></li>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'rp:sustancias' %}" class="nav-link">Stock</a>
                 </li>
 
                 <li class="nav-item dropdown">
@@ -39,6 +38,7 @@
                             sustancia</a></li>
                         <li><a href="{% url 'tl:registroinformesmensuales' %}" class="dropdown-item">Informes
                             mensuales</a></li>
+                        <li><a href="{% url 'rp:registropersonas' %}" class="dropdown-item">Investigadores</a></li>
                     </ul>
                 </li>
             </ul>

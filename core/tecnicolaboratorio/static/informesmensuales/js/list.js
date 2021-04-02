@@ -1,5 +1,4 @@
 $(function () {
-    const data = {'action': 'searchdata'}
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
@@ -118,16 +117,18 @@ $(function () {
         ]
     });
 
-    get_list_data_ajax_loading(window.location.pathname, data, function (response) {
-        tblistado.clear();
-        tblistado.rows.add(response).draw();
-    });
-
-    active_events_filters(['id', 'action', 'type'], function (data) {
-        get_list_data_ajax_loading(window.location.pathname, data, function (response) {
+    get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}
+        , function (response) {
             tblistado.clear();
             tblistado.rows.add(response).draw();
         });
+
+    active_events_filters(['id', 'action', 'type'], function (data) {
+        get_list_data_ajax_loading(window.location.pathname, data
+            , function (response) {
+                tblistado.clear();
+                tblistado.rows.add(response).draw();
+            });
     });
 
     $("#frmverdetalles").find('button[rel=btnSync]').on('click', function (evt) {
@@ -153,10 +154,11 @@ $(function () {
                 , `¿Estas seguro de realizar la siguiente acción? Una vez archivado, 
                 ya no podra realizar operaciones de edicción o eliminación del informe`
                 , function (data) {
-                    get_list_data_ajax_loading(window.location.pathname, data, function (response) {
-                        tblistado.clear();
-                        tblistado.rows.add(response).draw();
-                    });
+                    get_list_data_ajax_loading(window.location.pathname, data
+                        , function (response) {
+                            tblistado.clear();
+                            tblistado.rows.add(response).draw();
+                        });
                 }, function () {
                     disableEnableForm(form, false);
                 }
