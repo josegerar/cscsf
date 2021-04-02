@@ -18,8 +18,6 @@
     {% elif request.user.is_laboratory_worker %}
         {% include 'hometl.html' %}
     {% endif %}
-    {% include 'dashboard/modal/changePassword.html' %}
-    {% include 'dashboard/modal/updateInfoUser.html' %}
     {% if request.user.is_pass_update is False %}
         <script>
             $(function () {
@@ -43,8 +41,4 @@
             </script>
         {% endif %}
     {% endif %}
-{% endblock %}
-{% block script %}
-    <script src="{% static 'dashboard/changePassword.js' %}"></script>
-    <script src="{% static 'dashboard/updateInfoUser.js' %}"></script>
 {% endblock %}

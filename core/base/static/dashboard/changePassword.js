@@ -17,7 +17,7 @@ $(function () {
         }
         disableEnableForm(form, true);
         submit_with_ajax(
-            window.location.pathname, parameters
+            '/dashboard/', parameters
             , 'Confirmación'
             , '¿Estas seguro de realizar la siguiente acción?'
             , function (data) {
@@ -33,7 +33,7 @@ $(function () {
         parameters.append("action", "sendCodeConfirm");
         parameters.append("csrfmiddlewaretoken", getCookie("csrftoken"));
         submit_with_ajax(
-            window.location.pathname, parameters
+            '/dashboard/', parameters
             , 'Confirmación'
             , '¿Estas seguro de realizar la siguiente acción?'
             , function (data) {

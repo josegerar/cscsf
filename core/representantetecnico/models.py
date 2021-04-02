@@ -91,6 +91,11 @@ class Solicitud(BaseModel):
             return '{}{}'.format(MEDIA_URL, self.documento_solicitud)
         return ''
 
+    def get_fecha_autorizacion(self):
+        if self.fecha_autorizacion is not None:
+            self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
+        return ''
+
     class Meta:
         verbose_name = "Solicitud"
         verbose_name_plural = "Solicitudes"

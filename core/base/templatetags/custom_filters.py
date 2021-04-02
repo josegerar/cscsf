@@ -9,7 +9,8 @@ register = template.Library()
 def view_prop(value, arg):
     if value is not None:
         strresult = getattr(value, arg)
-        return strresult
+        if strresult is not None:
+            return strresult
     return ""
 
 

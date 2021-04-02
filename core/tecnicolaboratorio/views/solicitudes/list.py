@@ -12,6 +12,7 @@ from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import TipoMovimientoInventario, Stock, Inventario
 from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -24,11 +25,7 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
         try:
             action = request.POST.get('action')
             if action is not None:
-                if action == 'searchdata':
-                    data = []
-                    for i in Solicitud.objects.all():
-                        data.append(i.toJSON())
-                elif action == 'revisionSolicitud':
+                if action == 'revisionSolicitud':
                     idsolicitud = request.POST.get('id')
                     tipoobs = request.POST.get("tipoobs")
                     if idsolicitud is not None and tipoobs is not None:
@@ -186,6 +183,40 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                                              i.solicitud.responsable_actividad.apellido)}
                         data.append(item)
                     return JsonResponse(data, safe=False)
+                elif action == 'searchdata':
+                    data = []
+                    type_data = request.GET.get('type')
+                    id_data = request.GET.get('id')
+                    if type_data == 'lab':
+                        query = Solicitud.objects.all().filter(laboratorio_id=id_data)
+                    elif type_data == 'est':
+                        query = Solicitud.objects.all().filter(estado_solicitud_id=id_data)
+                    else:
+                        query = Solicitud.objects.all()
+                    for i in query:
+                        item = {
+                            'id': i.id,
+                            'laboratorio': i.laboratorio.nombre,
+                            'nombre_actividad': i.nombre_actividad,
+                            'documento': i.get_doc_solicitud(),
+                            'fecha_autorizacion': i.get_fecha_autorizacion(),
+                            'estado': i.estado_solicitud.estado,
+                            'obs_bd': i.observacion_bodega,
+                            'obs_rp': i.observacion_representante
+                        }
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
+                elif action == 'search_detalle':
+                    data = []
+                    id_sl = request.GET.get('id_sl')
+                    for i in SolicitudDetalle.objects.filter(solicitud_id=id_sl):
+                        data.append({
+                            'sustancia': i.stock.sustancia.nombre,
+                            'cant_sol': i.cantidad_solicitada,
+                            'cant_ent': i.cantidad_entregada,
+                            'cant_con': i.cantidad_consumida
+                        })
+                    return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)
         return super().get(request, *args, **kwargs)
@@ -194,6 +225,8 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
         context = super().get_context_data(**kwargs)
         context['title'] = "Solicitudes registradas"
         context['icontitle'] = "store-alt"
+        context['laboratorios'] = Laboratorio.objects.all()
+        context['estados'] = EstadoTransaccion.objects.all()
         context['create_url'] = reverse_lazy('tl:registrosolicitud')
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},

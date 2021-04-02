@@ -8,7 +8,54 @@
 {% endblock %}
 
 {% block filtrostable %}
-
+    <li class="nav-item">
+        <a rel="search" data-id="0" data-action="searchdata" data-type="todo" class="nav-link"
+           style="cursor: pointer">
+            <i class="far fa-list-alt"></i>
+            <p>Todo <i class="right fas fa-angle-left"></i></p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-building"></i>
+            <p>
+                Laboratorio
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview" style="display: none;">
+            {% for laboratorio in laboratorios %}
+                <li class="nav-item">
+                    <a rel="search" data-id="{{ laboratorio.id }}" data-action="searchdata" data-type="lab"
+                       class="nav-link"
+                       style="cursor: pointer">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{ laboratorio.nombre }}</p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="fas fa-unlock-alt"></i>
+            <p>
+                Estados
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview" style="display: none;">
+            {% for estado in estados %}
+                <li class="nav-item">
+                    <a rel="search" data-id="{{ estado.id }}" data-action="searchdata" data-type="est" class="nav-link"
+                       style="cursor: pointer">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{ estado.estado }}</p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
 {% endblock %}
 
 {% block contenttable %}

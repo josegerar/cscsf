@@ -86,7 +86,7 @@ class DashBoard(LoginRequiredMixin, IsUserUCSCSF, TemplateView):
                     with transaction.atomic():
                         user = request.user
                         persona_form = PersonaForm(request.POST, request.FILES, instance=user.persona)
-                        if persona_form is not None:
+                        if persona_form.is_valid():
                             persona = persona_form.instance
                             persona.is_info_update = True
                             persona.save()
@@ -94,9 +94,7 @@ class DashBoard(LoginRequiredMixin, IsUserUCSCSF, TemplateView):
                                 user.persona_id = persona.id
                                 user.save()
                         else:
-                            raise Exception(
-                                "Ha ocurrido un error al leer los datos, por favor vuelva a ejecutar la operación"
-                            )
+                            data['error'] = persona_form.errors
                 else:
                     data['error'] = 'Datos incorrectos'
             else:

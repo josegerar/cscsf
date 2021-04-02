@@ -84,7 +84,8 @@
         </div>
         <!-- /.content-wrapper -->
         <!-- /.content -->
-
+        {% include 'dashboard/modal/changePassword.html' %}
+        {% include 'dashboard/modal/updateInfoUser.html' %}
     </div>
     <!-- /.footer -->
     {% include 'footer.html' %}
@@ -92,7 +93,9 @@
     {% block script %}
 
     {% endblock %}
-
+    <script type="application/javascript" src="{% static 'js/general.js' %}"></script>
+    <script src="{% static 'dashboard/changePassword.js' %}"></script>
+    <script src="{% static 'dashboard/updateInfoUser.js' %}"></script>
     <script type="application/javascript">
         {% if messages %}
             let html_messages = '<p>';

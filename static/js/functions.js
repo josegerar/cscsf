@@ -358,6 +358,19 @@ function get_list_data_ajax(url = "", data = {}, callback, error_call) {
     });
 }
 
+function active_events_filters(params = [], callback) {
+    $('ul[rel=lista_filtros]').find('a[rel=search]').on('click', function (evt) {
+        let filter = this;
+        $('ul[rel=lista_filtros]').find('a[rel=search]').removeClass("active");
+        $(filter).addClass("active");
+        let data_call = {}
+        $.each(params, function (index, value) {
+            data_call[value] = $(filter).data(value);
+        });
+        callback(data_call);
+    });
+}
+
 function util() {
     // $('#tblistado tbody')
     //     .on('click', 'a[rel=viewstocksubstance]', function () {

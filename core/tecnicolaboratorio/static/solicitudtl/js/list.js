@@ -1,5 +1,4 @@
 $(function () {
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
@@ -12,8 +11,8 @@ $(function () {
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
             {'data': 'documento'},
-            {'data': 'id'},
-            {'data': 'estado_solicitud'},
+            {'data': 'fecha_autorizacion'},
+            {'data': 'estado'},
             {'data': 'id'},
             {'data': 'id'}
         ],
@@ -26,25 +25,17 @@ $(function () {
                 }
             },
             {
-                'targets': [4],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    if (row.hasOwnProperty("fecha_autorizacion")) return row.fecha_autorizacion;
-                    else return "No autorizado";
-                }
-            },
-            {
                 'targets': [5],
                 'render': function (data, type, row) {
-                    if (data.estado === 'registrado') {
+                    if (data === 'registrado') {
                         return "Registrado"
-                    } else if (data.estado === 'aprobado') {
+                    } else if (data === 'aprobado') {
                         return "Aprobado"
-                    } else if (data.estado === 'entregado') {
+                    } else if (data === 'entregado') {
                         return '<button rel="recibir_solicitud" class="btn btn-success" >Recibir</button>'
-                    } else if (data.estado === 'revision') {
+                    } else if (data === 'revision') {
                         return '<label class="btn-danger">Revisión</label>'
-                    } else if (data.estado === "recibido") {
+                    } else if (data === "recibido") {
                         return "Recibido";
                     } else {
                         return ""
@@ -61,12 +52,8 @@ $(function () {
                 'targets': [7],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    if (row.estado_solicitud) {
-                        if (row.estado_solicitud.estado === "entregado") {
-                            return "Recibida";
-                        } else if (row.estado_solicitud.estado === "aprobado") {
-                            return "Aprobado";
-                        } else if (row.estado_solicitud.estado === "revision" || row.estado_solicitud.estado === "registrado") {
+                    if (row.estado) {
+                        if (row.estado === "revision" || row.estado === "registrado") {
                             let buttons = '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
                             buttons += '<a href="/solicitudes/delete/' + row.id + '/" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
                             return buttons;
@@ -92,8 +79,7 @@ $(function () {
         'columns': [
             {'data': 'observacion'}
         ]
-    });
-
+    })
     const tbdetalles = $('#tbdetallesolicitud').DataTable({
         'responsive': true,
         'autoWidth': false,
@@ -103,16 +89,27 @@ $(function () {
         'ordering': false,
         "info": false,
         'columns': [
-            {'data': 'stock.sustancia.nombre'},
-            {'data': 'cantidad_solicitada'},
-            {'data': 'cantidad_entregada'}
+            {'data': 'sustancia'},
+            {'data': 'cant_sol'},
+            {'data': 'cant_ent'},
+            {'data': 'cant_con'}
         ]
     });
 
-    update_datatable(tblistado, window.location.pathname, data);
+    get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
+        if (response.length > 0) {
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
+        }
+    });
 
     $('#btnSync').on('click', function (event) {
-        update_datatable(tblistado, window.location.pathname, data);
+        get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
+            if (response.length > 0) {
+                tblistado.clear();
+                tblistado.rows.add(response).draw();
+            }
+        });
     });
 
     // Add event listener for opening and closing details
@@ -137,15 +134,27 @@ $(function () {
     }
 
     function llenarModalDetalles(data = {}) {
-        let observaciones = [];
-        if (data.observacion_bodega) observaciones.push({'observacion': data.observacion_bodega});
-        if (data.observacion_representante) observaciones.push({'observacion': data.observacion_representante});
-        tbobservaciones.clear();
-        tbobservaciones.rows.add(observaciones).draw();
-        tbdetalles.clear();
-        tbdetalles.rows.add(data.detallesolicitud).draw();
-        $('#modalDetalleSolicitud').modal('show');
+        get_list_data_ajax_loading(window.location.pathname, {'action': 'search_detalle', 'id_sl': data.id}
+            , function (response) {
+                let observaciones = [];
+                if (data.obs_bd) observaciones.push({'observacion': data.obs_bd});
+                if (data.obs_rp) observaciones.push({'observacion': data.obs_rp});
+                tbobservaciones.clear();
+                tbobservaciones.rows.add(observaciones).draw();
+                if (response.length > 0) {
+                    tbdetalles.clear();
+                    tbdetalles.rows.add(response).draw();
+                }
+                $('#modalDetalleSolicitud').modal('show');
+            });
     }
+
+    active_events_filters(['id', 'action', 'type'], function (data) {
+        get_list_data_ajax_loading(window.location.pathname, data, function (response) {
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
+        });
+    });
 
     $('#frmDetalleSolicitud').on('submit', function (event) {
         event.preventDefault();

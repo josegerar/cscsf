@@ -1,0 +1,31 @@
+{% load custom_filters %}
+
+<!-- Right navbar links -->
+<ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
+    <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+            <img class="brand-image img-circle elevation-3"
+                                     src="{{ request.user.persona|get_url_image:"imagen" }}" alt=""/>
+            {{ request.user.username }}
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <span class="dropdown-header">
+                {{ request.user.persona|view_prop:"nombre" }}
+                {{ request.user.persona|view_prop:"apellido" }}
+            </span>
+            <div class="dropdown-divider"></div>
+            <a rel="view_information_user" class="dropdown-item" style="cursor: pointer">
+                <i class="fas fa-user"></i> Ver información
+            </a>
+            <div class="dropdown-divider"></div>
+            <a rel="change_password_user" class="dropdown-item" style="cursor: pointer">
+                <i class="fas fa-lock"></i> Cambiar contraseña
+            </a>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'session:logout' %}">
+            <i class="fas fa-power-off"></i>
+        </a>
+    </li>
+</ul>

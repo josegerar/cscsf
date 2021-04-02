@@ -2,18 +2,60 @@
 
 {% load static %}
 
-{% block header %}
-    {% include 'header.html' %}
-    {% include 'informesmensuales/modal/verdetalles.html' %}
-    {% include 'informesmensuales/modal/verdesglose.html' %}
-{% endblock %}
-
 {% block head_list %}
 
 {% endblock %}
 
 {% block filtrostable %}
-
+    <li class="nav-item">
+        <a rel="search" data-id="0" data-action="searchdata" data-type="todo" class="nav-link"
+           style="cursor: pointer">
+            <i class="far fa-list-alt"></i>
+            <p>Todo <i class="right fas fa-angle-left"></i></p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-building"></i>
+            <p>
+                Mes
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview" style="display: none;">
+            {% for mes in meses %}
+                <li class="nav-item">
+                    <a rel="search" data-id="{{ mes.id }}" data-action="searchdata" data-type="mes"
+                       class="nav-link"
+                       style="cursor: pointer">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{ mes.nombre }}</p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-building"></i>
+            <p>
+                Año
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview" style="display: none;">
+            {% for year in years %}
+                <li class="nav-item">
+                    <a rel="search" data-id="{{ year }}" data-action="searchdata" data-type="year"
+                       class="nav-link"
+                       style="cursor: pointer">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{ year.year }}</p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
 {% endblock %}
 
 {% block contenttable %}
@@ -47,6 +89,8 @@
 {% endblock %}
 
 {% block script %}
+    {% include 'informesmensuales/modal/verdetalles.html' %}
+    {% include 'informesmensuales/modal/verdesglose.html' %}
     {% if request.user.is_representative %}
 
     {% elif request.user.is_grocer %}

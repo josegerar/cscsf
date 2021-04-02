@@ -23,12 +23,20 @@ class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMi
             if action is not None:
                 if action == 'searchdata':
                     data = []
-                    for i in InformesMensuales.objects.all():
+                    type_data = request.GET.get('type')
+                    id_data = request.GET.get('id')
+                    if type_data == 'year':
+                        query = InformesMensuales.objects.filter(year=id_data)
+                    elif type_data == 'mes':
+                        query = InformesMensuales.objects.filter(mes_id=id_data)
+                    else:
+                        query = InformesMensuales.objects.all()
+                    for i in query:
                         item = {
                             'id': i.id,
                             'laboratorio': i.laboratorio.nombre,
                             'mes': i.mes.nombre,
-                            'year': i.date_creation.year,
+                            'year': i.year,
                             'is_editable': i.is_editable
                         }
                         data.append(item)
@@ -97,6 +105,8 @@ class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMi
         context = super().get_context_data(**kwargs)
         context['title'] = "Informes mensuales registrados"
         context['icontitle'] = "store-alt"
+        context['meses'] = Mes.objects.all()
+        context['years'] = InformesMensuales.objects.order_by('year').distinct("year").values('year')
         context['create_url'] = reverse_lazy('tl:registroinformesmensuales')
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},

@@ -119,10 +119,15 @@ $(function () {
     });
 
     get_list_data_ajax_loading(window.location.pathname, data, function (response) {
-        if (response.length > 0) {
+        tblistado.clear();
+        tblistado.rows.add(response).draw();
+    });
+
+    active_events_filters(['id', 'action', 'type'], function (data) {
+        get_list_data_ajax_loading(window.location.pathname, data, function (response) {
             tblistado.clear();
             tblistado.rows.add(response).draw();
-        }
+        });
     });
 
     $("#frmverdetalles").find('button[rel=btnSync]').on('click', function (evt) {
@@ -149,10 +154,8 @@ $(function () {
                 ya no podra realizar operaciones de edicción o eliminación del informe`
                 , function (data) {
                     get_list_data_ajax_loading(window.location.pathname, data, function (response) {
-                        if (response.length > 0) {
-                            tblistado.clear();
-                            tblistado.rows.add(response).draw();
-                        }
+                        tblistado.clear();
+                        tblistado.rows.add(response).draw();
                     });
                 }, function () {
                     disableEnableForm(form, false);
