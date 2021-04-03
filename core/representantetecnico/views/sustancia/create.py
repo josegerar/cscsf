@@ -8,10 +8,8 @@ from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia, Stock, Bodega
 from core.representantetecnico.forms.formSustancia import SustanciaForm
-from core.representantetecnico.models import TipoMovimientoInventario, Inventario
-from core.tecnicolaboratorio.models import Laboratorio
+from core.representantetecnico.models import TipoMovimientoInventario, Inventario, Sustancia, Stock
 
 
 class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
@@ -21,20 +19,6 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
     template_name = "sustancia/create.html"
     success_url = reverse_lazy("rp:sustancias")
     url_redirect = success_url
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
-        context['title'] = "Registro sustancias"
-        context['icontitle'] = "plus"
-        context['url_list'] = self.success_url
-        context['action'] = 'add'
-        context['urls'] = [
-            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
-            {"uridj": self.success_url, "uriname": "Sustancias"},
-            {"uridj": reverse_lazy('rp:registrosustancias'), "uriname": "Registro"}
-        ]
-        return context
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -47,7 +31,7 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
                     if sustancia is not None:
                         with transaction.atomic():
                             lugares = json.loads(request.POST['desgloses'])
-                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancia')
+                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='add')
                             sustancia.save()
 
                             for i in lugares:
@@ -61,6 +45,7 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
                                 stock.save()
 
                                 inv = Inventario()
+                                inv.stock_id = stock.id
                                 inv.cantidad_movimiento = stock.cantidad
                                 inv.tipo_movimiento_id = tipo_movimiento_add.id
                                 inv.save()
@@ -71,3 +56,16 @@ class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, C
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Registro sustancias"
+        context['icontitle'] = "plus"
+        context['url_list'] = self.success_url
+        context['action'] = 'add'
+        context['urls'] = [
+            {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
+            {"uridj": self.success_url, "uriname": "Sustancias"},
+            {"uridj": reverse_lazy('rp:registrosustancias'), "uriname": "Registro"}
+        ]
+        return context

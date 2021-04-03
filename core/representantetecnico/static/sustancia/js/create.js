@@ -1,6 +1,5 @@
 const sustancias = {
     datatable: null,
-    form_data_ajax: null,
     data: {
         nombre: null,
         unidad_medida: null,

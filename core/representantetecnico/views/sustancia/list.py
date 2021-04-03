@@ -5,7 +5,8 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia, Stock, UnidadMedida, Bodega
+from core.bodega.models import Bodega
+from core.representantetecnico.models import Sustancia, UnidadMedida, Stock
 from core.tecnicolaboratorio.models import Laboratorio
 
 

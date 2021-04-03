@@ -8,9 +8,8 @@ from django.views.generic import UpdateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia, Stock
 from core.representantetecnico.forms.formSustancia import SustanciaForm
-from core.representantetecnico.models import TipoMovimientoInventario, Inventario
+from core.representantetecnico.models import TipoMovimientoInventario, Inventario, Sustancia, Stock
 
 
 class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
@@ -27,7 +26,6 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Actualizar sustancia"
         context['icontitle'] = "edit"
         context['url_list'] = self.success_url

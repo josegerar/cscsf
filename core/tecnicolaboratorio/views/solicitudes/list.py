@@ -10,9 +10,8 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Stock
 from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle, TipoMovimientoInventario, \
-    Inventario
+    Inventario, Stock
 from core.tecnicolaboratorio.models import Laboratorio
 
 

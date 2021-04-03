@@ -5,7 +5,7 @@ from django.views.generic import DeleteView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia
+from core.representantetecnico.models import Sustancia
 
 
 class SustanciaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
@@ -29,7 +29,6 @@ class SustanciaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Eliminar sustancia"
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url

@@ -7,9 +7,8 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Stock
 from core.representantetecnico.models import ComprasPublicas, Laboratorio, ComprasPublicasDetalle, EstadoTransaccion, \
-    TipoMovimientoInventario, Inventario
+    TipoMovimientoInventario, Inventario, Stock
 
 
 class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -97,7 +96,6 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Compras registradas"
         context['icontitle'] = "store-alt"
         context['laboratorios'] = Laboratorio.objects.all()

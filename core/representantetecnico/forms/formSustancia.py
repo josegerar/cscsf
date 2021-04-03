@@ -1,6 +1,6 @@
 from django.forms import *
 
-from core.bodega.models import Sustancia
+from core.representantetecnico.models import Sustancia
 
 
 class SustanciaForm(ModelForm):
