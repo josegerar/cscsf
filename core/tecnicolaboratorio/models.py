@@ -5,6 +5,7 @@ from core.login.models import User, BaseModel
 
 class Laboratorio(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre de laboratorio", unique=True)
+    direccion = models.CharField(max_length=300, null=True, blank=True, verbose_name="Dirección")
     responsable = models.ForeignKey(User, verbose_name="Responsable", on_delete=models.CASCADE,
                                     related_name="responsable", null=True, blank=True)
 

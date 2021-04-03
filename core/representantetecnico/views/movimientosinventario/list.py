@@ -5,7 +5,7 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Inventario
+from core.representantetecnico.models import Inventario
 
 
 class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -15,7 +15,6 @@ class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequir
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Movimientos inventario"
         context['icontitle'] = "store-alt"
         context['create_url'] = reverse_lazy('rp:registrocompras')
@@ -26,16 +25,25 @@ class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequir
         ]
         return context
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         data = {}
         try:
-            action = request.POST['action']
-            if action == 'searchdata':
-                data = []
-                for i in Inventario.objects.all():
-                    data.append(i.toJSON())
-            else:
-                data['error'] = 'Ha ocurrido un error'
+            action = request.GET.get('action')
+            if action is not None:
+                if action == 'searchdata':
+                    data = []
+                    type_data = request.GET.get('type')
+                    id_data = request.GET.get('id')
+                    if type_data == 'lab':
+                        query = Inventario.objects.filter(stock__bodega=None)
+                    else:
+                        query = Inventario.objects.filter(stock__bodega=None)
+                    for i in Inventario.objects.filter(stock__bodega=None):
+                        item = {'id': i.id, 'sustancia': i.stock.sustancia.nombre, 'cantidad': '', 'mes': '',
+                                'year': '', 'lugar': '', 'nom_lug': '', 'un_med': ''}
+
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
         except Exception as e:
-            data["error"] = str(e)
-        return JsonResponse(data, safe=False)
+            data['error'] = str(e)
+        return super().get(request, *args, **kwargs)

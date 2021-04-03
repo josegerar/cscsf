@@ -2,10 +2,6 @@
 
 {% load static %}
 
-{% block head_list %}
-    <script src="{% static 'movimientoinventario/js/list.js' %}"></script>
-{% endblock %}
-
 {% block filtrostable %}
 
 {% endblock %}
@@ -16,9 +12,11 @@
         <th scope="col">#</th>
         <th scope="col">Sustancia</th>
         <th scope="col">Cantidad</th>
-        <th scope="col">Fecha</th>
+        <th scope="col">Mes</th>
+        <th scope="col">Año</th>
+        <th scope="col">Lugar</th>
+        <th scope="col">Nombre lugar</th>
         <th scope="col">Unidad de medida</th>
-        <th scope="col">TIpo de movimiento</th>
     </tr>
     </thead>
     <tbody>
@@ -27,5 +25,11 @@
 {% endblock %}
 
 {% block script %}
+    {% if request.user.is_representative %}
+        <script src="{% static 'movimientoinventario/js/list.js' %}"></script>
+    {% elif request.user.is_grocer %}
 
+    {% elif request.user.is_laboratory_worker %}
+        <script src="{% static 'movimientosinventariotl/js/list.js' %}"></script>
+    {% endif %}
 {% endblock %}

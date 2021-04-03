@@ -8,9 +8,9 @@ from django.views.generic import UpdateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia, Bodega, Stock, TipoMovimientoInventario, Inventario
+from core.bodega.models import Sustancia, Stock
 from core.representantetecnico.forms.formSustancia import SustanciaForm
-from core.tecnicolaboratorio.models import Laboratorio
+from core.representantetecnico.models import TipoMovimientoInventario, Inventario
 
 
 class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
@@ -65,7 +65,6 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
                                             break
                                     if exits_old is False:
                                         inv = Inventario()
-                                        inv.stock_id = st_old.id
                                         inv.cantidad_movimiento = st_old.cantidad
                                         inv.tipo_movimiento_id = tipo_movimiento_del.id
                                         inv.save()

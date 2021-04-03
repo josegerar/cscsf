@@ -10,29 +10,6 @@ class BodegaForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields.get('responsable').choices = User.get_choices_grocer
 
-    class Meta:
-        model = Bodega
-        fields = '__all__'
-        widgets = {
-            'nombre': TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese el nombre de la bodega'
-            }),
-            'descripcion': Textarea(attrs={
-                'class': 'form-control',
-                'rows': "5"
-            }),
-            'direccion': TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese el nombre de la empresa'
-            }),
-            'responsable': Select(attrs={
-                'class': 'form-control select2',
-                'style': 'width: 100%',
-                'autofocus': True
-            }),
-        }
-
     def save(self, commit=True):
         data = {}
         form = super()
@@ -44,3 +21,26 @@ class BodegaForm(ModelForm):
         except Exception as e:
             data['error'] = str(e)
         return data
+
+    class Meta:
+        model = Bodega
+        fields = '__all__'
+        widgets = {
+            'nombre': TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese el nombre de la bodega',
+                'autofocus': True
+            }),
+            'descripcion': Textarea(attrs={
+                'class': 'form-control',
+                'rows': "5"
+            }),
+            'direccion': TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese el nombre de la empresa'
+            }),
+            'responsable': Select(attrs={
+                'class': 'form-control select2',
+                'style': 'width: 100%'
+            }),
+        }

@@ -17,7 +17,7 @@ class Persona(BaseModel):
     is_info_update = models.BooleanField(default=False, editable=False)
 
     def __str__(self):
-        return self.nombre + " " + self.apellido
+        return "{} {} - {}".format(self.nombre, self.apellido, self.cedula)
 
     def toJSON(self):
         item = model_to_dict(self, exclude=['imagen'])
@@ -44,13 +44,15 @@ class Persona(BaseModel):
         parts = ["", "", "", ""]
         nombre_array = self.nombre.strip().split(sep=" ")
         apellido_array = self.apellido.strip().split(sep=" ")
-        if len(nombre_array) > 1 and len(apellido_array) > 1:
+        if len(nombre_array) >= 1:
             parts[0] = nombre_array[0]
+        if len(nombre_array) >= 2:
             parts[1] = nombre_array[1]
+        if len(apellido_array) >= 1:
             parts[2] = apellido_array[0]
+        if len(apellido_array) >= 2:
             parts[3] = apellido_array[1]
-            return parts
-        return None
+        return parts
 
     @staticmethod
     def username_exists(username):
@@ -95,7 +97,7 @@ class Persona(BaseModel):
 class User(AbstractUser, BaseModel):
     persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name="Persona", null=True)
     is_pass_update = models.BooleanField(default=False, editable=False)
-    codeconfirm = models.CharField( max_length=200,null=True, blank= True)
+    codeconfirm = models.CharField(max_length=200, null=True, blank=True)
     is_representative = models.BooleanField(
         _('Es representante técnico'),
         default=False,
@@ -162,7 +164,8 @@ class User(AbstractUser, BaseModel):
         elif self.is_representative is True:
             group = Group.objects.get(name__iexact='representante')
         if group is not None:
-            self.groups.add(group)
+            if self.groups.filter(name=group.name).exists() is False:
+                self.groups.add(group)
 
     def get_user_info(self):
         if self.persona is not None:

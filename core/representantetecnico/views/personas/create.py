@@ -25,8 +25,7 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
-        context['title'] = "Registrar investigador/docente"
+        context['title'] = "Registrar personas"
         context['icontitle'] = "plus"
         context['url_list'] = self.success_url
         context['action'] = 'add'
@@ -59,9 +58,6 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                             'por favor verifique la información a registrar del usuario'
                                         )
                                     template_email = get_template("correo/correo.html")
-                                    mails_sending = []
-                                    connection = mail.get_connection()
-                                    connection.open()
                                     for user_item in usuarios:
                                         username = persona.get_username(key="")
                                         rol_selected = user_item["rol_selected"]
@@ -80,8 +76,8 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                         email_person = User.verify_email_person(email_verified, persona.id)
                                         if email_person is False:
                                             raise Exception(
-                                                'Ocurrio un error al crear un usuario, '
-                                                'correo electronico {} ya utilizado por otro usuario'.format(
+                                                'Ocurrio un error al crear un usuario, este correo electronico '
+                                                '{} ya utilizado por otro usuario del sistema'.format(
                                                     user_item["email"])
                                             )
                                         new_user = User.objects.create_user(username=username, email=email_verified,
@@ -113,14 +109,13 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                             [email_verified]
                                         )
                                         email_send.attach_alternative(content_email, "text/html")
-                                        mails_sending.append(email_send)
+                                        res_messages_email = email_send.send()
+                                        if res_messages_email != 1:
+                                            raise Exception(
+                                                'Ocurrio un error al intentar verificar un correo electronico, '
+                                                'correo electronico {} no valido'.format(user_item["email"])
+                                            )
                                         new_user.save()
-                                    res_messages_email = connection.send_messages(mails_sending)
-                                    if res_messages_email != 1:
-                                        raise Exception(
-                                            'Ocurrio un error al intentar verificar un correo electronico, '
-                                            'correo electronico {} no valido'.format(user_item["email"])
-                                        )
                         else:
                             data['error'] = 'Ha ocurrido un error'
                     else:
@@ -131,6 +126,6 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
             data['error'] = str(e)
-        if connection is not None:
-            connection.close()
+        # if connection is not None:
+        #     connection.close()
         return JsonResponse(data)

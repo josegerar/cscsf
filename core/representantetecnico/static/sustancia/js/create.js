@@ -9,15 +9,11 @@ const sustancias = {
         desgloses: []
     },
     init: function () {
-        this.form_data_ajax = new FormData();
-        this.form_data_ajax.append("action", 'list_desglose');
-        Loading.show();
-        send_petition_server('POST', this.form_data_ajax, window.location.pathname, getCookie("csrftoken"),
-            function (data) {
-                sustancias.data.desgloses = data;
+        get_list_data_ajax_loading('/sustancias/', {'action': 'list_desglose'}
+            , function (response) {
+                if (response.length === 0) message_info("No hay bodegas o laboratorios registrados");
+                sustancias.data.desgloses = response;
                 sustancias.list_desgloses();
-            }, function (error) {
-                message_error(error);
             });
     },
     list_desgloses: function () {
@@ -40,7 +36,6 @@ const sustancias = {
 }
 
 $(function () {
-
     sustancias.datatable = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
@@ -109,5 +104,4 @@ $(function () {
             sustancias.update_cantidad_desglose(nueva_cantidad, dataIndex);
         });
     }
-
 });

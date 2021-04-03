@@ -19,7 +19,6 @@ class BodegaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Crea
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Registro bodegas"
         context['icontitle'] = "plus"
         context['url_list'] = self.success_url

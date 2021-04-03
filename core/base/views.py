@@ -13,6 +13,7 @@ from django.views.generic import TemplateView
 
 from app.settings import EMAIL_HOST_USER
 from core.base.mixins import IsUserUCSCSF
+from core.login.models import User
 from core.representantetecnico.forms.formPersona import PersonaForm
 
 
@@ -31,6 +32,11 @@ class DashBoard(LoginRequiredMixin, IsUserUCSCSF, TemplateView):
                     code = request.POST.get('codeConfirm')
                     if pass1 is not None and pass2 is not None and code is not None and pass_act is not None:
                         user = request.user
+                        if User.validate_domain_email(user.email) is None:
+                            raise Exception(
+                                "No existe correo registrado valido para este usuario, "
+                                "pongase en contacto con el administrador del sistema para corregir"
+                            )
                         if check_password(pass_act, user.password):
                             if pass1 == pass2:
                                 if code == user.codeconfirm:
@@ -64,6 +70,11 @@ class DashBoard(LoginRequiredMixin, IsUserUCSCSF, TemplateView):
                         data['error'] = 'Datos incorrectos'
                 elif action == 'sendCodeConfirm':
                     user = request.user
+                    if User.validate_domain_email(user.email) is None:
+                        raise Exception(
+                            "No existe correo registrado valido para este usuario, "
+                            "pongase en contacto con el administrador del sistema para corregir"
+                        )
                     codeconfirmacion = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
                     with transaction.atomic():
                         user.codeconfirm = codeconfirmacion

@@ -9,15 +9,27 @@ class LaboratorioForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields.get('responsable').choices = User.get_choices_laboratory_worker
-        for form in self.visible_fields():
-            form.field.widget.attrs['class'] = 'form-control'
-            if form.widget_type == 'select':
-                form.field.widget.attrs['class'] = form.field.widget.attrs.get('class', '') + ' select2'
-            form.field.widget.attrs['autocomplete'] = 'off'
 
     class Meta:
         model = Laboratorio
         fields = '__all__'
+        widgets = {
+            'nombre': TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese el nombre del laboratorio',
+                'autofocus': True,
+                'autocomplete': 'off'
+            }),
+            'direccion': TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese la dirección del laboratorio',
+                'autocomplete': 'off'
+            }),
+            'responsable': Select(attrs={
+                'class': 'form-control select2',
+                'style': 'width: 100%'
+            })
+        }
 
     def save(self, commit=True):
         data = {}

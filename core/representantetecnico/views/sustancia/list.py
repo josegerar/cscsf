@@ -5,7 +5,8 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Sustancia, Stock, UnidadMedida
+from core.bodega.models import Sustancia, Stock, UnidadMedida, Bodega
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -86,6 +87,19 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                         elif i.bodega is not None:
                             item['type'] = 'bodega'
                             item['nombre'] = i.bodega.nombre
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
+                elif action == 'list_desglose':
+                    data = []
+                    for i in Bodega.objects.all().order_by('nombre'):
+                        item = i.toJSON()
+                        item['tipo'] = 'bodega'
+                        item['cantidad_ingreso'] = 0.0000
+                        data.append(item)
+                    for i in Laboratorio.objects.all().order_by('nombre'):
+                        item = i.toJSON()
+                        item['tipo'] = 'laboratorio'
+                        item['cantidad_ingreso'] = 0.0000
                         data.append(item)
                     return JsonResponse(data, safe=False)
         except Exception as e:

@@ -7,8 +7,8 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.bodega.models import Inventario, TipoMovimientoInventario
-from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle, Mes
+from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle, Mes, TipoMovimientoInventario, \
+    Inventario
 
 
 class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -86,7 +86,7 @@ class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMi
                             stock.save()
 
                             inv = Inventario()
-                            inv.stock_id = stock.id
+                            inv.informe_mensual_detalle_id = det.id
                             inv.cantidad_movimiento = det.cantidad
                             inv.tipo_movimiento_id = tipo_movimiento_del.id
                             inv.save()
