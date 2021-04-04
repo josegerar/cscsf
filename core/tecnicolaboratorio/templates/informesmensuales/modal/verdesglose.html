@@ -3,7 +3,7 @@
         <form id="frmDetalleConsumoSustanciaInforme" method="post" action=".">
             {% csrf_token %}
             <input type="hidden" name="id_detalle" value=""/>
-            <input type="hidden" name="sustancia_id" value=""/>
+            <input type="hidden" name="stock_id" value=""/>
             <input type="hidden" name="sustancia_nombre" value=""/>
             <div class="modal-content">
                 <div class="modal-header">
@@ -13,6 +13,13 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_cantidad_consumida_registrada">Cantidad consumida en el mes:</label>
+                        <input type="text" name="cantidad_consumida_registrada" class="form-control"
+                               placeholder="Cantidad consumida en el mes" readonly disabled
+                               required="" id="id_cantidad_consumida_registrada">
+                    </div>
+                    <br>
                     <button rel="add_consumo" type="button" class="btn btn-secondary btn-flat btn-block">
                         <i class="fas fa-plus"></i>
                         Agregar consumo
@@ -36,7 +43,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button rel="btnSync" type="button" class="btn btn-primary btn-success">
+                    <button rel="btnSyncDesgl" type="button" class="btn btn-primary btn-success">
                         <i class="fas fa-sync"></i>
                         Actualizar
                     </button>

@@ -9,7 +9,7 @@ from core.representantetecnico.models import Sustancia
 
 
 class SustanciaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
-    permission_required = ('bodega.delete_sustancia',)
+    permission_required = ('representantetecnico.delete_sustancia',)
     model = Sustancia
     template_name = 'delete.html'
     success_url = reverse_lazy('rp:sustancias')

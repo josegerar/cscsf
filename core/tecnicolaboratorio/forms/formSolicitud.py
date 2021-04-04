@@ -1,5 +1,6 @@
 from django.forms import *
 
+from core.login.models import User, Persona
 from core.representantetecnico.models import Solicitud
 from core.tecnicolaboratorio.models import Laboratorio
 
@@ -10,6 +11,7 @@ class SolicitudForm(ModelForm):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields.get('laboratorio').choices = Laboratorio.get_choices_laboratory_user(self.request.user.id)
+        self.fields.get('responsable_actividad').choices = Persona.get_choices_responsable_practica
 
     class Meta:
         model = Solicitud
@@ -18,6 +20,10 @@ class SolicitudForm(ModelForm):
         widgets = {
             'laboratorio': Select(attrs={
                 'class': 'form-control select2',
+                'style': 'width: 100%'
+            }),
+            'bodega': Select(attrs={
+                'class': 'form-control select2bod',
                 'style': 'width: 100%'
             }),
             'tipo_actividad': Select(attrs={

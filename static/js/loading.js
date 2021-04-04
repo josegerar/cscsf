@@ -17,12 +17,12 @@ const Loading = {
             }, 100);
 
             setTimeout(function () {
-                Loading.backdrop.classList.remove("loading-backdrop");
-            }, 200);
-
-            setTimeout(function () {
                 Loading.wrapper.classList.remove("content_loading_opacity");
             }, 300);
+
+            setTimeout(function () {
+                Loading.backdrop.classList.remove("loading-backdrop");
+            }, 500);
         }
 
     },

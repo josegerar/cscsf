@@ -9,7 +9,7 @@ from core.representantetecnico.models import Inventario
 
 
 class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
-    permission_required = ('bodega.view_inventario',)
+    permission_required = ('representantetecnico.view_inventario',)
     model = Inventario
     template_name = "movimientosinventario/list.html"
 

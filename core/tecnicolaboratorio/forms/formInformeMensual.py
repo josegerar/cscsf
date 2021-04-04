@@ -14,7 +14,7 @@ class InformeMensualForm(ModelForm):
     class Meta:
         model = InformesMensuales
         fields = '__all__'
-        exclude = ['laboratorista']
+        exclude = ['laboratorista', 'estado_informe']
         widgets = {
             'laboratorio': Select(attrs={
                 'class': 'form-control select2',

@@ -1,11 +1,20 @@
 const solicitud = {
     datatable: null,
     data: {
-        detalleSolicitud: []
+        detalleSolicitud: [],
+        bodega_selected: null
     },
     add_sustancia: function (item) {
+        if (this.verify_sustance_exist(item)) {
+            message_error("Sustancia ya agregada");
+            return false;
+        }
+        if (this.verify_bod_diferent()) {
+            message_error("Solo puede agregar sustancias al informe de una sola bodega seleccionado");
+            return false;
+        }
         item = this.config_item(item);
-        if (item.stock.sustancia.cantidad_bodegas_total <= 0) {
+        if (item.cantidad_bodegas_total <= 0) {
             message_error("La sustancia seleccionada no tiene stock suficente en bodega");
             return false;
         }
@@ -14,41 +23,32 @@ const solicitud = {
     },
     add_detalle_solicitud: function (data = []) {
         $.each(data, function (index, item) {
-            item.cantidad = parseFloat(item.cantidad);
-            item.stock.sustancia.cupo_autorizado = parseFloat(item.stock.sustancia.cupo_autorizado)
-            item.stock.sustancia.cantidad_bodega = 0;
-            item.stock_selected = null;
+            item.cantidad_solicitud = parseFloat(item.cantidad_solicitud);
+            item.stock.cupo_autorizado = parseFloat(item.stock.cupo_autorizado)
+            item.stock.cantidad_bodega = parseFloat(item.stock.cantidad_bodega)
         });
         this.data.detalleSolicitud = data;
         this.list_sustancia();
     },
     config_item: function (item) {
-        let cantidad = 0;
-        $.each(item.stock, function (istock, vstock) {
-            if (vstock.bodega) cantidad += parseFloat(vstock.cantidad);
-        });
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
-        item.cantidad_bodega = 0;
-        item.cantidad_bodegas_total = cantidad;
-        item.stock_selected = null;
-        return {'id': -1, 'cantidad': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
-    },
-    get_bodegas_item: function (dataIndex) {
-        let stock = [];
-        $.each(this.data.detalleSolicitud[dataIndex].stock.sustancia.stock, function (istock, vstock) {
-            if (vstock.bodega && parseFloat(vstock.cantidad) > 0) {
-                if (!vstock.text) vstock.text = "Bod. " + vstock.bodega.nombre;
-                stock.push(vstock);
-            }
-        });
-        return stock;
+        item.cantidad_bodega = parseFloat(item.cantidad_bodega);
+        return {
+            'id': -1,
+            'stock': item,
+            'cantidad_solicitud': 0,
+            'bodega_selected': {'id': parseInt(this.data.bodega_selected.id), 'text': this.data.bodega_selected.text},
+        };
     },
     list_sustancia: function () {
         this.datatable.clear();
         this.datatable.rows.add(this.data.detalleSolicitud).draw();
     },
+    update_bodega_seleted: function (bod_item) {
+        if (bod_item) this.data.bodega_selected = bod_item;
+    },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
-        this.data.detalleSolicitud[index].cantidad = nueva_cantidad;
+        this.data.detalleSolicitud[index].cantidad_solicitud = nueva_cantidad;
     },
     delete_sustancia: function (index) {
         this.data.detalleSolicitud.splice(index, 1);
@@ -65,6 +65,16 @@ const solicitud = {
             }
         );
     },
+    verify_bod_diferent: function () {
+        let diferent = false;
+        $.each(this.data.sustancias, function (index, item) {
+            if (item.bodega_selected.id !== parseInt(solicitud.data.bodega_selected.id)) {
+                diferent = true;
+                return false;
+            }
+        });
+        return diferent;
+    },
     verify_send_data: function (callback, error) {
         let isValidData = true;
         if (this.data.detalleSolicitud.length === 0) {
@@ -72,77 +82,59 @@ const solicitud = {
             error("¡Debe existir al menos 1 sustancia agregada en la solicitud!");
         } else {
             $.each(this.data.detalleSolicitud, function (index, item) {
-                if (item.cantidad <= 0) {
+                if (item.cantidad_solicitud <= 0) {
                     isValidData = false;
-                    error(`! La sustancia ${item.nombre} tiene una cantidad a solicitar invalida, por favor verifique ¡`);
+                    error(`! La sustancia ${item.stock.value} tiene una cantidad a solicitar invalida, por favor verifique ¡`);
                 }
             });
         }
         if (isValidData) callback();
-        else error("Ha ocurrido un error");
     },
-    set_stock_selected: function (dataIndex, idStock, row) {
-        if (solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.stock_selected &&
-            solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.stock_selected.id === idStock) {
-            return false;
-        }
-        $.each(this.data.detalleSolicitud[dataIndex].stock.sustancia.stock, function (istock, vstock) {
-            if (vstock.id === idStock) {
-                solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.stock_selected = vstock;
-                solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.cantidad_bodega = parseFloat(vstock.cantidad);
+    verify_sustance_exist: function (new_item) {
+        let exist = false;
+        $.each(this.data.detalleSolicitud, function (index, item) {
+            if (new_item.id === item.stock.id) {
+                exist = true;
                 return false;
             }
         });
-        $(row).find('label[rel=cantidad_bodega]').text(solicitud.data.detalleSolicitud[dataIndex].stock.sustancia.cantidad_bodega);
+        return exist;
     }
 }
 
 $(function () {
-
-    const data = {'action': 'searchdetail', 'csrfmiddlewaretoken': getCookie('csrftoken')}
-
     solicitud.datatable = $('#tblistado').DataTable({
         'responsive': true,
-        'destroy': true,
         "ordering": false,
+        "autoWidth": true,
         'columns': [
             {
                 "className": 'details-control',
                 'data': 'id'
             },
-            {'data': 'stock.sustancia.nombre'},
-            {'data': 'id'},
-            {'data': 'cantidad'},
-            {'data': 'stock.sustancia.cantidad_bodega'},
-            {'data': 'stock.sustancia.unidad_medida.nombre'}
+            {'data': 'stock.value'},
+            {'data': 'cantidad_solicitud'},
+            {'data': 'bodega_selected.text'},
+            {'data': 'stock.cantidad_bodega'},
+            {'data': 'stock.unidad_medida'}
         ],
         'columnDefs': [
             {
                 'targets': [0],
-                'orderable': false,
                 'render': function (data, type, row) {
                     return '<a rel="remove" class="btn btn-danger btn-xs btn-flat"><i class="fas fa-trash"></i></a> ';
                 }
             },
             {
                 'targets': [2],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    return '<div class="form-group form-group-sm"><select name="bodega_salida" class="form-control-sm" style="width: 100%"></select></div>';
-                }
-            },
-            {
-                'targets': [3],
-                'orderable': false,
                 'render': function (data, type, row) {
                     return '<input value="' + data + '" type="text" name="cantidad" class="form-control form-control-sm input-sm" autocomplete="off"/>';
                 }
             },
             {
                 'targets': [4],
-                'orderable': false,
                 'render': function (data, type, row) {
-                    return `<label style="font-weight: 400;" rel="cantidad_bodega">${data}</label>`;
+                    return `<label style="font-weight: 500;" rel="cantidad_bodega">${data}</label>`;
                 }
             }
         ],
@@ -151,12 +143,11 @@ $(function () {
         }
     });
 
-    get_async_data_callback(window.location.pathname, data,
-        function (response) {
+    let id_solicitud = $('#formCrearSolicitud').find('input[name=id_solicitud]').val();
+
+    get_list_data_ajax_loading('/solicitudes/', {'action': 'searchdetail', 'id_sol': id_solicitud}
+        , function (response) {
             solicitud.add_detalle_solicitud(response);
-        },
-        function (error) {
-            message_error(error);
         });
 
     //activar plugin select2 a los select del formulario
@@ -165,10 +156,44 @@ $(function () {
         'language': 'es'
     });
 
-    autocompleteInput("search", "/sustancias/", {'action': "search_substance"},
-        function (item) {
-            solicitud.add_sustancia(item);
-        });
+    $('select[name=bodega]').on('change.select2', function (e) {
+        let data_select = $(this).select2('data');
+        solicitud.update_bodega_seleted(data_select[0]);
+    }).select2({
+        'theme': 'bootstrap4',
+        'language': 'es'
+    });
+
+    $('select[name=bodega]').trigger("change.select2");
+
+    $('input[name=search]').focus().autocomplete({
+        source: function (request, response) {
+            let code_bod = solicitud.data.bodega_selected
+                ? solicitud.data.bodega_selected.id.length > 0
+                    ? parseInt(solicitud.data.bodega_selected.id)
+                    : 0
+                : 0;
+            if (code_bod === 0) {
+                message_info("Bodega no seleccionada");
+                return false;
+            }
+            let data = {
+                'term': request.term,
+                'action': "search_sus_comp",
+                'code_bod': code_bod
+            }
+            get_list_data_ajax('/sustancias/', data, function (res_data) {
+                response(res_data);
+            });
+        },
+        delay: 400,
+        minLength: 1,
+        select: function (event, ui) {
+            event.preventDefault();
+            solicitud.add_sustancia(ui.item);
+            $(this).val('');
+        }
+    });
 
     // Add event listener for opening and closing details
     addEventListenerOpenDetailRowDatatable('tblistado', solicitud.datatable, 'td.details-control',
@@ -188,24 +213,8 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
 
-        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.sustancia.cupo_autorizado,
-            0, data.cantidad, 0.1);
-
-        $(row).find('select[name="bodega_salida"]').on('change.select2', function (e) {
-            let data_select = $(this).select2('data');
-            solicitud.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id), row);
-        }).select2({
-            'theme': 'bootstrap4',
-            'language': 'es',
-            'data': solicitud.get_bodegas_item(dataIndex),
-            'containerCssClass': "select2-font-size-sm"
-        });
-
-        if (data.stock_selected && data.cantidad_bodega) {
-            $(row).find('select[name="lugar_ingreso"]').val(data.stock_selected.id);
-        }
-
-        $(row).find('select[name="bodega_salida"]').trigger('change.select2');
+        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.cupo_autorizado,
+            0, data.cantidad_solicitud, 0.1);
 
         $(row).find('input[name="cantidad"]').on('change', function (event) {
             let nueva_cantidad = parseFloat($(this).val());

@@ -165,13 +165,13 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
         try:
             action = request.GET.get('action')
             if action is not None:
-                if action == 'search_solicitudes_recibidas':
-                    data = []
-                    sustancia_id = int(request.GET.get('sustancia_id'))
+                if action == 'search_sol_rec':
+                    data = [{'id': '', 'text': '---------'}]
+                    id_stock = int(request.GET.get('stock_id'))
                     lab_id = int(request.GET.get('lab_id'))
                     det_inf = int(request.GET.get('det_inf'))
                     estado_solicitud = EstadoTransaccion.objects.get(estado="recibido")
-                    for i in SolicitudDetalle.objects.filter(stock__sustancia_id=sustancia_id,
+                    for i in SolicitudDetalle.objects.filter(stock_id=id_stock,
                                                              solicitud__laboratorio_id=lab_id,
                                                              solicitud__solicitante_id=request.user.id,
                                                              solicitud__estado_solicitud_id=estado_solicitud.id) \
@@ -216,6 +216,18 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                             'cant_ent': i.cantidad_entregada,
                             'cant_con': i.cantidad_consumida
                         })
+                    return JsonResponse(data, safe=False)
+                if action == 'searchdetail':
+                    data = []
+                    id_sol = request.GET.get('id_sol')
+                    for dci in SolicitudDetalle.objects.filter(solicitud_id=id_sol):
+                        item = {'id': dci.id, 'cantidad_solicitud': dci.cantidad_solicitada,
+                                'bodega_selected': {'id': dci.stock.bodega.id, 'text': dci.stock.bodega.nombre},
+                                'stock': {'id': dci.stock.id, 'cupo_autorizado': dci.stock.sustancia.cupo_autorizado,
+                                          'value': dci.stock.sustancia.nombre,
+                                          'unidad_medida': dci.stock.sustancia.unidad_medida.nombre,
+                                          'cantidad_bodega': dci.stock.cantidad}}
+                        data.append(item)
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)

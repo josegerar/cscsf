@@ -21,11 +21,12 @@ class DesgloseSustanciaInformeMensualDeleteView(LoginRequiredMixin, ValidatePerm
         if self.object is not None:
             if self.object.informe_mensual_detalle is not None:
                 if self.object.informe_mensual_detalle.informe is not None:
-                    if self.object.informe_mensual_detalle.informe.is_editable is False:
-                        messages.error(request, 'Informe actual ya esta cerrado')
-                        messages.error(request, 'No es posible realizar operaciones sobre el mismo')
-                        messages.error(request, 'Pongase en contacto con el administrador del sistema')
-                        return HttpResponseRedirect(self.success_url)
+                    if self.object.informe_mensual_detalle.informe.estado_informe is not None:
+                        if self.object.informe_mensual_detalle.informe.estado_informe.estado == "archivado":
+                            messages.error(request, 'Informe actual ya esta cerrado')
+                            messages.error(request, 'No es posible realizar operaciones sobre el mismo')
+                            messages.error(request, 'Pongase en contacto con el administrador del sistema')
+                            return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -38,8 +39,9 @@ class DesgloseSustanciaInformeMensualDeleteView(LoginRequiredMixin, ValidatePerm
                         "Registro inexistente"
                     )
                 solicitud_detalle = desglose_informe_sustancia_detalle.solicitud_detalle
-                solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_informe_sustancia_detalle.cantidad
-                solicitud_detalle.save()
+                if solicitud_detalle is not None:
+                    solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_informe_sustancia_detalle.cantidad
+                    solicitud_detalle.save()
                 desglose_informe_sustancia_detalle.delete()
         except Exception as e:
             data['error'] = str(e)

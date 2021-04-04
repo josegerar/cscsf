@@ -81,6 +81,12 @@ class Persona(BaseModel):
                 break
         return is_valid
 
+    @staticmethod
+    def get_choices_responsable_practica():
+        choices = [('', '---------')]
+        choices += [(p.id, p.__str__()) for p in Persona.objects.filter(user__persona_id=None)]
+        return choices
+
     def get_imagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)

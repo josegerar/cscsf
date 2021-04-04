@@ -17,10 +17,13 @@ from django.contrib.auth import authenticate
 #
 # p = Proveedor.objects.get(id=2)
 # print(p.id_empresa)
-from core.representantetecnico.models import User
+from core.login.models import Persona
+from core.representantetecnico.models import User, EstadoTransaccion, InformesMensuales
 
-print(authenticate(username='jgarcia', password='123456'))
-print(User.objects.all())
+#print(authenticate(username='jgarcia', password='123456'))
+#print(User.objects.all())
+query = EstadoTransaccion.objects.filter(informesmensuales__estado_informe__estado__in=['revision', 'registrado'])
+print(query)
 #User.objects.create_user()
 #
 # g = Group.objects.all()

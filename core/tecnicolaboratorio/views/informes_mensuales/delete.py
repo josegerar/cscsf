@@ -20,11 +20,12 @@ class InformesMensualesDeleteView(LoginRequiredMixin, ValidatePermissionRequired
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object is not None:
-            if self.object.is_editable is False:
-                messages.error(request, 'Informe mensuales ya paso la fecha limite para editar')
-                messages.error(request, 'No es posible su eliminación')
-                messages.error(request, 'Pongase en contacto con el administrador del sistema')
-                return HttpResponseRedirect(self.success_url)
+            if self.object.estado_informe is not None:
+                if self.object.estado_informe.estado == "archivado":
+                    messages.error(request, 'Informe mensuales ya paso la fecha limite para editar')
+                    messages.error(request, 'No es posible su eliminación')
+                    messages.error(request, 'Pongase en contacto con el administrador del sistema')
+                    return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

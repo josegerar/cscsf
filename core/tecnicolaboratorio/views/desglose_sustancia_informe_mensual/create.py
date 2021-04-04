@@ -26,22 +26,21 @@ class DesgloseSustanciaInformeMensualCreateView(LoginRequiredMixin, ValidatePerm
                 if action == 'add':
                     form = self.get_form()
                     if form.is_valid():
-                        desglose_sustancia_informe_mensual = form.instance
-                        id_detalle = int(request.POST.get('id_detalle'))
-                        if desglose_sustancia_informe_mensual is not None and id_detalle is not None:
-                            with transaction.atomic():
+                        with transaction.atomic():
+                            desglose_sustancia_informe_mensual = form.instance
+                            id_detalle = int(request.POST.get('id_detalle'))
+                            if desglose_sustancia_informe_mensual is not None and id_detalle is not None:
                                 if desglose_sustancia_informe_mensual.cantidad <= 0:
                                     raise Exception('Debe ingresar una cantidad de cosumo valida')
-                                solicitud_detalle = SolicitudDetalle.objects.get(
-                                    id=desglose_sustancia_informe_mensual.solicitud_detalle_id)
-                                if solicitud_detalle is None:
-                                    raise Exception("Error en los datos")
-                                solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida + desglose_sustancia_informe_mensual.cantidad
+                                if desglose_sustancia_informe_mensual.solicitud_detalle_id is not None:
+                                    solicitud_detalle = SolicitudDetalle.objects.get(
+                                        id=desglose_sustancia_informe_mensual.solicitud_detalle_id)
+                                    solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida + desglose_sustancia_informe_mensual.cantidad
+                                    solicitud_detalle.save()
                                 desglose_sustancia_informe_mensual.informe_mensual_detalle_id = id_detalle
                                 desglose_sustancia_informe_mensual.save()
-                                solicitud_detalle.save()
-                        else:
-                            data['error'] = 'Ha ocurrido un error1'
+                            else:
+                                raise Exception("Error en los datos")
                     else:
                         data['error'] = form.errors
                 else:

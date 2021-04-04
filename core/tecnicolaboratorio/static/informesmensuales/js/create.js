@@ -58,7 +58,7 @@ const informe = {
         return exist;
     },
     verify_lab_diferent: function () {
-        diferent = false;
+        let diferent = false;
         $.each(this.data.sustancias, function (index, item) {
             if (parseInt(item.laboratorio.id) !== parseInt(informe.data.laboratorio.id)) {
                 diferent = true;
@@ -83,7 +83,6 @@ $(function () {
 
     informe.datatable = $('#tblistado').DataTable({
         'responsive': true,
-        'destroy': true,
         "ordering": false,
         "autoWidth": true,
         'columns': [
@@ -131,7 +130,7 @@ $(function () {
             }
             let data = {
                 'term': request.term,
-                'action': "search_substance_lab",
+                'action': "search_sus_lab",
                 'code_lab': code_lab
             }
             get_list_data_ajax('/sustancias/', data, function (res_data) {

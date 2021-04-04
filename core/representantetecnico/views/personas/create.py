@@ -38,7 +38,6 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
 
     def post(self, request, *args, **kwargs):
         data = {}
-        connection = None
         try:
             action = request.POST.get('action')
             if action is not None:
@@ -126,6 +125,4 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
             data['error'] = str(e)
-        # if connection is not None:
-        #     connection.close()
         return JsonResponse(data)

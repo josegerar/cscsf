@@ -13,7 +13,7 @@ from core.representantetecnico.models import TipoMovimientoInventario, Inventari
 
 
 class SustanciaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
-    permission_required = ('bodega.add_sustancia',)
+    permission_required = ('representantetecnico.add_sustancia',)
     model = Sustancia
     form_class = SustanciaForm
     template_name = "sustancia/create.html"

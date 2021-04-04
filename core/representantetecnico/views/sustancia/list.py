@@ -11,13 +11,12 @@ from core.tecnicolaboratorio.models import Laboratorio
 
 
 class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
-    permission_required = ('bodega.view_sustancia',)
+    permission_required = ('representantetecnico.view_sustancia',)
     model = Sustancia
     template_name = "sustancia/list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Sustancias registradas"
         context['icontitle'] = "store-alt"
         context['unidades'] = UnidadMedida.objects.all()
@@ -58,7 +57,16 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                         substance['value'] = i.nombre
                         data.append(substance)
                     return JsonResponse(data, safe=False)
-                elif action == 'search_substance_lab':
+                elif action == 'search_sus_comp':
+                    data = []
+                    code_bod = request.GET.get('code_bod')
+                    term = request.GET.get('term')
+                    for i in Stock.objects.filter(sustancia__nombre__icontains=term, bodega_id=code_bod)[0:10]:
+                        item = {'id': i.id, 'cupo_autorizado': i.sustancia.cupo_autorizado, 'value': i.sustancia.nombre,
+                                'unidad_medida': i.sustancia.unidad_medida.nombre, 'cantidad_bodega': i.cantidad}
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
+                elif action == 'search_sus_lab':
                     data = []
                     code_lab = request.GET.get('code_lab')
                     if code_lab is not None:
@@ -67,7 +75,6 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                 data.append({
                                     'id': stock.id,
                                     'value': stock.sustancia.nombre,
-                                    'sustancia_id': stock.sustancia.id,
                                     'unidad_medida': stock.sustancia.unidad_medida.nombre,
                                     'cantidad_lab': stock.cantidad
                                 })

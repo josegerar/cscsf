@@ -144,6 +144,7 @@ class Stock(BaseModel):
 class Solicitud(BaseModel):
     solicitante = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Solicitante")
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio", null=True)
+    bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, verbose_name="Bodega", null=True)
     tipo_actividad = models.ForeignKey(TipoActividad, on_delete=models.CASCADE, verbose_name="Tipo de actividad")
     nombre_actividad = models.CharField(max_length=150, verbose_name="Nombre de proyecto", null=True)
     responsable_actividad = models.ForeignKey(Persona, on_delete=models.CASCADE,
@@ -325,8 +326,8 @@ class ComprasPublicasDetalle(BaseModel):
 
 
 class Mes(models.Model):
-    nombre = models.CharField(max_length=20, verbose_name="Nombre del mes")
-    numero = models.IntegerField(verbose_name="Numero de mes")
+    nombre = models.CharField(max_length=20, verbose_name="Nombre del mes", unique=True)
+    numero = models.IntegerField(verbose_name="Numero de mes", unique=True)
 
     def __str__(self):
         return str(self.nombre)
@@ -347,13 +348,13 @@ class InformesMensuales(BaseModel):
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio")
     mes = models.ForeignKey(Mes, on_delete=models.CASCADE, verbose_name="Mes", null=True)
     year = models.IntegerField(default=timezone.now().year, verbose_name="Año")
-    is_editable = models.BooleanField(default=True, editable=False)
+    estado_informe = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, null=True, editable=False)
 
     def __str__(self):
         return str(self.id)
 
     def toJSON(self):
-        item = {'id': self.id, 'editable': self.is_editable, 'year': self.year}
+        item = {'id': self.id, 'year': self.year}
         if self.laboratorista is not None:
             item['laboratorista'] = self.laboratorista.toJSON()
         if self.laboratorio is not None:

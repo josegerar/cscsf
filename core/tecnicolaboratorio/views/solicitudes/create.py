@@ -1,8 +1,9 @@
 import json
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -10,6 +11,7 @@ from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin, PassRequestToFormViewMixin
 from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle
 from core.tecnicolaboratorio.forms.formSolicitud import SolicitudForm
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
@@ -21,9 +23,14 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
     success_url = reverse_lazy("tl:solicitudes")
     url_redirect = success_url
 
+    def dispatch(self, request, *args, **kwargs):
+        if Laboratorio.objects.filter(responsable_id=request.user.id).exists() is False:
+            messages.error(request, 'Aun no tiene laboratorios asignados a este usuario')
+            return HttpResponseRedirect(self.success_url)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Registro solicitudes de entrega sustancias"
         context['icontitle'] = "plus"
         context['url_list'] = self.success_url
@@ -53,16 +60,15 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                                 solicitud.save()
 
                                 for i in sustancias:
-                                    stock_selected = i['stock_selected']
                                     det = SolicitudDetalle()
-                                    det.stock_id = stock_selected['id']
+                                    det.stock_id = i['id']
                                     det.solicitud_id = solicitud.id
-                                    det.cantidad = float(i['cantidad_solicitud'])
+                                    det.cantidad_solicitada = float(i['cantidad_solicitud'])
                                     det.save()
                         else:
                             data['error'] = 'Ha ocurrido un error'
                     else:
-                        data['error'] = 'Ha ocurrido un error'
+                        data['error'] = form.errors
                 else:
                     data['error'] = 'Ha ocurrido un error'
             else:

@@ -9,8 +9,9 @@ from django.views.generic import CreateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin, PassRequestToFormViewMixin
-from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle
+from core.representantetecnico.models import InformesMensuales, InformesMensualesDetalle, EstadoTransaccion
 from core.tecnicolaboratorio.forms.formInformeMensual import InformeMensualForm
+from core.tecnicolaboratorio.models import Laboratorio
 
 
 class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
@@ -23,10 +24,14 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
     url_redirect = success_url
 
     def dispatch(self, request, *args, **kwargs):
-        if InformesMensuales.objects.filter(is_editable=True).exists():
+        if Laboratorio.objects.filter(responsable_id=request.user.id).exists() is False:
+            messages.error(request, 'Aun no tiene laboratorios asignados a este usuario')
+            return HttpResponseRedirect(self.success_url)
+        if EstadoTransaccion.objects.filter(
+                informesmensuales__estado_informe__estado__in=['revision', 'registrado'],
+                informesmensuales__laboratorista_id=request.user.id).exists():
             messages.error(request, 'Aun existen informes por archivar')
             messages.error(request, 'Debe archivar todos los informes antes de crear otro')
-            messages.error(request, 'Pongase en contacto con el administrador del sistema')
             return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
@@ -52,7 +57,8 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
                     form = self.get_form()
                     if form.is_valid():
                         informe = form.instance
-                        if informe is not None:
+                        estado_transaccion = EstadoTransaccion.objects.get(estado="registrado")
+                        if informe is not None and estado_transaccion is not None:
                             with transaction.atomic():
                                 if InformesMensuales.verify_month_exist_with_year(informe.mes.id, informe.year,
                                                                                   informe.laboratorio.id):
@@ -62,6 +68,7 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
                                     )
                                 sustancias = json.loads(request.POST['sustancias'])
                                 informe.laboratorista_id = request.user.id
+                                informe.estado_informe_id = estado_transaccion.id
                                 informe.save()
 
                                 for i in sustancias:

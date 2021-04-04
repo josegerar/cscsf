@@ -14,6 +14,7 @@ $(function () {
             {'data': 'fecha_autorizacion'},
             {'data': 'estado'},
             {'data': 'id'},
+            {'data': 'id'},
             {'data': 'id'}
         ],
         'columnDefs': [
@@ -54,9 +55,19 @@ $(function () {
                 'render': function (data, type, row) {
                     if (row.estado) {
                         if (row.estado === "revision" || row.estado === "registrado") {
-                            let buttons = '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                            buttons += '<a href="/solicitudes/delete/' + row.id + '/" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
-                            return buttons;
+                            return '<a href="/solicitudes/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
+                        }
+                    }
+                    return "";
+                }
+            },
+            {
+                'targets': [8],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    if (row.estado) {
+                        if (row.estado === "revision" || row.estado === "registrado") {
+                            return '<a href="/solicitudes/delete/' + row.id + '/" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
                         }
                     }
                     return "";
@@ -70,8 +81,7 @@ $(function () {
 
     const tbobservaciones = $('#tbobservaciones').DataTable({
         'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
+        'autoWidth': true,
         'paging': false,
         'searching': false,
         'ordering': false,
@@ -82,8 +92,7 @@ $(function () {
     })
     const tbdetalles = $('#tbdetallesolicitud').DataTable({
         'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
+        'autoWidth': true,
         'paging': false,
         'searching': false,
         'ordering': false,
@@ -137,8 +146,8 @@ $(function () {
         get_list_data_ajax_loading(window.location.pathname, {'action': 'search_detalle', 'id_sl': data.id}
             , function (response) {
                 let observaciones = [];
-                if (data.obs_bd) observaciones.push({'observacion': data.obs_bd});
-                if (data.obs_rp) observaciones.push({'observacion': data.obs_rp});
+                observaciones.push({'observacion': data.obs_bd});
+                observaciones.push({'observacion': data.obs_rp});
                 tbobservaciones.clear();
                 tbobservaciones.rows.add(observaciones).draw();
                 if (response.length > 0) {

@@ -29,8 +29,11 @@
 {% block content %}
     <div class="content">
         <div class="card card-default">
-            <form method="post" action="." enctype="multipart/form-data">
+            <form id="formCrearSolicitud" method="post" action="." enctype="multipart/form-data">
                 <input type="hidden" name="action" value="{{ action }}"/>
+                {% if action == 'edit' %}
+                    <input type="hidden" name="id_solicitud" value="{{ form.instance.id }}"/>
+                {% endif %}
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-{{ icontitle }}"></i>
@@ -40,49 +43,6 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-lg-8">
-                            <div class="card card-secondary">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias
-                                        solicitadas
-                                    </h3>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label for="search_substance">Buscador de sustancias:</label>
-                                        <div class="input-group">
-                                            <input id="search_substance" name="search"
-                                                   placeholder="Ingrese el nombre de la sustancia a buscar"
-                                                   autocomplete="off" type="text" class="form-control">
-                                            <span class="input-group-append">
-                                            <button type="button" rel="cleansearch" class="btn btn-danger btn-flat">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </span>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <button rel="removeall" type="button" class="btn btn-danger btn-xs btn-flat">
-                                        Eliminar todas las sustancias
-                                    </button>
-                                    <hr>
-                                    <table id="tblistado" class="table" style="width: 100%">
-                                        <thead>
-                                        <tr>
-                                            <th scope="col">Accion</th>
-                                            <th scope="col">Sustancia</th>
-                                            <th scope="col">Bodega</th>
-                                            <th scope="col">Cantidad solicitada</th>
-                                            <th scope="col">Cantidad actual</th>
-                                            <th scope="col">Unidad de medida</th>
-                                        </tr>
-                                        </thead>
-                                    </table>
-                                </div>
-                                <!-- /.card-body -->
-                            </div>
-                        </div>
                         <div class="col-lg-4">
                             <div class="card card-secondary">
                                 <div class="card-header">
@@ -101,6 +61,18 @@
                                             <label>Laboratorio:</label>
                                         </div>
                                         {{ form.laboratorio }}
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="display: flex">
+                                            {% if form.bodega.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Bodega:</label>
+                                        </div>
+                                        {{ form.bodega }}
                                     </div>
                                     <div class="form-group">
                                         <div style="display: flex">
@@ -166,6 +138,49 @@
                                 <!-- /.card-body -->
                             </div>
                         </div>
+                        <div class="col-lg-8">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias
+                                        solicitadas
+                                    </h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="search_substance">Buscador de sustancias:</label>
+                                        <div class="input-group">
+                                            <input id="search_substance" name="search"
+                                                   placeholder="Ingrese el nombre de la sustancia a buscar"
+                                                   autocomplete="off" type="text" class="form-control">
+                                            <span class="input-group-append">
+                                            <button type="button" rel="cleansearch" class="btn btn-danger btn-flat">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <button rel="removeall" type="button" class="btn btn-danger btn-xs btn-flat">
+                                        Eliminar todas las sustancias
+                                    </button>
+                                    <hr>
+                                    <table id="tblistado" class="table" style="width: 100%">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Accion</th>
+                                            <th scope="col">Sustancia</th>
+                                            <th scope="col">Cantidad solicitada</th>
+                                            <th scope="col">Bodega</th>
+                                            <th scope="col">Cantidad bodega</th>
+                                            <th scope="col">Unidad de medida</th>
+                                        </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.card-body -->
@@ -205,7 +220,7 @@
     <script type="application/javascript">
         $(function () {
             //envio de datos al servidor
-            $('form').on('submit', function (event) {
+            $('#formCrearSolicitud').on('submit', function (event) {
                 event.preventDefault();
                 let form = this;
                 let action_save = $(event.originalEvent.submitter).attr('rel');

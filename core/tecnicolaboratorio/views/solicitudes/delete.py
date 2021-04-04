@@ -19,8 +19,8 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object is not None:
-            if self.object.estado_compra is not None:
-                if self.object.estado_compra.estado == 'aprobado' or self.object.estado_compra.estado == 'entregado':
+            if self.object.estado_solicitud is not None:
+                if self.object.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado', 'recibido']:
                     messages.error(request, 'solicitud de entrega de sustancia ya aprobado o entregado')
                     messages.error(request, 'No es posible su eliminación')
                     messages.error(request, 'Pongase en contacto con el administrador del sistema')
