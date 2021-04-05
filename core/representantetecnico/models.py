@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.db import models, connection
 from django.db.models import Sum
 from django.forms import model_to_dict
 from django.utils import timezone
 
 from app.settings import MEDIA_URL
+from core.base.query_aux import dictfetchall
 from core.bodega.models import Bodega
 from core.login.models import User, BaseModel, Persona
 from core.representantetecnico.files.read import BASE_REPOSITORY, rearm_url
@@ -466,6 +467,35 @@ class Inventario(BaseModel):
         if self.tipo_movimiento is not None:
             item['tipo_movimiento'] = self.tipo_movimiento.toJSON()
         return item
+
+    @staticmethod
+    def get_data_inventario_mov_all():
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
+                "dil.nombre_lugar, dil.anio, dil.mes from get_data_inv_all();")
+            data_res = dictfetchall(cursor)
+        return data_res
+
+    @staticmethod
+    def get_data_inv_laboratorista(laboratorista_id):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
+                "dil.nombre_lugar, dil.anio, dil.mes from get_data_inv_laboratorista(%s);",
+                [laboratorista_id])
+            data_res = dictfetchall(cursor)
+        return data_res
+
+    @staticmethod
+    def get_data_inventario_mov(mes, year):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "select q1.id, q1.sustancia, q1.cantidad, q1.lugar, q1.nombre_lugar  "
+                "from get_data_inv_res(%s, %s) as q1;",
+                [mes, year])
+            data_res = dictfetchall(cursor)
+        return data_res
 
     class Meta:
         verbose_name = "Inventario"

@@ -5,17 +5,17 @@ $(function () {
         'columns': [
             {'data': 'id'},
             {'data': 'sustancia'},
-            {'data': 'cantidad'},
+            {'data': 'can_mov'},
             {'data': 'mes'},
-            {'data': 'year'},
+            {'data': 'anio'},
             {'data': 'lugar'},
-            {'data': 'nom_lug'},
-            {'data': 'un_med'},
+            {'data': 'nombre_lugar'},
         ]
     });
 
     get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata', 'type': 'lab'}
         , function (response) {
+            console.log(response)
             tblistado.clear();
             tblistado.rows.add(response).draw();
         });

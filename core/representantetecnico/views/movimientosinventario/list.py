@@ -33,16 +33,13 @@ class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequir
                 if action == 'searchdata':
                     data = []
                     type_data = request.GET.get('type')
-                    id_data = request.GET.get('id')
+                    mes = request.GET.get('mes')
+                    year = request.GET.get('year')
                     if type_data == 'lab':
-                        query = Inventario.objects.filter(stock__bodega=None)
+                        data_res = Inventario.get_data_inv_laboratorista(request.user.id)
                     else:
-                        query = Inventario.objects.filter(stock__bodega=None)
-                    for i in Inventario.objects.filter(stock__bodega=None):
-                        item = {'id': i.id, 'sustancia': i.stock.sustancia.nombre, 'cantidad': '', 'mes': '',
-                                'year': '', 'lugar': '', 'nom_lug': '', 'un_med': ''}
-
-                        data.append(item)
+                        data_res = Inventario.get_data_inventario_mov_all()
+                    data = data_res
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)
