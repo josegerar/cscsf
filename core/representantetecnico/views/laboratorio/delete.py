@@ -1,10 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
+from core.representantetecnico.models import Stock
 from core.tecnicolaboratorio.models import Laboratorio
 
 
@@ -17,6 +19,11 @@ class LaboratorioDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if Stock.objects.filter(laboratorio_id=self.object.id).exists():
+            messages.error(request, 'Laboratio ya posee stock registrado')
+            messages.error(request, 'No es posible su eliminación')
+            messages.error(request, 'Pongase en contacto con el administrador del sistema')
+            return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

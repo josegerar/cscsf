@@ -23,7 +23,6 @@ class LaboratorioUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Actualizar laboratorio"
         context['icontitle'] = "edit"
         context['url_list'] = self.success_url

@@ -15,7 +15,7 @@ class BaseModel(models.Model):
 
     def save(self, *args, **kwargs):
         user = get_current_user()
-        if user is not None:
+        if user is not None and user.is_anonymous is False:
             if not self.pk:
                 self.user_creation = user
             else:

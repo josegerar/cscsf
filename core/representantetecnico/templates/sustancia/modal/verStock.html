@@ -19,6 +19,9 @@
                     <table id="tbstock" class="table" style="width: 100%">
                         <thead>
                         <th scope="col">#</th>
+                        {% if request.user.is_representative %}
+                            <th scope="col">Lugar</th>
+                        {% endif %}
                         <th scope="col">Nombre</th>
                         <th scope="col">Cantidad</th>
                         </thead>

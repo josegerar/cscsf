@@ -1,11 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import Proveedor
+from core.representantetecnico.models import Proveedor, ComprasPublicas
 
 
 class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
@@ -17,6 +18,10 @@ class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if ComprasPublicas.objects.filter(empresa_id=self.object.id).exists():
+            messages.error(request, 'No es posible eliminar este registro')
+            messages.error(request, 'Pongase en contacto con el administrador del sistema')
+            return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -29,7 +34,6 @@ class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Eliminar empresa"
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url

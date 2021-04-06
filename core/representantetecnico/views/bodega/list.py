@@ -25,16 +25,21 @@ class BodegaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVi
         ]
         return context
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         data = {}
         try:
-            action = request.POST['action']
-            if action == 'searchdata':
-                data = []
-                for i in Bodega.objects.all():
-                    data.append(i.toJSON())
-            else:
-                data['error'] = 'Ha ocurrido un error'
+            action = request.GET.get('action')
+            if action is not None:
+                if action == 'searchdata':
+                    data = []
+                    for i in Bodega.objects.all():
+                        item = {'id': i.id, 'nombre': i.nombre, 'responsable': '', 'is_del': True, 'dir': i.direccion}
+                        if i.responsable is not None:
+                            item['responsable'] = i.responsable.get_user_info()
+                        if i.stock_set.all().exists():
+                            item['is_del'] = False
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
         except Exception as e:
-            data["error"] = str(e)
-        return JsonResponse(data, safe=False)
+            data['error'] = str(e)
+        return super().get(request, *args, **kwargs)

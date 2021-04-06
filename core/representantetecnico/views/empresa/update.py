@@ -23,7 +23,6 @@ class EmpresaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Actualizar empresa"
         context['icontitle'] = "edit"
         context['url_list'] = self.success_url

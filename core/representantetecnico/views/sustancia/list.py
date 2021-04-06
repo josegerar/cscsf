@@ -41,13 +41,17 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     else:
                         query = Sustancia.objects.all()
                     for i in query:
-                        data.append({
+                        item = {
                             'id': i.id,
                             'nombre': i.nombre,
                             'descripcion': i.descripcion,
                             'cupo_autorizado': i.cupo_autorizado,
-                            'unidad_medida': i.unidad_medida.nombre
-                        })
+                            'unidad_medida': i.unidad_medida.nombre,
+                            'is_del': True
+                        }
+                        if i.stock_set.all().exists():
+                            item['is_del'] = False
+                        data.append(item)
                     return JsonResponse(data, safe=False)
                 elif action == 'search_substance':
                     data = []

@@ -44,8 +44,7 @@ $(function () {
 
     sustancias.datatable = $('#tblistado').DataTable({
         'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
+        'autoWidth': true,
         'columns': [
             {
                 "className": 'details-control',

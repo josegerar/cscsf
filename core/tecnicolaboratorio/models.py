@@ -13,7 +13,7 @@ class Laboratorio(BaseModel):
         return self.nombre
 
     def toJSON(self):
-        item = {'id': self.id, 'nombre': self.nombre}
+        item = {'id': self.id, 'nombre': self.nombre, 'responsable': ''}
         if self.responsable is not None:
             item['responsable'] = self.responsable.get_user_info()
         return item

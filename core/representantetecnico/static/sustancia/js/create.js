@@ -37,7 +37,7 @@ const sustancias = {
 $(function () {
     sustancias.datatable = $('#tblistado').DataTable({
         'responsive': true,
-        'autoWidth': false,
+        'autoWidth': true,
         'destroy': true,
         'columns': [
             {

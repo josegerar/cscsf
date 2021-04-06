@@ -10,7 +10,7 @@
             <p>Todo <i class="right fas fa-angle-left"></i></p>
         </a>
     </li>
-<li class="nav-item">
+    <li class="nav-item">
         <a href="#" class="nav-link">
             <i class="far fa-calendar-alt"></i>
             <p>
@@ -43,7 +43,8 @@
         <th scope="col">Unidad de medida</th>
         <th scope="col">Stock</th>
         {% if request.user.is_representative %}
-            <th scope="col">Opciones</th>
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
         {% endif %}
     </tr>
     </thead>
