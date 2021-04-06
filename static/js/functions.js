@@ -6,7 +6,7 @@ function message_error(obj) {
             if (myObject) obj = myObject;
         }
     } catch (e) {
-        console.log(e);
+        //console.log(e);
     }
     let html = '';
     if (typeof (obj) === 'object') {

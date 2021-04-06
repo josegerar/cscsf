@@ -16,6 +16,7 @@ from core.representantetecnico.views.laboratorio.create import LaboratorioCreate
 from core.representantetecnico.views.laboratorio.delete import LaboratorioDeleteView
 from core.representantetecnico.views.laboratorio.list import LaboratorioListView
 from core.representantetecnico.views.laboratorio.update import LaboratorioUpdateView
+from core.representantetecnico.views.movimientosinventario.estadomensual import EstadoMensualListView
 from core.representantetecnico.views.movimientosinventario.list import MovimientosInventarioListView
 from core.representantetecnico.views.personas.create import PersonaCreateView
 from core.representantetecnico.views.personas.delete import PersonasDeleteView
@@ -44,6 +45,7 @@ urlpatterns = [
 
     # inventario
     path('inventario/movimientos/', MovimientosInventarioListView.as_view(), name="movimientoinventario"),
+    path('inventario/estado-mensual/', EstadoMensualListView.as_view(), name="estadomensual"),
 
     # compras publicas
     path('compras/', ComprasListView.as_view(), name="compras"),
@@ -64,8 +66,8 @@ urlpatterns = [
     path('personas/delete/<int:pk>/', PersonasDeleteView.as_view(), name="eliminarpersonas"),
 
     # repositorio
-    path('repositorio/', RepositorioListView.as_view(), name="repositorio"),
-    path('repositorio/<int:pk>/', RepositorioListView.as_view(), name="repositorioid"),
+    # path('repositorio/', RepositorioListView.as_view(), name="repositorio"),
+    # path('repositorio/<int:pk>/', RepositorioListView.as_view(), name="repositorioid"),
 
     # laboratorio
     path('laboratorios/', LaboratorioListView.as_view(), name="laboratorios"),

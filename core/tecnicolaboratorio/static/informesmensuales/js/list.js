@@ -21,7 +21,7 @@ $(function () {
                 'targets': [4],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return '<button rel="ver_detalles" class="btn btn-success btn-flat" >Ver</button>'
+                    return '<button type="button" rel="ver_detalles" class="btn btn-success btn-flat" >Ver</button>'
                 }
             },
             {
@@ -29,7 +29,9 @@ $(function () {
                 'orderable': false,
                 'render': function (data, type, row) {
                     if (data !== "archivado") {
-                        return '<button rel="archivar_informe" class="btn btn-secondary btn-flat" > <i class="fas fa-archive"></i></button> ';
+                        return `<button type="button" rel="archivar_informe" class="btn btn-secondary btn-flat" > 
+                                    <i class="fas fa-archive"></i>
+                                </button>`;
                     }
                     return "Informe archivado";
                 }
@@ -89,7 +91,7 @@ $(function () {
     });
     const tbdesglosedetalleinforme = $('#tbdesglosesustanciainforme').DataTable({
         'responsive': true,
-        'autoWidth': false,
+        'autoWidth': true,
         'ordering': false,
         'columns': [
             {'data': 'solicitud'},

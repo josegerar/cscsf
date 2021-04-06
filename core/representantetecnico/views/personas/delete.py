@@ -7,7 +7,7 @@ from django.views.generic import DeleteView
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.login.models import User
-from core.representantetecnico.models import Persona
+from core.representantetecnico.models import Persona, Solicitud
 
 
 class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
@@ -20,7 +20,8 @@ class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, De
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object:
-            if User.objects.filter(persona_id=self.object.id).exists():
+            if User.objects.filter(persona_id=self.object.id).exists() or Solicitud.objects.filter(
+                    responsable_actividad_id=self.object.id).exists():
                 messages.error(request, 'No es posible eliminar este registro')
                 messages.error(request, 'Pongase en contacto con el administrador del sistema')
                 return HttpResponseRedirect(self.success_url)

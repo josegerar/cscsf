@@ -70,7 +70,8 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                         if email_verified is None:
                                             raise Exception(
                                                 'Ocurrio un error al crear un usuario, '
-                                                'correo electronico {} no valido'.format(user_item["email"])
+                                                'correo electronico {} no valido. Debe ingresar '
+                                                'un correo electronico institucional'.format(user_item["email"])
                                             )
                                         email_person = User.verify_email_person(email_verified, persona.id)
                                         if email_person is False:

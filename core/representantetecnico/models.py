@@ -473,27 +473,39 @@ class Inventario(BaseModel):
         with connection.cursor() as cursor:
             cursor.execute(
                 "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
-                "dil.nombre_lugar, dil.anio, dil.mes from get_data_inv_all();")
+                "dil.nombre_lugar, dil.anio, dil.mes from get_data_inv_all() as dil;")
             data_res = dictfetchall(cursor)
         return data_res
 
     @staticmethod
-    def get_data_inv_laboratorista(laboratorista_id):
+    def get_data_mov_inv(laboratorista_id, sustancia_id, year, mes):
         with connection.cursor() as cursor:
             cursor.execute(
                 "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
-                "dil.nombre_lugar, dil.anio, dil.mes from get_data_inv_laboratorista(%s);",
-                [laboratorista_id])
+                "dil.nombre_lugar, dil.anio, dil.mes from get_mov_inv(%s, %s, %s, %s) dil;",
+                [laboratorista_id, sustancia_id, year, mes])
             data_res = dictfetchall(cursor)
         return data_res
 
     @staticmethod
-    def get_data_inventario_mov(mes, year):
+    def get_years_disp_inv():
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "select distinct anio from get_data_inventario();")
+            data_res = dictfetchall(cursor)
+        return data_res
+
+    @staticmethod
+    def get_data_inventario_mov(mes, year, laboratorista_id):
+        if mes == 0:
+            mes = datetime.now().month
+        if year == 0:
+            year = datetime.now().year
         with connection.cursor() as cursor:
             cursor.execute(
                 "select q1.id, q1.sustancia, q1.cantidad, q1.lugar, q1.nombre_lugar  "
-                "from get_data_inv_res(%s, %s) as q1;",
-                [mes, year])
+                "from get_data_inv_res(%s, %s, %s) as q1;",
+                [mes, year, laboratorista_id])
             data_res = dictfetchall(cursor)
         return data_res
 

@@ -5,31 +5,19 @@ $(function () {
         'columns': [
             {'data': 'id'},
             {'data': 'sustancia'},
-            {'data': 'can_mov'},
-            {'data': 'mov_type'},
-            {'data': 'mes'},
-            {'data': 'anio'},
-            {'data': 'nombre_lugar'},
-        ],
-        'columnDefs': [
-            {
-                'targets': [3],
-                'render': function (data, type, row) {
-                    if (data === 'delete') return "Consumo"
-                    else return "Ingreso"
-                }
-            },
+            {'data': 'cantidad'},
+            {'data': 'nombre_lugar'}
         ]
     });
 
     get_list_data_ajax_loading(window.location.pathname
-        , {'action': 'searchdata', 'type': 'lab', 'year': 0, 'sus_id': 0, 'mes': 0}
+        , {'action': 'searchdata', 'type': 'lab_month', 'year': 0, 'mes': 0}
         , function (response) {
             tblistado.clear();
             tblistado.rows.add(response).draw();
         });
 
-    active_events_filters(['action', 'type', 'year', 'sus_id', 'mes'], function (data) {
+    active_events_filters(['action', 'type', 'year', 'mes'], function (data) {
         get_list_data_ajax_loading(window.location.pathname, data
             , function (response) {
                 tblistado.clear();

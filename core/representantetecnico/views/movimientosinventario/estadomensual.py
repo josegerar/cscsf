@@ -8,23 +8,21 @@ from core.base.mixins import ValidatePermissionRequiredMixin
 from core.representantetecnico.models import Inventario, Mes, Sustancia
 
 
-class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
+class EstadoMensualListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
     permission_required = ('representantetecnico.view_inventario',)
     model = Inventario
-    template_name = "movimientosinventario/list.html"
+    template_name = "movimientosinventario/estadomensual.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Movimientos inventario"
+        context['title'] = "Estado mensual de sustancias"
         context['icontitle'] = "store-alt"
         context['years_disp'] = Inventario.get_years_disp_inv()
-        context['sustancias'] = Sustancia.objects.all()
         context['meses'] = Mes.objects.all()
-        context['create_url'] = reverse_lazy('rp:registrocompras')
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
             {"uridj": reverse_lazy('rp:sustancias'), "uriname": "Inventario"},
-            {"uridj": reverse_lazy('rp:movimientoinventario'), "uriname": "Movimientos"}
+            {"uridj": reverse_lazy('rp:estadomensual'), "uriname": "Estados mensuales"}
         ]
         return context
 
@@ -39,10 +37,10 @@ class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequir
                     mes = request.GET.get('mes')
                     year = request.GET.get('year')
                     sustancia = request.GET.get('sus_id')
-                    if type_data == 'lab':
-                        data_res = Inventario.get_data_mov_inv(request.user.id, sustancia, year, mes)
+                    if type_data == 'lab_month':
+                        data_res = Inventario.get_data_inventario_mov(mes, year, request.user.id)
                     else:
-                        data_res = Inventario.get_data_mov_inv(0, 0, 0, 0)
+                        data_res = Inventario.get_data_inventario_mov(mes, year, 0)
                     data = data_res
                     return JsonResponse(data, safe=False)
         except Exception as e:

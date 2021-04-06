@@ -3,9 +3,9 @@ const usuarios = {
     data: {
         usuarios: [],
         roles: [
-            {'id': 1, 'text': 'Representante tecnico', 'value': 'representante'},
-            {'id': 2, 'text': 'Técnico laboratorista', 'value': 'laboratorista'},
-            {'id': 3, 'text': 'Bodeguero', 'value': 'bodeguero'},
+            {'id': 1, 'text': 'Representante tecnico', 'value': 'representante', 'select': false},
+            {'id': 2, 'text': 'Técnico laboratorista', 'value': 'laboratorista', 'select': false},
+            {'id': 3, 'text': 'Bodeguero', 'value': 'bodeguero', 'select': false},
         ],
         estados: [
             {'id': 1, 'text': 'Habilitado', 'value': 'habilitado'},
@@ -42,14 +42,16 @@ const usuarios = {
         });
         return id + 1;
     },
-    get_rol_disponible: function () {
+    get_rol_disponible: function (data) {
         let rol = 0
         $.each(this.data.roles, function (index, item) {
             let exist = false;
             $.each(usuarios.data.usuarios, function (indexuser, itemuser) {
-                if (itemuser.rol_selected && itemuser.rol_selected.id === item.id) {
-                    exist = true;
-                    return false;
+                if (data.id !== itemuser.id) {
+                    if (itemuser.rol_selected && itemuser.rol_selected.id === item.id) {
+                        exist = true;
+                        return false;
+                    }
                 }
             });
             if (!exist) {
@@ -74,30 +76,47 @@ const usuarios = {
         });
     },
     set_rol_selected: function (indexData, idrol, row) {
+        if (usuarios.data.usuarios[indexData].rol_selected &&
+            usuarios.data.usuarios[indexData].rol_selected.id === idrol) {
+            return false;
+        }
         $.each(this.data.roles, function (index, item) {
-            if (item.id === idrol) {
-                let exist = false;
-                $.each(usuarios.data.usuarios, function (indexuser, itemuser) {
-                    if (itemuser.rol_selected && itemuser.rol_selected.id === idrol) {
-                        exist = true;
-                        return false;
-                    }
-                });
-                if (exist) {
-                    $(row).find('select[name="roles"]').val(usuarios.data.usuarios[indexData].rol_selected.id);
-                    message_error("Rol seleccionado no disponible");
-                    return false;
-                }
+            if (idrol === item.id) {
                 usuarios.data.usuarios[indexData].rol_selected = item;
-                return false;
             }
         });
     },
     update_email: function (email, dataIndex) {
         this.data.usuarios[dataIndex].email = email;
     },
+    verify_rol_diferent: function () {
+        let dif = true
+        $.each(this.data.roles, function (indexrol, rol) {
+            rol.select = false;
+        });
+        $.each(this.data.roles, function (indexrol, rol) {
+            $.each(usuarios.data.usuarios, function (indexuser, user) {
+                if (rol.id === user.rol_selected.id) {
+                    if (rol.select) {
+                        dif = false
+                        return false;
+                    } else {
+                        rol.select = true;
+                    }
+                }
+            });
+            if (!dif) {
+                return false;
+            }
+        });
+        return dif;
+    },
     verify_send_data: function (callback, error) {
         let isValidData = true;
+        if (!this.verify_rol_diferent()) {
+            isValidData = false;
+            error("Debe seleccionar un rol diferente por cada usuario a agregar")
+        }
         $.each(this.data.usuarios, function (index, item) {
             if (item.email == null || item.email.length <= 0) {
                 isValidData = false;
@@ -109,11 +128,9 @@ const usuarios = {
 }
 
 $(function () {
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
     usuarios.datatable = $('#tbroles').DataTable({
         'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
+        'autoWidth': true,
         'paging': false,
         'searching': false,
         'ordering': false,
@@ -184,7 +201,9 @@ $(function () {
             'data': usuarios.data.roles,
             'containerCssClass': "select2-font-size-sm"
         });
-        $(row).find('select[name="roles"]').val(usuarios.get_rol_disponible());
+        if (data.rol_selected) {
+            $(row).find('select[name="roles"]').val(data.rol_selected.id);
+        }
         $(row).find('select[name="roles"]').trigger('change.select2');
 
         $(row).find('select[name="estados"]').on('change.select2', function (e) {

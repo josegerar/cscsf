@@ -59,6 +59,7 @@
                     usuarios.verify_send_data(function () {
                         submitForm(parameters, action_save, form);
                     }, function (message) {
+                        disableEnableForm(form, false);
                         message_info(message);
                     });
                 {% elif request.user.is_laboratory_worker %}

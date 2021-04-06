@@ -3,6 +3,59 @@
 {% load static %}
 
 {% block filtrostable %}
+    <li class="nav-item">
+        <a rel="search" data-action="searchdata" data-type="lab" data-year="0" data-mes="0" data-sus_id="0"
+           class="nav-link" style="cursor: pointer">
+            <i class="far fa-list-alt"></i>
+            <p>Todo <i class="right fas fa-angle-left"></i></p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="far fa-calendar-times"></i>
+            <p>
+                Sustancias
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview" style="display: none;">
+            {% for sustancia in sustancias %}
+                <li class="nav-item">
+                    <a rel="search" data-action="searchdata" data-type="lab" data-year="0" data-mes="0"
+                       data-sus_id="{{ sustancia.id }}"
+                       class="nav-link" style="cursor: pointer">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>{{ sustancia.nombre }}</p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% for year in years_disp %}
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="far fa-calendar-times"></i>
+                <p>
+                    {{ year.anio }}
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none;">
+                {% for mes in meses %}
+                    <li class="nav-item">
+                        <a rel="search" data-action="searchdata" data-type="lab" data-year="{{ year.anio }}"
+                           data-mes="{{ mes.id }}" data-sus_id="0"
+                           class="nav-link"
+                           style="cursor: pointer">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>{{ mes.nombre }}</p>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+
 
 {% endblock %}
 
@@ -12,10 +65,10 @@
         <th scope="col">#</th>
         <th scope="col">Sustancia</th>
         <th scope="col">Cantidad</th>
+        <th scope="col">Tipo movimiento</th>
         <th scope="col">Mes</th>
         <th scope="col">Año</th>
-        <th scope="col">Lugar</th>
-        <th scope="col">Nombre lugar</th>
+        <th scope="col">Laboratorio</th>
     </tr>
     </thead>
     <tbody>
