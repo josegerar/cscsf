@@ -17,50 +17,53 @@
     <link rel="stylesheet" href="{% static 'lib/adminlte-3.1.0-dist/css/adminlte.min.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <!-- css general - help  -->
+    <link rel="stylesheet" href="{% static 'css/general.css' %}">
     <!-- sweetalert2  -->
     <script src="{% static 'lib/sweetalert2-9.10.0/sweetalert2.all.min.js' %}"></script>
 
 </head>
 <body class="hold-transition login-page">
-<div class="login-box">
+<div class="card-body">
     <div class="login-logo">
         <a href="{% url 'session:login' %}"><b>CSCSF</b> UTEQ</a>
     </div>
     <!-- /.login-logo -->
-    <div class="card">
-        <div class="card-body login-card-body">
-            <p class="login-box-msg" style="font-size: 16px; font-weight: bold;">Inicie sesion con sus credenciales</p>
-            <form action="." method="post">
-                <input type="hidden" name="next" value="{{ next }}"/>
+    <div class="card" style="width: 350px;">
+        <div class="card-body">
+            <p class="login-box-msg" style="font-size: 20px; font-weight: bold;">Recuperar usuario</p>
+            <form id="frmRecuperarUser" autocomplete="off" method="post" action=".">
+                <input type="hidden" name="action" value="actChangePass"/>
                 {% csrf_token %}
-                <div class="input-group mb-3">
-                    {{ form.username|add_class:'form-control'|attr:'autocomplete:off'|attr:'placeholder:Ingrese su nombre de usuario' }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-envelope"></span>
+                <div class="form-group">
+                    <div class="form-group">
+                        <div style="display: flex">
+
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+
+                            <label for="id_correo">Correo:</label>
+                        </div>
+                        <input type="text" name="correo" placeholder="ingrese el correo asociado a su cuenta"
+                               class="form-control"
+                               autocomplete="off" maxlength="100" required="" id="id_correo">
+                        <div class="help" style="margin-left: 12px;">El usuario será enviado a su correo registrado.
                         </div>
                     </div>
-                </div>
-                <div class="input-group mb-3">
-                    {{ form.password|add_class:'form-control'|attr:'autocomplete:off'|attr:'placeholder:Ingrese su contraseña' }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
+                    <div class="row">
+                        <div class="col-6">
+                            <button rel="btnChangePass" type="submit" class="btn btn-primary btn-flat btn-block">Enviar
+                                Usuario
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url "session:login" %}" rel="btnCancel"
+                               class="btn btn-secondary btn-flat btn-block" data-dismiss="modal">
+                                Cancelar
+                            </a>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <button type="submit" class="btn btn-primary btn-block">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Iniciar sesión
-                        </button>
-                    </div>
-                </div>
-                <div class="row" style="justify-content: center; font-size: 13px; margin-top: 6px;">
-                    <a href="{% url 'session:recuperarpass' %}" >¿Olvidó su contraseña?</a>
-                </div><div class="row" style="justify-content: center; font-size: 13px;">
-                    <a href="{% url 'session:recuperaruser' %}"  >¿Olvidó su usuario?</a>
                 </div>
             </form>
         </div>

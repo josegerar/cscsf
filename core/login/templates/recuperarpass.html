@@ -1,0 +1,184 @@
+{% load static %}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{ title }}</title>
+
+    {% include 'faviconlinks.html' %}
+
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'lib/fontawesome-free/css/all.css' %}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'lib/adminlte-3.1.0-dist/css/adminlte.min.css' %}">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <!-- Jquery confirm -->
+    <link rel="stylesheet" href="{% static 'lib/jquery-confirm-v3.3.4/jquery-confirm.min.css' %}">
+    <!-- css general - help  -->
+    <link rel="stylesheet" href="{% static 'css/general.css' %}">
+    <!-- css loading  -->
+    <link rel="stylesheet" href="{% static 'css/loading.css' %}">
+    <script src="{% static 'js/loading.js' %}"></script>
+    <!-- sweetalert2  -->
+    <script src="{% static 'lib/sweetalert2-9.10.0/sweetalert2.all.min.js' %}"></script>
+
+</head>
+<body class="hold-transition login-page">
+<div class="main-container-load">
+<div class="card-body">
+    <div class="login-logo">
+        <a href="{% url 'session:login' %}"><b>CSCSF</b> UTEQ</a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="card">
+        <div class="card-body">
+            <p class="login-box-msg" style="font-size: 20px; font-weight: bold;">Cambiar contraseña</p>
+            <form id="frmRecuperarPass" method="post" action=".">
+                <input type="hidden" name="action" value="actChangePass"/>
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="form-group">
+                        <div style="display: flex">
+
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+
+                            <label for="id_user">Usuario:</label>
+                        </div>
+                        <input type="text" name="usuario" placeholder="ingrese el usuario asociado a su cuenta"
+                               class="form-control"
+                               autocomplete="off" maxlength="100" required="" id="id_user">
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex">
+
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+
+                            <label for="id_code">Código de confirmación:</label>
+                        </div>
+                        <div class="row">
+                            <div class="col-7">
+                                <input type="text" name="codeConfirm" placeholder="Ingrese código de confirmación"
+                                       class="form-control"
+                                       autocomplete="off" maxlength="100" required="" id="id_code">
+                            </div>
+                            <div class="col-5">
+                                <button type="button" rel="sendCode" class="btn btn-dark btn-block">Enviar código
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex">
+
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+
+                            <label for="id_pass">Contraseña nueva:</label>
+                        </div>
+                        <input type="password" name="pass" placeholder="Ingrese la contraseña nueva"
+                               class="form-control"
+                               autocomplete="off" maxlength="100" required="" id="id_pass">
+                        <div class="help">
+                            <ul>
+                                <li>Su contraseña no puede asemejarse tanto a su otra información personal.</li>
+                                <li>Su contraseña debe contener al menos 8 caracteres.</li>
+                                <li>Su contraseña no puede ser una clave utilizada comúnmente.</li>
+                                <li>Su contraseña no puede ser completamente numérica.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex">
+
+                            <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                <i class="fa fa-asterisk fa-xs" aria-hidden="true" style="color: red"></i>
+                            </div>
+
+                            <label for="id_pass2">Repetir contraseña:</label>
+                        </div>
+                        <input type="password" name="pass2" placeholder="Repita la contraseña nueva"
+                               class="form-control"
+                               autocomplete="off" maxlength="100" required="" id="id_pass2">
+                        <div class="help">Para verificar, introduzca la misma contraseña anterior.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <button rel="btnChangePass" type="submit" class="btn btn-primary btn-flat btn-block">Cambiar
+                                contraseña
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url "session:login" %}" rel="btnCancel"
+                               class="btn btn-secondary btn-flat btn-block" data-dismiss="modal">
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.login-card-body -->
+    </div>
+    <script type="application/javascript">
+        {% if form.errors %}
+            var errors = '';
+            {% for field in form %}
+                {% for error in field.errors %}
+                    errors += '{{ error }}\n'
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                errors += '{{ error }}\n'
+            {% endfor %}
+
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: errors,
+            });
+        {% endif %}
+    </script>
+</div>
+</div>
+<!-- /.login-box -->
+<!-- jQuery -->
+<script src="{% static 'lib/jquery-3.3.1-dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'lib/bootstrap-4.1.3-dist/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'lib/adminlte-3.1.0-dist/js/adminlte.min.js' %}"></script>
+
+<script src="{% static 'js/functions.js' %}"></script>
+
+<script src="{% static 'recuperar/recPassword.js' %}"></script>
+<!-- Jquery confirm -->
+<script src="{% static 'lib/jquery-confirm-v3.3.4/jquery-confirm.min.js' %}"></script>
+
+<script type="application/javascript">
+    {% if messages %}
+        let html_messages = '<p>';
+        {% for message in messages %}
+            html_messages += '{{ message }}<br>';
+        {% endfor %}
+        html_messages += '</p>';
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            html: html_messages,
+        })
+    {% endif %}
+</script>
+
+</body>
+</html>
