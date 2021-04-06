@@ -2,8 +2,11 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
+from django.templatetags.static import static
+from django.core import mail
+from django.template.loader import get_template
 
-from app.settings import MEDIA_URL, STATIC_URL
+from app.settings import MEDIA_URL, STATIC_URL, EMAIL_HOST_USER
 from core.base.models import BaseModel
 
 
@@ -172,6 +175,26 @@ class User(AbstractUser, BaseModel):
         if group is not None:
             if self.groups.filter(name=group.name).exists() is False:
                 self.groups.add(group)
+
+    def send_email_user(self, request):
+        if self.persona is not None:
+            template_email = get_template("correo/correo.html")
+            context_email = {"name": "{} {}".format(self.persona.nombre, self.persona.apellido),
+                             "username": self.username,
+                             "email": self.email,
+                             "urllogin": request.build_absolute_uri("/"),
+                             "logo": request.build_absolute_uri(
+                                 static('img/uteq/logoUTEQoriginal1.png'))}
+            content_email = template_email.render(context_email)
+            email_send = mail.EmailMultiAlternatives(
+                "Nuevo usuario",
+                "Unidad de control de sustancias catalogadas, sujetas a fizcalización",
+                EMAIL_HOST_USER,
+                [self.email]
+            )
+            email_send.attach_alternative(content_email, "text/html")
+            return email_send.send()
+        return 0
 
     def get_user_info(self):
         if self.persona is not None:

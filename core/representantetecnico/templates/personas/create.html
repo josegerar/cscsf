@@ -14,19 +14,22 @@
 
 {% block detallesform %}
     {% if request.user.is_representative %}
+        {% if action == 'edit' %}
+            <input type="hidden" name="id_persona" value="{{ form.instance.id }}"/>
+        {% endif %}
         <button rel="add_user" type="button" class="btn btn-secondary btn-flat btn-block">
             <i class="fas fa-user-plus"></i>
             Agregar usuario
         </button>
         <br>
-        <table id="tbroles" class="table">
+        <table id="tbroles" class="table" style="width: 100%">
             <thead>
             <tr>
-                <th scope="col">#</th>
-                <th scope="col">Correo</th>
-                <th scope="col">Rol</th>
-                <th scope="col">Estado</th>
-                <th scope="col">Acciones</th>
+                <th scope="col" style="width: 5%">#</th>
+                <th scope="col" style="width: 40%">Correo</th>
+                <th scope="col" style="width: 20%">Rol</th>
+                <th scope="col" style="width: 20%">Estado</th>
+                <th scope="col" style="width: 15%">Acciones</th>
             </tr>
             </thead>
             <tbody>
@@ -86,6 +89,10 @@
 
 {% block script %}
     {% if request.user.is_representative %}
-        <script src="{% static 'personas/js/create.js' %}"></script>
+        {% if action == 'add' %}
+            <script src="{% static 'personas/js/create.js' %}"></script>
+        {% elif action == 'edit' %}
+            <script src="{% static 'personas/js/update.js' %}"></script>
+        {% endif %}
     {% endif %}
 {% endblock %}

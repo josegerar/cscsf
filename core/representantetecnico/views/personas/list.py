@@ -25,7 +25,7 @@ class PersonaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                     if type_data == 'lab':
                         query = Persona.objects.filter(user_creation_id=request.user.id)
                     else:
-                        query = Persona.objects.all()
+                        query = Persona.objects.exclude(id=request.user.persona_id)
                     for per in query:
                         item = {'id': per.id, 'nombre': per.nombre, 'apellido': per.apellido, 'cedula': per.cedula,
                                 'is_del': True}

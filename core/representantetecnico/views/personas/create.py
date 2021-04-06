@@ -56,7 +56,6 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                             'Ocurrio un error al crear un usuario, '
                                             'por favor verifique la información a registrar del usuario'
                                         )
-                                    template_email = get_template("correo/correo.html")
                                     for user_item in usuarios:
                                         username = persona.get_username(key="")
                                         rol_selected = user_item["rol_selected"]
@@ -94,22 +93,7 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                             new_user.is_laboratory_worker = True
                                         elif rol_selected["value"] == "bodeguero":
                                             new_user.is_grocer = True
-
-                                        context_email = {"name": "{} {}".format(persona.nombre, persona.apellido),
-                                                         "username": new_user.username,
-                                                         "email": new_user.email,
-                                                         "urllogin": request.build_absolute_uri("/"),
-                                                         "logo": request.build_absolute_uri(
-                                                             static('img/uteq/logoUTEQoriginal1.png'))}
-                                        content_email = template_email.render(context_email)
-                                        email_send = mail.EmailMultiAlternatives(
-                                            "Nuevo usuario",
-                                            "Unidad de control de sustancias catalogadas, sujetas a fizcalización",
-                                            EMAIL_HOST_USER,
-                                            [email_verified]
-                                        )
-                                        email_send.attach_alternative(content_email, "text/html")
-                                        res_messages_email = email_send.send()
+                                        res_messages_email = new_user.send_email_user(request)
                                         if res_messages_email != 1:
                                             raise Exception(
                                                 'Ocurrio un error al intentar verificar un correo electronico, '
