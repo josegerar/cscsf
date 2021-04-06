@@ -57,9 +57,28 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
                         with transaction.atomic():
                             for user in persona.user_set.all():
                                 for user_n in users_new:
+                                    estado_selected = user_n["estado_selected"]
                                     if user.id == user_n['id']:
+                                        if estado_selected["value"] == "habilitado":
+                                            user.is_active = True
+                                        else:
+                                            user.is_active = False
                                         if user.email != user_n['email']:
                                             user.email = user_n['email']
+                                            res_messages_email = user.send_email_user(request)
+                                            if res_messages_email != 1:
+                                                raise Exception(
+                                                    'Ocurrio un error al intentar verificar un correo electronico, '
+                                                    'correo electronico {} no valido'.format(user["email"])
+                                                )
+                                        user.save()
+                                        break
+                            for user_n in users_new:
+                                if user_n['id'] == -1:
+                                    rol_selected = user_n["rol_selected"]
+                                    estado_selected = user_n["estado_selected"]
+                                    persona.create_custom_user(request, rol_selected, estado_selected,
+                                                               user_n["email"])
                 else:
                     data['error'] = form.errors
         except Exception as e:

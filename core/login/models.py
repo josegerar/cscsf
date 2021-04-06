@@ -57,6 +57,55 @@ class Persona(BaseModel):
             parts[3] = apellido_array[1]
         return parts
 
+    def create_custom_user(self, request, rol_selected, estado_selected, email):
+        username = self.get_username(key="")
+        if username is None:
+            raise Exception(
+                'Ocurrio un error al crear un usuario, '
+                'por favor verifique la información a registrar'
+            )
+        email_verified = User.validate_domain_email(email)
+        if email_verified is None:
+            raise Exception(
+                'Ocurrio un error al crear un usuario, '
+                'correo electronico {} no valido. Debe ingresar '
+                'un correo electronico institucional'.format(email)
+            )
+        email_person = User.verify_email_person(email_verified, self.id)
+        if email_person is False:
+            raise Exception(
+                'Ocurrio un error al crear un usuario, este correo electronico '
+                '{} ya utilizado por otro usuario del sistema'.format(
+                    email)
+            )
+        new_user = User.objects.create_user(username=username, email=email_verified,
+                                            password=self.cedula)
+        new_user.persona_id = self.id
+        if estado_selected["value"] == "habilitado":
+            new_user.is_active = True
+        else:
+            new_user.is_active = False
+
+        if rol_selected["value"] == "representante":
+            new_user.is_representative = True
+        elif rol_selected["value"] == "laboratorista":
+            new_user.is_laboratory_worker = True
+        elif rol_selected["value"] == "bodeguero":
+            new_user.is_grocer = True
+        res_messages_email = new_user.send_email_user(request)
+        if res_messages_email != 1:
+            raise Exception(
+                'Ocurrio un error al intentar verificar un correo electronico, '
+                'correo electronico {} no valido'.format(email)
+            )
+        new_user.save()
+
+    def get_imagen(self):
+        if self.imagen:
+            return '{}{}'.format(MEDIA_URL, self.imagen)
+        else:
+            return '{}{}'.format(STATIC_URL, 'img/user.png')
+
     @staticmethod
     def username_exists(username):
         if User.objects.filter(username=username).exists():
@@ -89,12 +138,6 @@ class Persona(BaseModel):
         choices = [('', '---------')]
         choices += [(p.id, p.__str__()) for p in Persona.objects.filter(user__persona_id=None)]
         return choices
-
-    def get_imagen(self):
-        if self.imagen:
-            return '{}{}'.format(MEDIA_URL, self.imagen)
-        else:
-            return '{}{}'.format(STATIC_URL, 'img/user.png')
 
     class Meta:
         verbose_name = "Persona"

@@ -57,49 +57,10 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                                             'por favor verifique la información a registrar del usuario'
                                         )
                                     for user_item in usuarios:
-                                        username = persona.get_username(key="")
                                         rol_selected = user_item["rol_selected"]
                                         estado_selected = user_item["estado_selected"]
-                                        if username is None:
-                                            raise Exception(
-                                                'Ocurrio un error al crear un usuario, '
-                                                'por favor verifique la información a registrar'
-                                            )
-                                        email_verified = User.validate_domain_email(user_item["email"])
-                                        if email_verified is None:
-                                            raise Exception(
-                                                'Ocurrio un error al crear un usuario, '
-                                                'correo electronico {} no valido. Debe ingresar '
-                                                'un correo electronico institucional'.format(user_item["email"])
-                                            )
-                                        email_person = User.verify_email_person(email_verified, persona.id)
-                                        if email_person is False:
-                                            raise Exception(
-                                                'Ocurrio un error al crear un usuario, este correo electronico '
-                                                '{} ya utilizado por otro usuario del sistema'.format(
-                                                    user_item["email"])
-                                            )
-                                        new_user = User.objects.create_user(username=username, email=email_verified,
-                                                                            password=persona.cedula)
-                                        new_user.persona_id = persona.id
-                                        if estado_selected["value"] == "habilitado":
-                                            new_user.is_active = True
-                                        else:
-                                            new_user.is_active = False
-
-                                        if rol_selected["value"] == "representante":
-                                            new_user.is_representative = True
-                                        elif rol_selected["value"] == "laboratorista":
-                                            new_user.is_laboratory_worker = True
-                                        elif rol_selected["value"] == "bodeguero":
-                                            new_user.is_grocer = True
-                                        res_messages_email = new_user.send_email_user(request)
-                                        if res_messages_email != 1:
-                                            raise Exception(
-                                                'Ocurrio un error al intentar verificar un correo electronico, '
-                                                'correo electronico {} no valido'.format(user_item["email"])
-                                            )
-                                        new_user.save()
+                                        persona.create_custom_user(request, rol_selected, estado_selected,
+                                                                   user_item["email"])
                         else:
                             data['error'] = 'Ha ocurrido un error'
                     else:
