@@ -30,7 +30,8 @@ class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, De
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if User.objects.filter(persona_id=self.object.id).exists():
+            if User.objects.filter(persona_id=self.object.id).exists() or Solicitud.objects.filter(
+                    responsable_actividad_id=self.object.id).exists():
                 raise Exception(
                     'No es posible eliminar este registro'
                     'Pongase en contacto con el administrador del sistema'
@@ -42,12 +43,16 @@ class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, De
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Eliminar personas"
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
-            {"uridj": self.success_url, "uriname": "Personas"},
-            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Eliminar"}
         ]
+        if self.request.user.is_representative:
+            context['title'] = "Registrar Personas"
+            context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"})
+        elif self.request.user.is_laboratory_worker:
+            context['title'] = "Registrar Investigadores / Docentes"
+            context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Investigadores"})
+        context['urls'].append({"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Eliminar"})
         return context

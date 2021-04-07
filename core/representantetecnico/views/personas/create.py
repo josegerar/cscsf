@@ -1,17 +1,14 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core import mail
 from django.db import transaction
 from django.http import JsonResponse
-from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from django.template.loader import get_template
 
-from app.settings import LOGIN_REDIRECT_URL, EMAIL_HOST_USER
+from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.login.models import Persona, User
+from core.login.models import Persona
 from core.representantetecnico.forms.formPersona import PersonaForm
 
 
@@ -25,15 +22,19 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Registrar personas"
         context['icontitle'] = "plus"
         context['url_list'] = self.success_url
         context['action'] = 'add'
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},
-            {"uridj": self.success_url, "uriname": "Personas"},
-            {"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"}
         ]
+        if self.request.user.is_representative:
+            context['title'] = "Registrar Personas"
+            context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"})
+        elif self.request.user.is_laboratory_worker:
+            context['title'] = "Registrar Investigadores / Docentes"
+            context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Investigadores"})
+        context['urls'].append({"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"})
         return context
 
     def post(self, request, *args, **kwargs):

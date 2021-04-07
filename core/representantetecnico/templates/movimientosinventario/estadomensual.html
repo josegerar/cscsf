@@ -40,6 +40,7 @@
         <th scope="col">Cantidad</th>
         {% if request.user.is_representative %}
             <th scope="col">Lugar</th>
+            <th scope="col">Nombre lugar</th>
         {% elif request.user.is_grocer %}
             <th scope="col">bodega</th>
         {% elif request.user.is_laboratory_worker %}
@@ -61,7 +62,7 @@
 
 {% block script %}
     {% if request.user.is_representative %}
-        <script src="{% static 'movimientoinventario/js/list.js' %}"></script>
+        <script src="{% static 'movimientoinventario/js/estadomensual.js' %}"></script>
     {% elif request.user.is_grocer %}
         <script src="{% static 'movimientoinventariobdg/js/estadomensual.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}

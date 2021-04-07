@@ -40,11 +40,11 @@ class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequir
                     year = request.GET.get('year')
                     sustancia = request.GET.get('sus_id')
                     if type_data == 'lab':
-                        data_res = Inventario.get_data_mov_inv(request.user.id, sustancia, year, mes)
+                        data_res = Inventario.get_mov_inv_tl(request.user.id, sustancia, year, mes)
                     elif type_data == 'bdg':
                         data_res = Inventario.get_mov_inv_bdg(request.user.id, sustancia, year, mes)
                     else:
-                        data_res = Inventario.get_data_mov_inv(0, 0, 0, 0)
+                        data_res = Inventario.get_mov_inv_rt(sustancia, year, mes)
                     data = data_res
                     return JsonResponse(data, safe=False)
         except Exception as e:

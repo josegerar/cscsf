@@ -15,7 +15,6 @@ class BodegaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Bodegas registradas"
         context['icontitle'] = "store-alt"
         context['create_url'] = reverse_lazy('rp:registrobodega')

@@ -59,6 +59,8 @@ class InformesMensualesUpdateView(LoginRequiredMixin, ValidatePermissionRequired
                         estadoinforme = EstadoTransaccion.objects.get(estado='registrado')
                         if informe_mensual is not None and estadoinforme is not None:
                             with transaction.atomic():
+                                if informe_mensual.estado_informe.estado == "archivado":
+                                    raise Exception('No es posible actualizar este registro')
                                 detalle_informe_new = json.loads(request.POST['detalle_informe'])
                                 informe_mensual.estado_informe_id = estadoinforme.id
                                 informe_mensual.laboratorista_id = request.user.id

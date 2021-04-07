@@ -71,9 +71,11 @@
         <th scope="col">Sustancia</th>
         <th scope="col">Cantidad</th>
         <th scope="col">Tipo movimiento</th>
+        <th scope="col">Fecha movimiento</th>
         <th scope="col">Mes</th>
         <th scope="col">Año</th>
         {% if request.user.is_representative %}
+            <th scope="col">Tipo Lugar</th>
             <th scope="col">Lugar</th>
         {% elif request.user.is_grocer %}
             <th scope="col">Bodega</th>

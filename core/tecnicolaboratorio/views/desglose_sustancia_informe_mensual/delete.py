@@ -33,6 +33,8 @@ class DesgloseSustanciaInformeMensualDeleteView(LoginRequiredMixin, ValidatePerm
         data = {}
         try:
             with transaction.atomic():
+                if self.object.informe_mensual_detalle.informe.estado_informe.estado == "archivado":
+                    raise Exception('No es posible eliminar este registro')
                 desglose_informe_sustancia_detalle = self.object
                 if desglose_informe_sustancia_detalle is None:
                     raise Exception(

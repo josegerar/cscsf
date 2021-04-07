@@ -33,11 +33,14 @@ class InformesMensualesDeleteView(LoginRequiredMixin, ValidatePermissionRequired
         try:
             with transaction.atomic():
                 informe = self.object
+                if informe.estado_informe.estado == "archivado":
+                    raise Exception("No es posible eliminar este registro")
                 for det in informe.informesmensualesdetalle_set.all():
                     for desglose_det in det.desgloseinfomemensualdetalle_set.all():
                         solicitud_detalle = desglose_det.solicitud_detalle
-                        solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_det.cantidad
-                        solicitud_detalle.save()
+                        if solicitud_detalle is not None:
+                            solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_det.cantidad
+                            solicitud_detalle.save()
                 informe.delete()
         except Exception as e:
             data['error'] = str(e)

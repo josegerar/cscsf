@@ -190,7 +190,7 @@ class Solicitud(BaseModel):
 
     def get_fecha_autorizacion(self):
         if self.fecha_autorizacion is not None:
-            self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
+            return self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
         return ''
 
     class Meta:
@@ -469,31 +469,38 @@ class Inventario(BaseModel):
         return item
 
     @staticmethod
-    def get_data_inventario_mov_all():
+    def get_mov_inv_tl(laboratorista_id, sustancia_id, year, mes):
+        """Trae todos los movimientos de inventario que se hayan hecho en los laboratorios asignados a un
+        laboratorista con opcion a filtrar la informacion por mes, año, y sustancia"""
         with connection.cursor() as cursor:
             cursor.execute(
-                "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
-                "dil.nombre_lugar, dil.anio, dil.mes from get_data_inv_all() as dil;")
-            data_res = dictfetchall(cursor)
-        return data_res
-
-    @staticmethod
-    def get_data_mov_inv(laboratorista_id, sustancia_id, year, mes):
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
-                "dil.nombre_lugar, dil.anio, dil.mes from get_mov_inv(%s, %s, %s, %s) dil;",
+                "select dil.id, dil.date_creation, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type,  "
+                "dil.lugar, dil.nombre_lugar, dil.anio, dil.mes from get_mov_inv_tl(%s, %s, %s, %s) dil;",
                 [laboratorista_id, sustancia_id, year, mes])
             data_res = dictfetchall(cursor)
         return data_res
 
     @staticmethod
     def get_mov_inv_bdg(bodeguero_id, sustancia_id, year, mes):
+        """Trae todos los movimientos de inventario que se hayan hecho en las bodegas asignadas a un bodeguero
+        con opcion a filtrar la informacion por mes, año, y sustancia"""
         with connection.cursor() as cursor:
             cursor.execute(
-                "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
-                "dil.nombre_lugar, dil.anio, dil.mes from get_mov_inv_bdg(%s, %s, %s, %s) dil;",
+                "select dil.id, dil.date_creation, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type,  "
+                "dil.lugar, dil.nombre_lugar, dil.anio, dil.mes from get_mov_inv_bdg(%s, %s, %s, %s) dil;",
                 [bodeguero_id, sustancia_id, year, mes])
+            data_res = dictfetchall(cursor)
+        return data_res
+
+    @staticmethod
+    def get_mov_inv_rt(sustancia_id, year, mes):
+        """Trae todos los movimientos hechos en todos los laboratorios y bodegas con stock en el sistema
+        con opcion a filtrar la informacion por mes, año, y sustancia"""
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "select dil.id, dil.date_creation, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type,  "
+                "dil.lugar, dil.nombre_lugar, dil.anio, dil.mes from get_mov_inv_rt(%s, %s, %s) dil;",
+                [sustancia_id, year, mes])
             data_res = dictfetchall(cursor)
         return data_res
 

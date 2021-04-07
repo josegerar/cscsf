@@ -36,7 +36,6 @@ class EstadoMensualListView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                     type_data = request.GET.get('type')
                     mes = request.GET.get('mes')
                     year = request.GET.get('year')
-                    sustancia = request.GET.get('sus_id')
                     if type_data == 'lab_month':
                         data_res = Inventario.get_data_inventario_mov(mes, year, request.user.id, 0)
                     elif type_data == 'bdg_month':

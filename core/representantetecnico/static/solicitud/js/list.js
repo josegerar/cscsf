@@ -1,17 +1,5 @@
 $(function () {
     const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
-    var tbdetallesolicitud = $('#tbdetallesolicitud').DataTable({
-        'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
-        'columns': [
-            {'data': 'stock.bodega.nombre'},
-            {'data': 'stock.sustancia.nombre'},
-            {'data': 'cantidad'},
-            {'data': 'stock.cantidad'}
-        ]
-    });
-
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': false,
@@ -25,20 +13,19 @@ $(function () {
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
             {'data': 'documento'},
-            {'data': 'id'},
-            {'data': 'estado_solicitud'}
+            {'data': 'fecha_autorizacion'},
+            {'data': 'estado'},
+            {'data': 'estado'}
         ],
         'columnDefs': [
             {
                 'targets': [4],
-                'orderable': false,
                 'render': function (data, type, row) {
-                    return get_tag_url_document(data, 'Ver solicitud')
+                    return get_tag_url_document(data, 'Ver')
                 }
             },
             {
                 'targets': [5],
-                'orderable': false,
                 'render': function (data, type, row) {
                     if (row.hasOwnProperty("fecha_autorizacion")) return row.fecha_autorizacion;
                     else return "No autorizado";
@@ -46,16 +33,21 @@ $(function () {
             },
             {
                 'targets': [6],
-                'orderable': false,
                 'render': function (data, type, row) {
-                    if (data.estado === 'registrado') {
-                        return '<button rel="confirmarSolicitud" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Aprobar</button>';
-                    } else if (data.estado === 'entregado') {
-                        return "Entregado";
-                    } else if (data.estado === 'revision') {
+                    if (data === 'revision') {
                         return '<label class="btn-danger">Revisión</label>'
-                    } else if (data.estado === 'aprobado') {
-                        return "Aprobado";
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                'targets': [7],
+                'render': function (data, type, row) {
+                    if (data === 'registrado') {
+                        return '<button rel="confirmarSolicitud" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Aprobar</button>';
+                    } else {
+                        return "";
                     }
                 }
             }
@@ -65,10 +57,51 @@ $(function () {
         }
     });
 
-    update_datatable(tblistado, window.location.pathname, data);
+    const tbdetalles = $('#tbdetallesolicitud').DataTable({
+        'responsive': true,
+        'autoWidth': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        "info": false,
+        'columns': [
+            {'data': 'sustancia'},
+            {'data': 'cant_sol'},
+            {'data': 'cant_ent'},
+            {'data': 'cant_con'}
+        ]
+    });
+
+    const tbobservaciones = $('#tbobservaciones').DataTable({
+        'responsive': true,
+        'autoWidth': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        "info": false,
+        'columns': [
+            {'data': 'observacion'}
+        ]
+    });
+
+    get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
+        console.log(response)
+        tblistado.clear();
+        tblistado.rows.add(response).draw();
+    });
 
     $('#btnSync').on('click', function (event) {
-        update_datatable(tblistado, window.location.pathname, data);
+        get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
+        });
+    });
+
+    active_events_filters(['id', 'action', 'type'], function (data) {
+        get_list_data_ajax_loading(window.location.pathname, data, function (response) {
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
+        });
     });
 
     $('#frmAutorizarSolicitud').on('submit', function (event) {
@@ -97,7 +130,7 @@ $(function () {
         event.preventDefault();
         let form = this;
         let parameters = new FormData(form);
-        parameters.append("tipoobs","rp")
+        parameters.append("tipoobs", "rp")
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
@@ -120,10 +153,20 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('button[rel="confirmarSolicitud"]').on('click', function (event) {
-            $('#modalAutorizarSolicitud').find('input[name=id_solicitud]').val(data.id);
-            tbdetallesolicitud.clear();
-            tbdetallesolicitud.rows.add(data.detallesolicitud).draw();
-            $('#modalAutorizarSolicitud').modal('show');
+            get_list_data_ajax_loading(window.location.pathname, {'action': 'search_detalle', 'id_sl': data.id}
+                , function (response) {
+                    $('#modalAutorizarSolicitud').find('input[name=id_solicitud]').val(data.id);
+                    let observaciones = [];
+                    observaciones.push({'observacion': data.obs_bd});
+                    observaciones.push({'observacion': data.obs_rp});
+                    tbobservaciones.clear();
+                    tbobservaciones.rows.add(observaciones).draw();
+                    if (response.length > 0) {
+                        tbdetalles.clear();
+                        tbdetalles.rows.add(response).draw();
+                    }
+                    $('#modalAutorizarSolicitud').modal('show');
+                });
         });
     }
 });

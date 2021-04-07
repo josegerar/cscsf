@@ -50,7 +50,7 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     else:
                         data['error'] = 'ha ocurrido un error'
                 elif action == 'aprobarSolicitud':
-                    idsolicitud = request.POST.get('id_solicitud')
+                    idsolicitud = request.POST.get('id')
                     tipoobs = request.POST.get("tipoobs")
                     if idsolicitud is not None and tipoobs is not None:
                         with transaction.atomic():
@@ -196,6 +196,7 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     for i in query:
                         item = {
                             'id': i.id,
+                            'solicitante': i.solicitante.get_user_info(),
                             'laboratorio': i.laboratorio.nombre,
                             'nombre_actividad': i.nombre_actividad,
                             'documento': i.get_doc_solicitud(),

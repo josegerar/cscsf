@@ -89,7 +89,8 @@ $(function () {
         'columns': [
             {'data': 'observacion'}
         ]
-    })
+    });
+
     const tbdetalles = $('#tbdetallesolicitud').DataTable({
         'responsive': true,
         'autoWidth': true,

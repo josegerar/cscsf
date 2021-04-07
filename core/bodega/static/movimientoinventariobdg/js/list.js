@@ -7,6 +7,7 @@ $(function () {
             {'data': 'sustancia'},
             {'data': 'can_mov'},
             {'data': 'mov_type'},
+            {'data': 'date_creation'},
             {'data': 'mes'},
             {'data': 'anio'},
             {'data': 'nombre_lugar'},

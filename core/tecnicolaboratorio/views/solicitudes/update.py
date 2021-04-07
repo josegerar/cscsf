@@ -58,6 +58,9 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                         estadosolicitud = EstadoTransaccion.objects.get(estado='registrado')
                         if solicitud is not None and estadosolicitud is not None:
                             with transaction.atomic():
+                                if solicitud.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado',
+                                                                         'recibido']:
+                                    raise Exception("No es posible actualizar este registro")
                                 detalle_solicitud_new = json.loads(request.POST['detalle_solicitud'])
                                 solicitud.estado_solicitud_id = estadosolicitud.id
                                 solicitud.save()

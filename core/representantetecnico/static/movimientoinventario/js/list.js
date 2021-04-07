@@ -1,23 +1,50 @@
 $(function () {
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
-        'deferRender': true,
+        'autoWidth': true,
         'columns': [
             {'data': 'id'},
-            {'data': 'stock.sustancia.nombre'},
-            {'data': 'cantidad'},
-            {'data': 'fecha'},
-            {'data': 'stock.sustancia.unidad_medida.nombre'},
-            {'data': 'tipo_movimiento.descripcion'}
+            {'data': 'sustancia'},
+            {'data': 'can_mov'},
+            {'data': 'mov_type'},
+            {'data': 'date_creation'},
+            {'data': 'mes'},
+            {'data': 'anio'},
+            {'data': 'lugar'},
+            {'data': 'nombre_lugar'}
+        ],
+        'columnDefs': [
+            {
+                'targets': [3],
+                'render': function (data, type, row) {
+                    if (data === 'delete') return "Consumo"
+                    else return "Ingreso"
+                }
+            },
         ]
     });
 
-    update_datatable(tblistado, window.location.pathname, data);
+    get_list_data_ajax_loading(window.location.pathname
+        , {'action': 'searchdata', 'type': 'todo', 'year': 0, 'sus_id': 0, 'mes': 0}
+        , function (response) {
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
+        });
 
-    $('#btnSync').on('click', function () {
-        update_datatable(tblistado, window.location.pathname, data);
+    $('button[rel=btnSync]').on('click', function () {
+        get_list_data_ajax_loading(window.location.pathname
+            , {'action': 'searchdata', 'type': 'todo', 'year': 0, 'sus_id': 0, 'mes': 0}
+            , function (response) {
+                tblistado.clear();
+                tblistado.rows.add(response).draw();
+            });
+    });
+
+    active_events_filters(['action', 'type', 'year', 'sus_id', 'mes'], function (data) {
+        get_list_data_ajax_loading(window.location.pathname, data
+            , function (response) {
+                tblistado.clear();
+                tblistado.rows.add(response).draw();
+            });
     });
 });

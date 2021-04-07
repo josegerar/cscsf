@@ -1,6 +1,4 @@
 $(function () {
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
-
     const tbstock = $('#tbstock').DataTable({
         'responsive': true,
         'autoWidth': true,

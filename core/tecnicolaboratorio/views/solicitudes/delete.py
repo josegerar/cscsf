@@ -20,7 +20,7 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
         self.object = self.get_object()
         if self.object is not None:
             if self.object.estado_solicitud is not None:
-                if self.object.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado', 'recibido']:
+                if self.object.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado', 'recibido', 'archivado']:
                     messages.error(request, 'solicitud de entrega de sustancia ya aprobado o entregado')
                     messages.error(request, 'No es posible su eliminación')
                     messages.error(request, 'Pongase en contacto con el administrador del sistema')
@@ -30,6 +30,8 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
     def post(self, request, *args, **kwargs):
         data = {}
         try:
+            if self.object.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado', 'recibido', 'archivado']:
+                raise Exception('No es posible eliminar este registro')
             self.object.delete()
         except Exception as e:
             data['error'] = str(e)

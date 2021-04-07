@@ -65,6 +65,9 @@
         <th scope="col">Documento</th>
         <th scope="col">Fecha autorización</th>
         <th scope="col">Estado</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Aprobar</th>
+        {% endif %}
         {% if request.user.is_laboratory_worker %}
             <th scope="col">Detalles</th>
             <th scope="col">Editar</th>
@@ -92,6 +95,7 @@
     {% if request.user.is_representative %}
         {% include 'solicitud/modal/autorizarSolicitud.html' %}
         {% include 'sendObs.html' %}
+        {% include 'solicitudtl/modal/verdetalles.html' %}
         <script src="{% static 'solicitud/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
         {% include 'solicitudbdg/modal/entregaSustanciaSolicitud.html' %}

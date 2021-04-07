@@ -8,7 +8,6 @@ from django.views.generic import UpdateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.login.models import User
 from core.representantetecnico.forms.formPersona import PersonaForm
 from core.representantetecnico.models import Persona
 
@@ -27,7 +26,6 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Actualizar personas"
         context['icontitle'] = "edit"
         context['url_list'] = self.success_url
         context['action'] = 'edit'
@@ -37,11 +35,10 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
         if self.request.user.is_representative:
             context['title'] = "Personas"
             context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Personas"})
-            context['urls'].append({"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Registro"})
         elif self.request.user.is_laboratory_worker:
-            context['title'] = "Investigadores / Docentes"
+            context['title'] = "Actualizar Investigadores / Docentes"
             context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Investigadores"})
-            context['urls'].append({"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Edicción"})
+        context['urls'].append({"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Edicción"})
         return context
 
     def post(self, request, *args, **kwargs):
