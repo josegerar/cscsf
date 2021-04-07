@@ -13,14 +13,28 @@
         <th scope="col">Nombre</th>
         <th scope="col">Dirección</th>
         <th scope="col">Responsable</th>
-        <th scope="col">Editar</th>
-        <th scope="col">Eliminar</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
+        {% endif %}
     </tr>
     </thead>
     <tbody>
     </tbody>
 {% endblock %}
 
+{% block buttons_list %}
+    <button rel="btnSync" type="button" class="btn btn-primary btn-success">
+        <i class="fas fa-sync"></i>
+        Actualizar
+    </button>
+{% endblock %}
+
 {% block script %}
-    <script src="{% static 'bodega/js/list.js' %}"></script>
+    {% if request.user.is_representative %}
+        <script src="{% static 'bodega/js/list.js' %}"></script>
+    {% elif request.user.is_grocer %}
+        <script src="{% static 'bodegabdg/js/list.js' %}"></script>
+    {% endif %}
+
 {% endblock %}

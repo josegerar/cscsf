@@ -2,9 +2,12 @@
 
 {% load static %}
 
+{% load custom_filters %}
+
 {% block filtrostable %}
     <li class="nav-item">
-        <a rel="search" data-action="searchdata" data-type="lab" data-year="0" data-mes="0" data-sus_id="0"
+        <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}" data-year="0" data-mes="0"
+           data-sus_id="0"
            class="nav-link" style="cursor: pointer">
             <i class="far fa-list-alt"></i>
             <p>Todo <i class="right fas fa-angle-left"></i></p>
@@ -21,7 +24,8 @@
         <ul class="nav nav-treeview" style="display: none;">
             {% for sustancia in sustancias %}
                 <li class="nav-item">
-                    <a rel="search" data-action="searchdata" data-type="lab" data-year="0" data-mes="0"
+                    <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}" data-year="0"
+                       data-mes="0"
                        data-sus_id="{{ sustancia.id }}"
                        class="nav-link" style="cursor: pointer">
                         <i class="far fa-circle nav-icon"></i>
@@ -43,7 +47,8 @@
             <ul class="nav nav-treeview" style="display: none;">
                 {% for mes in meses %}
                     <li class="nav-item">
-                        <a rel="search" data-action="searchdata" data-type="lab" data-year="{{ year.anio }}"
+                        <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}"
+                           data-year="{{ year.anio }}"
                            data-mes="{{ mes.id }}" data-sus_id="0"
                            class="nav-link"
                            style="cursor: pointer">
@@ -68,7 +73,13 @@
         <th scope="col">Tipo movimiento</th>
         <th scope="col">Mes</th>
         <th scope="col">Año</th>
-        <th scope="col">Laboratorio</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Lugar</th>
+        {% elif request.user.is_grocer %}
+            <th scope="col">Bodega</th>
+        {% elif request.user.is_laboratory_worker %}
+            <th scope="col">Laboratorio</th>
+        {% endif %}
     </tr>
     </thead>
     <tbody>
@@ -76,11 +87,18 @@
     </tbody>
 {% endblock %}
 
+{% block buttons_list %}
+    <button rel="btnSync" type="button" class="btn btn-primary btn-success">
+        <i class="fas fa-sync"></i>
+        Actualizar
+    </button>
+{% endblock %}
+
 {% block script %}
     {% if request.user.is_representative %}
         <script src="{% static 'movimientoinventario/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
-
+        <script src="{% static 'movimientoinventariobdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         <script src="{% static 'movimientosinventariotl/js/list.js' %}"></script>
     {% endif %}

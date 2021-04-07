@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load custom_filters %}
+
 {% block filtrostable %}
     {% for year in years_disp %}
         <li class="nav-item">
@@ -15,7 +17,8 @@
             <ul class="nav nav-treeview" style="display: none;">
                 {% for mes in meses %}
                     <li class="nav-item">
-                        <a rel="search" data-action="searchdata" data-type="lab_month" data-year="{{ year.anio }}"
+                        <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}_month"
+                           data-year="{{ year.anio }}"
                            data-mes="{{ mes.id }}" class="nav-link" style="cursor: pointer">
                             <i class="far fa-circle nav-icon"></i>
                             <p>{{ mes.nombre }}</p>
@@ -35,7 +38,13 @@
         <th scope="col">#</th>
         <th scope="col">Sustancia</th>
         <th scope="col">Cantidad</th>
-        <th scope="col">Laboratorio</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Lugar</th>
+        {% elif request.user.is_grocer %}
+            <th scope="col">bodega</th>
+        {% elif request.user.is_laboratory_worker %}
+            <th scope="col">Laboratorio</th>
+        {% endif %}
     </tr>
     </thead>
     <tbody>
@@ -54,7 +63,7 @@
     {% if request.user.is_representative %}
         <script src="{% static 'movimientoinventario/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
-
+        <script src="{% static 'movimientoinventariobdg/js/estadomensual.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         <script src="{% static 'movimientosinventariotl/js/estadomensual.js' %}"></script>
     {% endif %}

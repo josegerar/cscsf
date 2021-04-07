@@ -488,6 +488,16 @@ class Inventario(BaseModel):
         return data_res
 
     @staticmethod
+    def get_mov_inv_bdg(bodeguero_id, sustancia_id, year, mes):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "select dil.id, dil.can_mov, dil.sustancia, dil.mod_type, dil.mov_type, dil.lugar,  "
+                "dil.nombre_lugar, dil.anio, dil.mes from get_mov_inv_bdg(%s, %s, %s, %s) dil;",
+                [bodeguero_id, sustancia_id, year, mes])
+            data_res = dictfetchall(cursor)
+        return data_res
+
+    @staticmethod
     def get_years_disp_inv():
         with connection.cursor() as cursor:
             cursor.execute(
@@ -496,7 +506,7 @@ class Inventario(BaseModel):
         return data_res
 
     @staticmethod
-    def get_data_inventario_mov(mes, year, laboratorista_id):
+    def get_data_inventario_mov(mes, year, laboratorista_id, bodeguero_id):
         if mes == 0:
             mes = datetime.now().month
         if year == 0:
@@ -504,8 +514,8 @@ class Inventario(BaseModel):
         with connection.cursor() as cursor:
             cursor.execute(
                 "select q1.id, q1.sustancia, q1.cantidad, q1.lugar, q1.nombre_lugar  "
-                "from get_data_inv_res(%s, %s, %s) as q1;",
-                [mes, year, laboratorista_id])
+                "from get_data_inv_res(%s, %s, %s, %s) as q1;",
+                [mes, year, laboratorista_id, bodeguero_id])
             data_res = dictfetchall(cursor)
         return data_res
 

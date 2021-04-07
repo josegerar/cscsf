@@ -72,5 +72,7 @@
         <script src="{% static 'sustancia/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         <script src="{% static 'sustanciastl/js/list.js' %}"></script>
+    {% elif request.user.is_grocer %}
+        <script src="{% static 'sustanciabdg/js/list.js' %}"></script>
     {% endif %}
 {% endblock %}

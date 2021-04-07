@@ -89,6 +89,8 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     data = []
                     if type == 'lab':
                         query = Stock.objects.filter(laboratorio__responsable_id=request.user.id, sustancia_id=id_s)
+                    elif type == 'bdg':
+                        query = Stock.objects.filter(bodega__responsable_id=request.user.id, sustancia_id=id_s)
                     else:
                         query = Stock.objects.filter(sustancia_id=id_s)
                     for i in query:

@@ -31,8 +31,13 @@ class BodegaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVi
             action = request.GET.get('action')
             if action is not None:
                 if action == 'searchdata':
+                    tipo = request.GET.get('type')
+                    if tipo == 'bdg':
+                        query = Bodega.objects.filter(responsable_id= request.user.id)
+                    else:
+                        query = Bodega.objects.all()
                     data = []
-                    for i in Bodega.objects.all():
+                    for i in query:
                         item = {'id': i.id, 'nombre': i.nombre, 'responsable': '', 'is_del': True, 'dir': i.direccion}
                         if i.responsable is not None:
                             item['responsable'] = i.responsable.get_user_info()

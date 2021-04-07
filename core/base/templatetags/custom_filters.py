@@ -21,3 +21,13 @@ def get_url_image(value, arg):
         if strresult:
             return '{}{}'.format(MEDIA_URL, strresult)
     return '{}{}'.format(STATIC_URL, 'img/user.png')
+
+
+@register.filter
+def get_type_user(value):
+    if value is not None:
+        if value.is_grocer:
+            return 'bdg'
+        elif value.is_laboratory_worker:
+            return 'lab'
+    return 'todo'

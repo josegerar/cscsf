@@ -38,9 +38,11 @@ class EstadoMensualListView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                     year = request.GET.get('year')
                     sustancia = request.GET.get('sus_id')
                     if type_data == 'lab_month':
-                        data_res = Inventario.get_data_inventario_mov(mes, year, request.user.id)
+                        data_res = Inventario.get_data_inventario_mov(mes, year, request.user.id, 0)
+                    elif type_data == 'bdg_month':
+                        data_res = Inventario.get_data_inventario_mov(mes, year, 0, request.user.id)
                     else:
-                        data_res = Inventario.get_data_inventario_mov(mes, year, 0)
+                        data_res = Inventario.get_data_inventario_mov(mes, year, 0, 0)
                     data = data_res
                     return JsonResponse(data, safe=False)
         except Exception as e:
