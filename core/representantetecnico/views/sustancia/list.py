@@ -121,10 +121,12 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                             "laboratorio__nombre"):
                         data.append({'id': i.id, 'nombre': i.laboratorio.nombre, 'tipo': 'laboratorio',
                                      'cantidad_ingreso': float(i.cantidad)})
-                    for i in Bodega.objects.all().order_by('nombre'):
-                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'bodega', 'cantidad_ingreso': 0.0000})
-                    for i in Laboratorio.objects.all().order_by('nombre'):
-                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio', 'cantidad_ingreso': 0.0000})
+                    for i in Bodega.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
+                        data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'bodega',
+                                     'cantidad_ingreso': 0.0000})
+                    for i in Laboratorio.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
+                        data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio',
+                                     'cantidad_ingreso': 0.0000})
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)

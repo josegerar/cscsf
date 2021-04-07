@@ -54,55 +54,40 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
                                 sustancia.save()
 
                                 stock_old = Stock.objects.filter(sustancia_id=sustancia.id)
-
+                                """Actualizar los stock ya agregados"""
                                 for st_old in stock_old:
-                                    exits_old = False
                                     for st_new in stock_new:
                                         if st_old.id == st_new['id']:
-                                            exits_old = True
+                                            if float(st_old.cantidad) != st_new['cantidad_ingreso']:
+                                                inv = Inventario()
+                                                inv.stock_id = st_old.id
+                                                if float(st_old.cantidad) > st_new['cantidad_ingreso']:
+                                                    inv.tipo_movimiento_id = tipo_movimiento_del.id
+                                                    inv.cantidad_movimiento = float(st_old.cantidad) - st_new['cantidad_ingreso']
+                                                if float(st_old.cantidad) < st_new['cantidad_ingreso']:
+                                                    inv.tipo_movimiento_id = tipo_movimiento_add.id
+                                                    inv.cantidad_movimiento = st_new['cantidad_ingreso'] - float(st_old.cantidad)
+                                                stock_old.cantidad = st_new['cantidad_ingreso']
+                                                inv.save()
+                                                st_old.save()
                                             break
-                                    if exits_old is False:
-                                        inv = Inventario()
-                                        inv.cantidad_movimiento = st_old.cantidad
-                                        inv.tipo_movimiento_id = tipo_movimiento_del.id
-                                        inv.save()
-                                        st_old.delete()
-
-                                stock_old = Stock.objects.filter(sustancia_id=sustancia.id)
-
+                                """Añadir nuevos stock en caso de que se haya añadido un laboratorio o bodega nuevo"""
                                 for st_new in stock_new:
-                                    exits_old = False
-                                    item_stock_new = None
-                                    for st_old in stock_old:
-                                        if st_old.id == st_new['id']:
-                                            exits_old = True
-                                            item_stock_new = st_old
-                                            break
-                                    if exits_old is False and item_stock_new is None:
-                                        item_stock_new = Stock()
-
-                                    if float(item_stock_new.cantidad) != st_new['cantidad_ingreso']:
-                                        inv = Inventario()
-                                        inv.stock_id = item_stock_new.id
-                                        if item_stock_new.cantidad > st_new['cantidad_ingreso']:
-                                            inv.cantidad_movimiento = float(item_stock_new.cantidad) - st_new[
-                                                'cantidad_ingreso']
-                                            inv.tipo_movimiento_id = tipo_movimiento_del.id
-                                        else:
-                                            inv.cantidad_movimiento = st_new['cantidad_ingreso'] - float(
-                                                item_stock_new.cantidad)
-                                            inv.tipo_movimiento_id = tipo_movimiento_add.id
-                                        inv.save()
-
-                                        item_stock_new.cantidad = st_new['cantidad_ingreso']
-                                        item_stock_new.sustancia_id = sustancia.id
+                                    if st_new['id'] == -1:
+                                        stock = Stock()
+                                        stock.sustancia_id = sustancia.id
                                         if st_new['tipo'] == 'bodega':
-                                            bodega_new = st_new['bodega']
-                                            item_stock_new.bodega_id = bodega_new['id']
+                                            stock.bodega_id = st_new['id_lugar']
                                         elif st_new['tipo'] == 'laboratorio':
-                                            laboratorio_new = st_new['laboratorio']
-                                            item_stock_new.laboratorio_id = laboratorio_new['id']
-                                        item_stock_new.save()
+                                            stock.laboratorio_id = st_new['id_lugar']
+                                        stock.cantidad = float(st_new['cantidad_ingreso'])
+                                        stock.save()
+
+                                        inv = Inventario()
+                                        inv.stock_id = stock.id
+                                        inv.cantidad_movimiento = stock.cantidad
+                                        inv.tipo_movimiento_id = tipo_movimiento_add.id
+                                        inv.save()
                         else:
                             data['error'] = "Ha ocurrido un error"
                     else:
