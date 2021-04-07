@@ -49,7 +49,7 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
                         if sustancia is not None:
                             with transaction.atomic():
                                 stock_new = json.loads(request.POST['desgloses'])
-                                tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancia')
+                                tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='add')
                                 tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
                                 sustancia.save()
 
@@ -106,19 +106,7 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
                         else:
                             data['error'] = "Ha ocurrido un error"
                     else:
-                        data['error'] = "Ha ocurrido un error"
-                elif action == 'list_desglose':
-                    data = []
-                    for i in Stock.objects.filter(sustancia_id=self.object.id, laboratorio=None).order_by(
-                            "bodega__nombre"):
-                        item = {'id': i.id, 'nombre': i.bodega.nombre, 'tipo': 'bodega',
-                                'cantidad_ingreso': float(i.cantidad), 'bodega': i.bodega.toJSON()}
-                        data.append(item)
-                    for i in Stock.objects.filter(sustancia_id=self.object.id, bodega=None).order_by(
-                            "laboratorio__nombre"):
-                        item = {'id': i.id, 'nombre': i.laboratorio.nombre, 'tipo': 'laboratorio',
-                                'cantidad_ingreso': float(i.cantidad), 'laboratorio': i.laboratorio.toJSON()}
-                        data.append(item)
+                        data['error'] = form.errors
                 else:
                     data['error'] = "Ha ocurrido un error"
             else:

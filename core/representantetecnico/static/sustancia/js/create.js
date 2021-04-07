@@ -1,14 +1,10 @@
 const sustancias = {
     datatable: null,
     data: {
-        nombre: null,
-        unidad_medida: null,
-        descripcion: null,
-        cupo_autorizado: 0.0000,
         desgloses: []
     },
     init: function () {
-        get_list_data_ajax_loading('/sustancias/', {'action': 'list_desglose'}
+        get_list_data_ajax_loading('/sustancias/', {'action': 'list_desgl_blank'}
             , function (response) {
                 if (response.length === 0) message_info("No hay bodegas o laboratorios registrados");
                 sustancias.data.desgloses = response;
@@ -63,11 +59,7 @@ $(function () {
 
     sustancias.init();
 
-    $("input[name='cupo_autorizado']")
-        .on('change', function (event) {
-            sustancias.data.cupo_autorizado = parseFloat($(this).val());
-        })
-        .TouchSpin({
+    $("input[name='cupo_autorizado']").TouchSpin({
             'verticalbuttons': true,
             'min': 0.00,
             'initval': 0.00,

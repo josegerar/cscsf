@@ -101,18 +101,28 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                             item['nombre'] = i.bodega.nombre
                         data.append(item)
                     return JsonResponse(data, safe=False)
-                elif action == 'list_desglose':
+                elif action == 'list_desgl_blank':
                     data = []
                     for i in Bodega.objects.all().order_by('nombre'):
-                        item = i.toJSON()
-                        item['tipo'] = 'bodega'
-                        item['cantidad_ingreso'] = 0.0000
-                        data.append(item)
+                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'bodega', 'cantidad_ingreso': 0.0000})
                     for i in Laboratorio.objects.all().order_by('nombre'):
-                        item = i.toJSON()
-                        item['tipo'] = 'laboratorio'
-                        item['cantidad_ingreso'] = 0.0000
-                        data.append(item)
+                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio', 'cantidad_ingreso': 0.0000})
+                    return JsonResponse(data, safe=False)
+                elif action == 'list_desglose':
+                    data = []
+                    sus_id = request.GET.get('sus_id')
+                    for i in Stock.objects.filter(sustancia_id=sus_id, laboratorio=None).order_by(
+                            "bodega__nombre"):
+                        data.append({'id': i.id, 'nombre': i.bodega.nombre, 'tipo': 'bodega',
+                                     'cantidad_ingreso': float(i.cantidad)})
+                    for i in Stock.objects.filter(sustancia_id=sus_id, bodega=None).order_by(
+                            "laboratorio__nombre"):
+                        data.append({'id': i.id, 'nombre': i.laboratorio.nombre, 'tipo': 'laboratorio',
+                                     'cantidad_ingreso': float(i.cantidad)})
+                    for i in Bodega.objects.all().order_by('nombre'):
+                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'bodega', 'cantidad_ingreso': 0.0000})
+                    for i in Laboratorio.objects.all().order_by('nombre'):
+                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio', 'cantidad_ingreso': 0.0000})
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)

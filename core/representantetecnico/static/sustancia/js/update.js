@@ -2,23 +2,15 @@ const sustancias = {
     datatable: null,
     form_data_ajax: null,
     data: {
-        nombre: null,
-        unidad_medida: null,
-        descripcion: null,
-        cupo_autorizado: 0.0000,
         desgloses: []
     },
     init: function () {
-        this.form_data_ajax = new FormData();
-        this.form_data_ajax.append("action", 'list_desglose');
-        Loading.show();
-        send_petition_server('POST', this.form_data_ajax, window.location.pathname, getCookie("csrftoken"),
-            function (data) {
-                console.log(data);
-                sustancias.data.desgloses = data;
+        let id_sustancia = $('input[name=id_sustancia]').val();
+        get_list_data_ajax_loading('/sustancias/', {'action': 'list_desglose', 'sus_id': id_sustancia}
+            , function (response) {
+                sustancias.data.desgloses = response;
                 sustancias.list_desgloses();
-            }, function (error) {
-                message_error(error);
+                sustancias.update_cantiad_total();
             });
     },
     list_desgloses: function () {
@@ -69,11 +61,7 @@ $(function () {
 
     sustancias.init();
 
-    $("input[name='cupo_autorizado']")
-        .on('change', function (event) {
-            sustancias.data.cupo_autorizado = parseFloat($(this).val());
-        })
-        .TouchSpin({
+    $("input[name='cupo_autorizado']").TouchSpin({
             'verticalbuttons': true,
             'min': 0.00,
             'initval': 0.00,
@@ -109,5 +97,4 @@ $(function () {
             sustancias.update_cantidad_desglose(nueva_cantidad, dataIndex);
         });
     }
-
 });

@@ -17,6 +17,9 @@
         <div class="card card-default">
             <form method="post" action="." enctype="multipart/form-data">
                 <input type="hidden" name="action" value="{{ action }}"/>
+                {% if action == 'edit' %}
+                    <input type="hidden" name="id_sustancia" value="{{ form.instance.id }}"/>
+                {% endif %}
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-{{ icontitle }}"></i>
