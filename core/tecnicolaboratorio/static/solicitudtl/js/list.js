@@ -11,7 +11,7 @@ $(function () {
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
             {'data': 'documento'},
-            {'data': 'fecha_autorizacion'},
+            {'data': 'codigo'},
             {'data': 'estado'},
             {'data': 'id'},
             {'data': 'id'},

@@ -21,15 +21,18 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
         data = {}
         try:
             action = request.POST['action']
-            if action == 'searchdata':
-                data = []
-                for i in ComprasPublicas.objects.all():
-                    data.append(i.toJSON())
-            elif action == 'revisionCompra':
+            if action == 'revisionCompra':
                 idcompra = request.POST.get('id')
                 if idcompra is not None:
                     with transaction.atomic():
                         compras_publicas = ComprasPublicas.objects.get(id=idcompra)
+                        if compras_publicas.bodega.responsable_id != request.user.id:
+                            raise Exception(
+                                "No puede realizar acciones sobre esta compra, no tiene esta bodega asignada")
+                        if compras_publicas.estado_compra.estado == 'almacenado':
+                            raise Exception(
+                                "Compra ya almacenada en stock, no se puede actualizar"
+                            )
                         if compras_publicas is not None:
                             compras_estado = EstadoTransaccion.objects.get(estado='revision')
                             if compras_estado is not None:
@@ -50,7 +53,14 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                 if idcompra is not None:
                     with transaction.atomic():
                         compras_publicas = ComprasPublicas.objects.get(id=idcompra)
-                        tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='addcompra')
+                        if compras_publicas.bodega.responsable_id != request.user.id:
+                            raise Exception(
+                                "No puede realizar acciones sobre esta compra, no tiene esta bodega asignada")
+                        if compras_publicas.estado_compra.estado == 'almacenado':
+                            raise Exception(
+                                "Compra ya almacenada en stock, no se puede actualizar"
+                            )
+                        tipo_movimiento = TipoMovimientoInventario.objects.get(nombre='add')
                         if tipo_movimiento is not None:
                             compras_estado = EstadoTransaccion.objects.get(estado='almacenado')
                             if compras_estado is not None:
@@ -60,31 +70,25 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                                     observacion = ""
                                 compras_publicas.observacion = observacion
                                 compras_publicas.save()
-                                if compras_publicas is not None:
-                                    detallecompra = ComprasPublicasDetalle.objects.filter(compra_id=compras_publicas.id)
-                                    for i in detallecompra:
-                                        # verificar si existe cupo para entregar la sustancia
-                                        cupo_consumido = i.stock.sustancia.get_cupo_consumido()
-                                        cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
-                                        if cupo_consumido + float(i.cantidad) > cupo_autorizado:
-                                            raise PermissionDenied(
-                                                'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
-                                                    i.stock.sustancia.nombre)
-                                            )
-                                        else:
-                                            stock = Stock.objects.get(id=i.stock_id)
-                                            stock.cantidad = stock.cantidad + i.cantidad
-                                            stock.save()
+                                detallecompra = ComprasPublicasDetalle.objects.filter(compra_id=compras_publicas.id)
+                                for i in detallecompra:
+                                    # verificar si existe cupo para entregar la sustancia
+                                    cupo_consumido = i.stock.sustancia.get_cupo_consumido(timezone.now().year)
+                                    cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
+                                    if cupo_consumido + float(i.cantidad) > cupo_autorizado:
+                                        raise PermissionDenied(
+                                            'La sustancia {} sobrepasa el cupo autorizado, verifique'.format(
+                                                i.stock.sustancia.nombre)
+                                        )
+                                    stock = Stock.objects.get(id=i.stock_id)
+                                    stock.cantidad = stock.cantidad + i.cantidad
+                                    stock.save()
 
-                                            inv = Inventario()
-                                            inv.compra_publica_detalle_id = i.id
-                                            inv.cantidad_movimiento = i.cantidad
-                                            inv.tipo_movimiento_id = tipo_movimiento.id
-                                            inv.save()
-                                else:
-                                    raise Exception(
-                                        'ha ocurrido un error al intentar confirmar la compra'
-                                    )
+                                    inv = Inventario()
+                                    inv.compra_publica_detalle_id = i.id
+                                    inv.cantidad_movimiento = i.cantidad
+                                    inv.tipo_movimiento_id = tipo_movimiento.id
+                                    inv.save()
                             else:
                                 data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
                         else:
@@ -105,13 +109,28 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                     type = request.GET.get('type')
                     data = []
                     if type == 'est':
-                        query = ComprasPublicas.objects.filter(estado_compra_id=id_s)
+                        if request.user.is_grocer:
+                            query = ComprasPublicas.objects.filter(estado_compra_id=id_s,
+                                                                   bodega__responsable_id=request.user.id)
+                        else:
+                            query = ComprasPublicas.objects.filter(estado_compra_id=id_s)
                     elif type == 'conv':
-                        query = ComprasPublicas.objects.filter(convocatoria=id_s)
+                        if request.user.is_grocer:
+                            query = ComprasPublicas.objects.filter(convocatoria=id_s,
+                                                                   bodega__responsable_id=request.user.id)
+                        else:
+                            query = ComprasPublicas.objects.filter(convocatoria=id_s)
                     elif type == 'emp':
-                        query = ComprasPublicas.objects.filter(empresa_id=id_s)
+                        if request.user.is_grocer:
+                            query = ComprasPublicas.objects.filter(empresa_id=id_s,
+                                                                   bodega__responsable_id=request.user.id)
+                        else:
+                            query = ComprasPublicas.objects.filter(empresa_id=id_s)
                     else:
-                        query = ComprasPublicas.objects.all()
+                        if request.user.is_grocer:
+                            query = ComprasPublicas.objects.filter(bodega__responsable_id=request.user.id)
+                        else:
+                            query = ComprasPublicas.objects.all()
                     for i in query:
                         item = {'id': i.id, 'llegada_bodega': i.llegada_bodega,
                                 'hora_llegada_bodega': i.hora_llegada_bodega,

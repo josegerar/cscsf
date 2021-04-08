@@ -2,6 +2,11 @@
 
 {% load static %}
 
+{% block head_list %}
+    <script src="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.js' %}"></script>
+    <link href="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.css' %}" rel="stylesheet"/>
+{% endblock %}
+
 {% block filtrostable %}
     <li class="nav-item">
         <a rel="search" data-id="0" data-action="searchdata" data-type="todo" class="nav-link"
@@ -63,7 +68,7 @@
         <th scope="col">Laboratorio</th>
         <th scope="col">Actividad</th>
         <th scope="col">Documento</th>
-        <th scope="col">Fecha autorización</th>
+        <th scope="col">Codigo solicitud</th>
         <th scope="col">Estado</th>
         <th scope="col">Detalles</th>
         {% if request.user.is_representative %}

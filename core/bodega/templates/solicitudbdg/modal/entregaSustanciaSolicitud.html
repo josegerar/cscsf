@@ -1,4 +1,4 @@
-<div id="modalEntregaSustancia" class="modal fade" tabindex="-1" role="dialog">
+<div id="modalEntregaSustancia" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <form id="frmEntregaSustancia" method="post" action=".">
             {% csrf_token %}
@@ -11,14 +11,18 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table id="tbdetallesolicitud" class="table" style="width: 100%;">
+                    <table id="tbdetallesolicitudentrega" class="table" style="width: 100%">
                         <thead>
-                        <th scope="col">#</th>
-                        <th scope="col"><label>Nombre de sustancia: </label></th>
-                        <th scope="col"><label>Cantidad solicitada: </label></th>
-                        <th scope="col"><label>Cantidad a entregar: </label></th>
-                        <th scope="col"><label>Cantidad actual: </label></th>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nombre de sustancia:</th>
+                            <th scope="col">Cantidad solicitada:</th>
+                            <th scope="col">Cantidad a entregar:</th>
+                            <th scope="col">Cantidad actual: </th>
+                        </tr>
                         </thead>
+                        <tbody>
+                        </tbody>
                     </table>
                 </div>
                 <div class="modal-footer">

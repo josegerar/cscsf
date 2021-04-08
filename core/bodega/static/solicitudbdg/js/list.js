@@ -5,51 +5,34 @@ const solicitud_entrega = {
     datatable: null,
     add_detalles: function (detalles) {
         this.data.detalles = detalles;
-        this.config_items();
         this.list_detalles();
-    },
-    config_items: function () {
-        $.each(this.data.detalles, function (index, item) {
-            if (!item.cantidad_entregada || parseFloat(item.cantidad_entregada) <= 0) item.cantidad_entregada = 0;
-            if (!item.cantidad_solicitada || parseFloat(item.cantidad_solicitada) <= 0) item.cantidad_solicitada = 0;
-        });
-    },
-    format_data_send: function () {
-        let data = []
-        $.each(this.data.detalles, function (index, item) {
-            data.push({'id': item.id, 'cantidad_entrega': item.cantidad_entregada});
-        });
-        return data;
     },
     list_detalles: function () {
         this.datatable.clear();
         this.datatable.rows.add(this.data.detalles).draw();
     },
     update_cantidad_entrega: function (nueva_cantidad, index) {
-        this.data.detalles[index].cantidad_entregada = nueva_cantidad;
+        this.data.detalles[index].cant_ent = nueva_cantidad;
     }
 }
 
 $(function () {
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
-    solicitud_entrega.datatable = $('#tbdetallesolicitud').DataTable({
+    solicitud_entrega.datatable = $('#tbdetallesolicitudentrega').DataTable({
         'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
+        'autoWidth': true,
         'columns': [
             {
                 "className": 'details-control',
                 'data': 'id'
             },
-            {'data': 'stock.sustancia.nombre'},
-            {'data': 'cantidad_solicitada'},
-            {'data': 'cantidad_entregada'},
-            {'data': 'stock.cantidad'}
+            {'data': 'sustancia'},
+            {'data': 'cant_sol'},
+            {'data': 'cant_ent'},
+            {'data': 'cant_bdg'}
         ],
         'columnDefs': [
             {
                 'targets': [3],
-                'orderable': false,
                 'render': function (data, type, row) {
                     return '<input value="' + data + '" type="text" name="cantidad" class="form-control form-control-sm input-sm" autocomplete="off"/>';
                 }
@@ -62,8 +45,7 @@ $(function () {
 
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
+        'autoWidth': true,
         'columns': [
             {
                 "className": 'details-control',
@@ -73,8 +55,9 @@ $(function () {
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
             {'data': 'documento'},
-            {'data': 'id'},
-            {'data': 'estado_solicitud.estado'}
+            {'data': 'codigo'},
+            {'data': 'estado'},
+            {'data': 'id'}
         ],
         'columnDefs': [
             {
@@ -82,14 +65,6 @@ $(function () {
                 'orderable': false,
                 'render': function (data, type, row) {
                     return get_tag_url_document(data, 'Ver')
-                }
-            },
-            {
-                'targets': [5],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    if (row.hasOwnProperty("fecha_autorizacion")) return row.fecha_autorizacion;
-                    else return "No autorizado";
                 }
             },
             {
@@ -109,6 +84,13 @@ $(function () {
                     }
                     return data;
                 }
+            },
+            {
+                'targets': [7],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    return '<a rel="opendetail" class="nav-link" style="cursor: pointer; text-align: center">Ver</a>';
+                }
             }
         ],
         'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
@@ -116,10 +98,33 @@ $(function () {
         }
     });
 
-    update_datatable(tblistado, window.location.pathname, data);
+    const tbdetalles = $('#tbdetallesolicitud').DataTable({
+        'responsive': true,
+        'autoWidth': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        "info": false,
+        'columns': [
+            {'data': 'sustancia'},
+            {'data': 'cant_sol'},
+            {'data': 'cant_ent'},
+            {'data': 'cant_con'}
+        ]
+    });
+
+    get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
+        console.log(response);
+        tblistado.clear();
+        tblistado.rows.add(response).draw();
+    });
+
 
     $('#btnSync').on('click', function (event) {
-        update_datatable(tblistado, window.location.pathname, data);
+        get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
+        });
     });
 
     $('#frmEntregaSustancia').on('submit', function (event) {
@@ -135,7 +140,7 @@ $(function () {
             $('#frmSendObs').find('input[name="action"]').val("entregarSolicitud")
             $('#modalSendObs').modal('show');
         } else if (action_save === 'revisar') {
-            $('#frmSendObs').find('h5').text("Justificaciòn de revisiòn")
+            $('#frmSendObs').find('h5').text("Justificación de revisión")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Revisión")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-danger")
             $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_solicitud"))
@@ -149,7 +154,9 @@ $(function () {
         let form = this;
         let parameters = new FormData(form);
         parameters.append("tipoobs", "bdg");
-        parameters.append("detalles", JSON.stringify(solicitud_entrega.format_data_send()));
+        if (parameters.get("action") === 'entregarSolicitud') {
+            parameters.append("detalles", JSON.stringify(solicitud_entrega.data.detalles));
+        }
         disableEnableForm(form, true);
         submit_with_ajax(
             window.location.pathname, parameters
@@ -173,24 +180,37 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('button[rel=entregarSustancias]').on('click', function (event) {
-            $('#modalEntregaSustancia').find('input[name=id_solicitud]').val(data.id);
-            solicitud_entrega.add_detalles(data.detallesolicitud);
-            $('#modalEntregaSustancia').modal('show');
+            get_list_data_ajax_loading(window.location.pathname, {'action': 'search_detalle', 'id_sl': data.id}
+                , function (response) {
+                    $('#modalEntregaSustancia').find('input[name=id_solicitud]').val(data.id);
+                    solicitud_entrega.add_detalles(response);
+                    $('#modalEntregaSustancia').modal('show');
+                });
+        });
+
+        $(row).find('a[rel=opendetail]').on('click', function (event) {
+            get_list_data_ajax_loading(window.location.pathname, {'action': 'search_detalle', 'id_sl': data.id}
+                , function (response) {
+                    tbdetalles.clear();
+                    tbdetalles.rows.add(response).draw();
+                    $('#modalDetalleSolicitud').modal('show');
+                });
         });
     }
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tbdetallesolicitud', tblistado, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tbdetallesolicitud', solicitud_entrega.datatable, 'td.details-control',
         function (row, data, dataIndex) {
             updateRowsCallbackDetalle(row, data, dataIndex);
         });
 
     function updateRowsCallbackDetalle(row, data, dataIndex) {
-        activePluguinTouchSpinInputRow(row, 'cantidad', parseFloat(data.stock.cantidad),
-            0, 0, 0.1);
+        activePluguinTouchSpinInputRow(row, 'cantidad', parseFloat(data.cant_bdg),
+            data.cant_sol, data.cant_sol, 0.1);
         $(row).find('input[name="cantidad"]').on('change', function (event) {
             let nueva_cantidad = parseFloat($(this).val());
             solicitud_entrega.update_cantidad_entrega(nueva_cantidad, dataIndex);
         });
+        $(row).find('input[name="cantidad"]').trigger('change');
     }
 });

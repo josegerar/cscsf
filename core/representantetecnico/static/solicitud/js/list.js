@@ -13,7 +13,7 @@ $(function () {
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
             {'data': 'documento'},
-            {'data': 'fecha_autorizacion'},
+            {'data': 'codigo'},
             {'data': 'estado'},
             {'data': 'estado'},
             {'data': 'estado'}
@@ -23,13 +23,6 @@ $(function () {
                 'targets': [4],
                 'render': function (data, type, row) {
                     return get_tag_url_document(data, 'Ver')
-                }
-            },
-            {
-                'targets': [5],
-                'render': function (data, type, row) {
-                    if (row.hasOwnProperty("fecha_autorizacion")) return row.fecha_autorizacion;
-                    else return "No autorizado";
                 }
             },
             {
@@ -78,6 +71,22 @@ $(function () {
             {'data': 'cant_con'}
         ]
     });
+
+    const tbdetallesolicitudautorizacion = $('#tbdetallesolicitudautorizacion').DataTable({
+        'responsive': true,
+        'autoWidth': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        "info": false,
+        'columns': [
+            {'data': 'sustancia'},
+            {'data': 'cant_sol'},
+            {'data': 'cant_ent'},
+            {'data': 'cant_con'}
+        ]
+    });
+
 
     const tbobservaciones = $('#tbobservaciones').DataTable({
         'responsive': true,
@@ -181,8 +190,8 @@ $(function () {
                     observaciones.push({'observacion': data.obs_rp});
                     tbobservaciones.clear();
                     tbobservaciones.rows.add(observaciones).draw();
-                    tbdetalles.clear();
-                    tbdetalles.rows.add(response).draw();
+                    tbdetallesolicitudautorizacion.clear();
+                    tbdetallesolicitudautorizacion.rows.add(response).draw();
                     $('#modalAutorizarSolicitud').modal('show');
                 });
         });

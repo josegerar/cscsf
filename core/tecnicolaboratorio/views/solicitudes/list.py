@@ -31,22 +31,18 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     if idsolicitud is not None and tipoobs is not None:
                         with transaction.atomic():
                             solicitud = Solicitud.objects.get(id=idsolicitud)
-                            if solicitud is not None:
-                                estado_solicitud = EstadoTransaccion.objects.get(estado='revision')
-                                if estado_solicitud is not None:
-                                    observacion = request.POST.get('observacion')
-                                    if observacion is None:
-                                        observacion = ""
-                                    if tipoobs == "rp":
-                                        solicitud.observacion_representante = observacion
-                                    elif tipoobs == "bdg":
-                                        solicitud.observacion_bodega = observacion
-                                    solicitud.estado_solicitud_id = estado_solicitud.id
-                                    solicitud.save()
-                                else:
-                                    data['error'] = 'ha ocurrido un error'
-                            else:
-                                data['error'] = 'ha ocurrido un error'
+                            if solicitud.estado_solicitud.estado in ['almacenado', 'entregado', 'recibido']:
+                                raise Exception("No es posible manipular este registro este registro")
+                            estado_solicitud = EstadoTransaccion.objects.get(estado='revision')
+                            observacion = request.POST.get('observacion')
+                            if observacion is None:
+                                observacion = ""
+                            if tipoobs == "rp":
+                                solicitud.observacion_representante = observacion
+                            elif tipoobs == "bdg":
+                                solicitud.observacion_bodega = observacion
+                            solicitud.estado_solicitud_id = estado_solicitud.id
+                            solicitud.save()
                     else:
                         data['error'] = 'ha ocurrido un error'
                 elif action == 'aprobarSolicitud':
@@ -81,63 +77,53 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                             detalle_solicitud = json.loads(detalle_solicitud)
                             solicitud = Solicitud.objects.get(id=idsolicitud)
                             tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
-                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='addsustancialab')
-                            if tipo_movimiento_del is not None and tipo_movimiento_add is not None:
-                                estado_solicitud = EstadoTransaccion.objects.get(estado='entregado')
-                                if estado_solicitud is not None:
-                                    solicitud.estado_solicitud_id = estado_solicitud.id
-                                    solicitud.observacion_bodega = observacion_solicitud
-                                    solicitud.save()
-                                    if solicitud is not None:
-                                        detallesolicitud = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
-                                        for i in detallesolicitud:
-                                            # actualiza la cantidad a entregar
-                                            for ds_new in detalle_solicitud:
-                                                if ds_new['id'] == i.id:
-                                                    i.cantidad_entregada = float(ds_new['cantidad_entrega'])
-                                                    break
-                                            i.save()
-                                            # verificar si existe cupo para entregar la sustancia
-                                            cupo_consumido = i.stock.sustancia.get_cupo_consumido()
-                                            cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
-                                            if cupo_consumido + float(i.cantidad_entregada) > cupo_autorizado:
-                                                raise PermissionDenied(
-                                                    'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
-                                                        i.stock.sustancia.nombre)
-                                                )
-                                            else:
-                                                # disminuye stock en bodega
-                                                stockbdg = Stock.objects.get(id=i.stock_id)
-                                                stockbdg.cantidad = float(stockbdg.cantidad) - i.cantidad_entregada
-                                                stockbdg.save()
+                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='add')
+                            estado_solicitud = EstadoTransaccion.objects.get(estado='entregado')
+                            solicitud.estado_solicitud_id = estado_solicitud.id
+                            solicitud.observacion_bodega = observacion_solicitud
+                            solicitud.save()
+                            detallesolicitud = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
+                            for i in detallesolicitud:
+                                # actualiza la cantidad a entregar
+                                for ds_new in detalle_solicitud:
+                                    if ds_new['id'] == i.id:
+                                        i.cantidad_entregada = float(ds_new['cant_ent'])
+                                        break
+                                i.save()
+                                # verificar si existe cupo para entregar la sustancia
+                                cupo_consumido = i.stock.sustancia.get_cupo_consumido(timezone.now().year)
+                                cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
+                                if cupo_consumido + float(i.cantidad_entregada) > cupo_autorizado:
+                                    raise PermissionDenied(
+                                        'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
+                                            i.stock.sustancia.nombre)
+                                    )
+                                # disminuye stock en bodega
+                                stockbdg = Stock.objects.get(id=i.stock_id)
+                                stockbdg.cantidad = float(stockbdg.cantidad) - i.cantidad_entregada
+                                stockbdg.save()
 
-                                                # movimiento de inventario delete de bodega
-                                                inv = Inventario()
-                                                inv.stock_id = i.stock_id
-                                                inv.cantidad_movimiento = i.cantidad_entregada
-                                                inv.tipo_movimiento_id = tipo_movimiento_del.id
-                                                inv.save()
+                                # movimiento de inventario delete de bodega
+                                inv = Inventario()
+                                inv.solicitud_detalle_id = i.id
+                                inv.cantidad_movimiento = i.cantidad_entregada
+                                inv.tipo_movimiento_id = tipo_movimiento_del.id
+                                inv.save()
 
-                                                # Aumenta el stock de el laboratorio
-                                                stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
-                                                                             sustancia_id=i.stock.sustancia_id)
-                                                stocklab.cantidad = float(stocklab.cantidad) + i.cantidad_entregada
-                                                stocklab.save()
+                                # Aumenta el stock de el laboratorio
+                                stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
+                                                             sustancia_id=i.stock.sustancia_id)
+                                stocklab.cantidad = float(stocklab.cantidad) + i.cantidad_entregada
+                                stocklab.save()
 
-                                                # movimiento de inventario addsustancialab en el laboratorio
-                                                invlab = Inventario()
-                                                invlab.stock_id = i.stock_id
-                                                invlab.cantidad_movimiento = i.cantidad_entregada
-                                                invlab.tipo_movimiento_id = tipo_movimiento_add.id
-                                                invlab.save()
-                                    else:
-                                        raise Exception(
-                                            'ha ocurrido un error al intentar confirmar la compra'
-                                        )
-                                else:
-                                    data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
-                            else:
-                                data['error'] = 'ha ocurrido un error al intentar confirmar la compra'
+                                # movimiento de inventario addsustancialab en el laboratorio
+                                invlab = Inventario()
+                                invlab.solicitud_detalle_id = i.id
+                                invlab.cantidad_movimiento = i.cantidad_entregada
+                                invlab.tipo_movimiento_id = tipo_movimiento_add.id
+                                invlab.save()
+                    else:
+                        data['error'] = 'Ha ocurrido un error'
                 elif action == 'recibirSolicitud':
                     idsolicitud = request.POST.get('id')
                     if idsolicitud is not None:
@@ -188,14 +174,34 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     type_data = request.GET.get('type')
                     id_data = request.GET.get('id')
                     if type_data == 'lab':
-                        query = Solicitud.objects.all().filter(laboratorio_id=id_data)
+                        if request.user.is_laboratory_worker:
+                            query = Solicitud.objects.all().filter(laboratorio_id=id_data,
+                                                                   laboratorio__responsable_id=request.user.id)
+                        elif request.user.is_grocer:
+                            query = Solicitud.objects.all().filter(laboratorio_id=id_data,
+                                                                   bodega__responsable_id=request.user.id)
+                        else:
+                            query = Solicitud.objects.all().filter(laboratorio_id=id_data)
                     elif type_data == 'est':
-                        query = Solicitud.objects.all().filter(estado_solicitud_id=id_data)
+                        if request.user.is_grocer:
+                            query = Solicitud.objects.all().filter(estado_solicitud_id=id_data,
+                                                                   bodega__responsable_id=request.user.id)
+                        elif request.user.is_laboratory_worker:
+                            query = Solicitud.objects.all().filter(estado_solicitud_id=id_data,
+                                                                   laboratorio__responsable_id=request.user.id)
+                        else:
+                            query = Solicitud.objects.all().filter(estado_solicitud_id=id_data)
                     else:
-                        query = Solicitud.objects.all()
+                        if request.user.is_grocer:
+                            query = Solicitud.objects.filter(bodega__responsable_id=request.user.id)
+                        elif request.user.is_laboratory_worker:
+                            query = Solicitud.objects.filter(laboratorio__responsable_id=request.user.id)
+                        else:
+                            query = Solicitud.objects.all()
                     for i in query:
                         item = {
                             'id': i.id,
+                            'codigo': i.codigo_solicitud,
                             'solicitante': i.solicitante.get_user_info(),
                             'laboratorio': i.laboratorio.nombre,
                             'nombre_actividad': i.nombre_actividad,
@@ -212,10 +218,12 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     id_sl = request.GET.get('id_sl')
                     for i in SolicitudDetalle.objects.filter(solicitud_id=id_sl):
                         data.append({
+                            'id': i.id,
                             'sustancia': i.stock.sustancia.nombre,
-                            'cant_sol': i.cantidad_solicitada,
-                            'cant_ent': i.cantidad_entregada,
-                            'cant_con': i.cantidad_consumida
+                            'cant_bdg': float(i.stock.cantidad),
+                            'cant_sol': float(i.cantidad_solicitada),
+                            'cant_ent': float(i.cantidad_entregada),
+                            'cant_con': float(i.cantidad_consumida)
                         })
                     return JsonResponse(data, safe=False)
                 if action == 'searchdetail':

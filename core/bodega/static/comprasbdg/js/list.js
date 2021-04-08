@@ -1,72 +1,51 @@
 $(function () {
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
-
-    const tbdetallecompra = $('#tbdetallecompra').DataTable({
-        'responsive': true,
-        'autoWidth': false,
-        'destroy': true,
-        'columns': [
-            {'data': 'stock.bodega.nombre'},
-            {'data': 'stock.sustancia.nombre'},
-            {'data': 'cantidad'},
-            {'data': 'stock.sustancia.cupo_autorizado'}
-        ]
-    });
+    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")};
 
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
-        'autoWidth': false,
+        'autoWidth': true,
         'destroy': true,
         'columns': [
             {
                 "className": 'details-control',
                 'data': 'id'
             },
-            {'data': 'empresa.nombre'},
+            {'data': 'empresa'},
             {'data': 'llegada_bodega'},
             {'data': 'hora_llegada_bodega'},
             {'data': 'convocatoria'},
-            {'data': 'pedido_compras_publicas'},
-            {'data': 'guia_transporte'},
-            {'data': 'factura'},
+            {'data': 'id'},
             {'data': 'estado'},
+            {'data': 'estado'}
         ],
         'columnDefs': [
             {
                 'targets': [5],
-                'orderable': false,
                 'render': function (data, type, row) {
-                    return get_tag_url_document(data, 'Ver pedido de compras publicas')
+                    return '<a class="nav-link" style="text-align: center; cursor: pointer;" rel="opendocs">Ver</a>'
                 }
             },
             {
                 'targets': [6],
-                'orderable': false,
                 'render': function (data, type, row) {
-                    return get_tag_url_document(data, 'Ver factura')
+                    if (data === 'registrado') {
+                        return "Registrado";
+                    } else if (data === 'almacenado') {
+                        return "Almacenado";
+                    } else if (data === 'revision') {
+                        return '<label class="btn-danger">Revisión</label>';
+                    }
+                    return "";
                 }
             },
             {
                 'targets': [7],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return get_tag_url_document(data, 'Ver guia')
-                }
-            },
-            {
-                'targets': [8],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    if (data.estado === 'registrado') {
-                        var buttons = '<button rel="confirmarCompra" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Confirmar</button>';
-                        return buttons
-                    } else if (data.estado === 'almacenado') {
-                        return "Almacenado"
-                    } else if (data.estado === 'revision') {
-                        return '<label class="btn-danger">Revisión</label>'
-                    } else {
-                        return ""
+                    if (data === 'registrado') {
+                        return '<button rel="confirmarCompra" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Confirmar</button>'
                     }
+                    return "";
                 }
             }
         ],
@@ -75,11 +54,65 @@ $(function () {
         }
     });
 
-    update_datatable(tblistado, window.location.pathname, data);
+    const tbdetallecompra = $('#tbdetallecompra').DataTable({
+        'responsive': true,
+        'autoWidth': true,
+        'columns': [
+            {'data': 'id'},
+            {'data': 'stock.value'},
+            {'data': 'stock.unidad_medida'},
+            {'data': 'cantidad'},
+            {'data': 'stock.cantidad_bodega'},
+            {'data': 'stock.cupo_autorizado'}
+        ]
+    });
+
+    const tbdocumentos = $('#tbdocumentos').DataTable({
+        'responsive': true,
+        'autoWidth': true,
+        'paging': false,
+        'searching': false,
+        'ordering': false,
+        "info": false,
+        'columns': [
+            {
+                "className": 'details-control',
+                'data': 'tipo'
+            },
+            {'data': 'documento'},
+        ],
+        'columnDefs': [
+            {
+                'targets': [1],
+                'render': function (data, type, row) {
+                    return get_tag_url_document(data, 'Ver')
+                }
+            }
+        ]
+    });
+
+    get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}
+        , function (response) {
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
+        });
 
     $('#btnSync').on('click', function (event) {
-        update_datatable(tblistado, window.location.pathname, data);
+        get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata', 'type': 'bdg'}
+            , function (response) {
+                tblistado.clear();
+                tblistado.rows.add(response).draw();
+            });
     });
+
+    active_events_filters(['id', 'action', 'type'], function (data) {
+        get_list_data_ajax_loading(window.location.pathname, data
+            , function (response) {
+                tblistado.clear();
+                tblistado.rows.add(response).draw();
+            });
+    });
+
     $('#frmconfirmarcompra').on('submit', function (event) {
         event.preventDefault();
         let action_save = $(event.originalEvent.submitter).attr('rel');
@@ -88,12 +121,12 @@ $(function () {
         if (action_save === 'confirmar') {
             $('#frmSendObs').find('h5').text("Justificaciòn de confirmación")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Confirmar Compra")
-            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class","btn btn-primary")
+            $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-primary")
             $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_compra"))
             $('#frmSendObs').find('input[name="action"]').val("confirmarCompra")
             $('#modalSendObs').modal('show');
         } else if (action_save === 'revisar') {
-            $('#frmSendObs').find('h5').text("Justificaciòn de revisión")
+            $('#frmSendObs').find('h5').text("Justificación de revisión")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').text("Revisión")
             $('#frmSendObs').find('button[rel=btnEnviarObs]').attr("class", "btn btn-danger")
             $('#frmSendObs').find('input[name="id"]').val(parameters.get("id_compra"))
@@ -129,10 +162,24 @@ $(function () {
 
     function updateRowsCallback(row, data, dataIndex) {
         $(row).find('button[rel="confirmarCompra"]').on('click', function (event) {
-            $('#modalConfirmarCompra').find('input[name=id_compra]').val(data.id);
-            tbdetallecompra.clear();
-            tbdetallecompra.rows.add(data.detallecompra).draw();
-            $('#modalConfirmarCompra').modal('show');
+            get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdetail', 'id_comp': data.id}
+                , function (response) {
+                    $('#modalConfirmarCompra').find('input[name=id_compra]').val(data.id);
+                    tbdetallecompra.clear();
+                    tbdetallecompra.rows.add(response).draw();
+                    $('#modalConfirmarCompra').modal('show');
+                });
+
+        });
+
+        $(row).find('a[rel=opendocs]').on('click', function (event) {
+            let documentos = []
+            documentos.push({'tipo': 'Factura', 'documento': data.factura});
+            documentos.push({'tipo': 'Guia de transporte', 'documento': data.guia_transporte});
+            documentos.push({'tipo': 'Pedidod de compras publicas', 'documento': data.pedido_compras_publicas});
+            tbdocumentos.clear();
+            tbdocumentos.rows.add(documentos).draw();
+            $('#modaldocumentos').modal('show');
         });
     }
 });

@@ -448,6 +448,7 @@ class TipoMovimientoInventario(models.Model):
 
 
 class Inventario(BaseModel):
+    solicitud_detalle = models.ForeignKey(SolicitudDetalle, on_delete=models.CASCADE, null=True)
     informe_mensual_detalle = models.ForeignKey(InformesMensualesDetalle, on_delete=models.CASCADE, null=True)
     compra_publica_detalle = models.ForeignKey(ComprasPublicasDetalle, on_delete=models.CASCADE, null=True)
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True)
