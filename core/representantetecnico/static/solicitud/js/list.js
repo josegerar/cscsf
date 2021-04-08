@@ -15,6 +15,7 @@ $(function () {
             {'data': 'documento'},
             {'data': 'fecha_autorizacion'},
             {'data': 'estado'},
+            {'data': 'estado'},
             {'data': 'estado'}
         ],
         'columnDefs': [
@@ -43,6 +44,12 @@ $(function () {
             },
             {
                 'targets': [7],
+                'render': function (data, type, row) {
+                    return '<a rel="opendetail" class="nav-link" style="cursor: pointer; text-align: center">Ver</a>'
+                }
+            },
+            {
+                'targets': [8],
                 'render': function (data, type, row) {
                     if (data === 'registrado') {
                         return '<button rel="confirmarSolicitud" class="btn btn-dark btn-flat btn-sm"> <i class="fas fa-save"></i> Aprobar</button>';
@@ -151,6 +158,20 @@ $(function () {
         });
 
     function updateRowsCallback(row, data, dataIndex) {
+        $(row).find('a[rel=opendetail]').on('click', function (event) {
+            get_list_data_ajax_loading(window.location.pathname, {'action': 'search_detalle', 'id_sl': data.id}
+                , function (response) {
+                    let observaciones = [];
+                    observaciones.push({'observacion': data.obs_bd});
+                    observaciones.push({'observacion': data.obs_rp});
+                    tbobservaciones.clear();
+                    tbobservaciones.rows.add(observaciones).draw();
+                    tbdetalles.clear();
+                    tbdetalles.rows.add(response).draw();
+                    $('#modalDetalleSolicitud').find('button[rel=recibir]').remove();
+                    $('#modalDetalleSolicitud').modal('show');
+                });
+        });
         $(row).find('button[rel="confirmarSolicitud"]').on('click', function (event) {
             get_list_data_ajax_loading(window.location.pathname, {'action': 'search_detalle', 'id_sl': data.id}
                 , function (response) {
@@ -160,10 +181,8 @@ $(function () {
                     observaciones.push({'observacion': data.obs_rp});
                     tbobservaciones.clear();
                     tbobservaciones.rows.add(observaciones).draw();
-                    if (response.length > 0) {
-                        tbdetalles.clear();
-                        tbdetalles.rows.add(response).draw();
-                    }
+                    tbdetalles.clear();
+                    tbdetalles.rows.add(response).draw();
                     $('#modalAutorizarSolicitud').modal('show');
                 });
         });

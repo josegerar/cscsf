@@ -147,10 +147,8 @@ $(function () {
                 observaciones.push({'observacion': data.obs_rp});
                 tbobservaciones.clear();
                 tbobservaciones.rows.add(observaciones).draw();
-                if (response.length > 0) {
-                    tbdetalles.clear();
-                    tbdetalles.rows.add(response).draw();
-                }
+                tbdetalles.clear();
+                tbdetalles.rows.add(response).draw();
                 $('#modalDetalleSolicitud').modal('show');
             });
     }
