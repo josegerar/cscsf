@@ -34,7 +34,6 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Actualizar compra"
         context['icontitle'] = "edit"
         context['url_list'] = self.success_url
@@ -58,6 +57,10 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                         estadocompra = EstadoTransaccion.objects.get(estado='registrado')
                         if compra is not None and estadocompra is not None:
                             with transaction.atomic():
+                                if compra.estado_compra.estado == 'almacenado':
+                                    raise Exception(
+                                        "Compra ya almacenada en stock, no se puede actualizar"
+                                    )
                                 detalle_compras_new = json.loads(request.POST['detalle_compra'])
                                 compra.estado_compra_id = estadocompra.id
                                 compra.save()
@@ -78,8 +81,6 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                                     exits_old = False
                                     item_det_new = None
                                     stock_old = dc_new['stock']
-                                    sustancia_new = stock_old['sustancia']
-                                    stock_selected = sustancia_new['stock_selected']
 
                                     for dc_old in detalle_compras_old:
                                         if dc_old.id == dc_new['id']:
@@ -90,20 +91,14 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                                     if exits_old is False and item_det_new is None:
                                         item_det_new = ComprasPublicasDetalle()
 
-                                    item_det_new.stock_id = stock_selected['id']
+                                    item_det_new.stock_id = stock_old['id']
                                     item_det_new.compra_id = compra.id
                                     item_det_new.cantidad = float(dc_new['cantidad'])
                                     item_det_new.save()
                         else:
                             data['error'] = 'ha ocurrido un error'
                     else:
-                        data['error'] = 'ha ocurrido un error'
-
-                elif action == 'searchdetail':
-                    data = []
-                    detalle_compras = ComprasPublicasDetalle.objects.filter(compra_id=self.object.id)
-                    for dci in detalle_compras:
-                        data.append(dci.toJSON(rel_compraspublicas=True))
+                        data['error'] = form.errors
                 else:
                     data['error'] = 'ha ocurrido un error'
             else:

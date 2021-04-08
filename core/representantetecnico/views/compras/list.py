@@ -3,12 +3,13 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import ComprasPublicas, Laboratorio, ComprasPublicasDetalle, EstadoTransaccion, \
-    TipoMovimientoInventario, Inventario, Stock
+from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle, EstadoTransaccion, \
+    TipoMovimientoInventario, Inventario, Stock, Proveedor
 
 
 class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -103,8 +104,12 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                     id_s = request.GET.get('id')
                     type = request.GET.get('type')
                     data = []
-                    if type == 'un_med':
-                        query = ComprasPublicas.objects.all()
+                    if type == 'est':
+                        query = ComprasPublicas.objects.filter(estado_compra_id=id_s)
+                    elif type == 'conv':
+                        query = ComprasPublicas.objects.filter(convocatoria=id_s)
+                    elif type == 'emp':
+                        query = ComprasPublicas.objects.filter(empresa_id=id_s)
                     else:
                         query = ComprasPublicas.objects.all()
                     for i in query:
@@ -116,6 +121,22 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                                 'observacion': i.observacion, 'empresa': i.empresa.nombre}
                         data.append(item)
                     return JsonResponse(data, safe=False)
+                elif action == 'searchdetail':
+                    data = []
+                    id_comp = request.GET.get('id_comp')
+                    detalle_compras = ComprasPublicasDetalle.objects.filter(compra_id=id_comp)
+                    for dci in detalle_compras:
+                        item = {'id': dci.id, 'cantidad': float(dci.cantidad),
+                                'bodega_selected': {'id': dci.stock.bodega.id, 'text': dci.stock.bodega.nombre},
+                                'stock': {'id': dci.stock.id,
+                                          'cupo_autorizado': float(dci.stock.sustancia.cupo_autorizado),
+                                          'value': dci.stock.sustancia.nombre,
+                                          'unidad_medida': dci.stock.sustancia.unidad_medida.nombre,
+                                          'cantidad_bodega': float(dci.stock.cantidad),
+                                          'cupo_consumido': dci.stock.sustancia.get_cupo_consumido(
+                                              timezone.now().year)}}
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)
         return super().get(request, *args, **kwargs)
@@ -124,7 +145,10 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
         context = super().get_context_data(**kwargs)
         context['title'] = "Compras registradas"
         context['icontitle'] = "store-alt"
-        context['laboratorios'] = Laboratorio.objects.all()
+        context['estados'] = EstadoTransaccion.objects.all()
+        context['convocatorias'] = ComprasPublicas.objects.order_by('convocatoria').distinct('convocatoria').values(
+            "convocatoria")
+        context['empresas'] = Proveedor.objects.all()
         context['create_url'] = reverse_lazy('rp:registrocompras')
         context['urls'] = [
             {"uridj": LOGIN_REDIRECT_URL, "uriname": "Home"},

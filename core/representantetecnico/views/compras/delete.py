@@ -30,6 +30,10 @@ class ComprasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
     def post(self, request, *args, **kwargs):
         data = {}
         try:
+            if self.object.estado_compra.estado == 'almacenado':
+                raise Exception(
+                    "Compra ya almacenada en stock, no se puede eliminar"
+                )
             self.object.delete()
         except Exception as e:
             data['error'] = str(e)
@@ -37,7 +41,6 @@ class ComprasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Eliminar compras"
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url

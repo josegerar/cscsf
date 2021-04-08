@@ -26,6 +26,7 @@ const solicitud = {
             item.cantidad_solicitud = parseFloat(item.cantidad_solicitud);
             item.stock.cupo_autorizado = parseFloat(item.stock.cupo_autorizado)
             item.stock.cantidad_bodega = parseFloat(item.stock.cantidad_bodega)
+
         });
         this.data.detalleSolicitud = data;
         this.list_sustancia();
@@ -67,7 +68,7 @@ const solicitud = {
     },
     verify_bod_diferent: function () {
         let diferent = false;
-        $.each(this.data.sustancias, function (index, item) {
+        $.each(this.data.detalleSolicitud, function (index, item) {
             if (item.bodega_selected.id !== parseInt(solicitud.data.bodega_selected.id)) {
                 diferent = true;
                 return false;

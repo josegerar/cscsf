@@ -107,6 +107,15 @@ $(function () {
         });
     });
 
+    active_events_filters(['id', 'action', 'type'], function (data) {
+        get_list_data_ajax_loading(window.location.pathname, data
+            , function (response) {
+                tblistado.clear();
+                tblistado.rows.add(response).draw();
+            });
+    });
+
+
     // Add event listener for opening and closing details
     addEventListenerOpenDetailRowDatatable('tblistado', tblistado, 'td.details-control',
         function (row, data, dataIndex) {

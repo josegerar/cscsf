@@ -1,11 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import Sustancia
+from core.representantetecnico.models import Sustancia, Stock
 
 
 class SustanciaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
@@ -17,11 +18,20 @@ class SustanciaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if Stock.objects.filter(sustancia_id=self.object.id).exists():
+            messages.error(request, 'Registro de sustancia ya almacenado en bodega')
+            messages.error(request, 'No es posible su modificación')
+            messages.error(request, 'Pongase en contacto con el administrador del sistema')
+            return HttpResponseRedirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         data = {}
         try:
+            if Stock.objects.filter(sustancia_id=self.object.id).exists():
+                raise Exception(
+                    "No es posible eliminar este registro"
+                )
             self.object.delete()
         except Exception as e:
             data['error'] = str(e)

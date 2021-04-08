@@ -1,12 +1,21 @@
 const compra = {
     datatable: null,
     data: {
-        detalleCompra: []
+        detalleCompra: [],
+        bodega_selected: null
     },
     add_sustancia: function (item) {
+        if (this.verify_sustance_exist(item)) {
+            message_error("Sustancia ya agregada");
+            return false;
+        }
+        if (this.verify_bod_diferent()) {
+            message_error("Solo puede agregar sustancias a la compra de una sola bodega seleccionada");
+            return false;
+        }
         item = this.config_item(item);
-        if (item.stock.sustancia.cupo_disponible <= 0) {
-            message_error("La sustancia " + item.stock.sustancia.nombre
+        if (item.stock.cupo_disponible <= 0) {
+            message_error("La sustancia " + item.stock.value
                 + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
         } else {
             this.data.detalleCompra.push(item);
@@ -15,33 +24,17 @@ const compra = {
     },
     add_detalle_compra: function (data = []) {
         $.each(data, function (index, item) {
-            item.cantidad = parseFloat(item.cantidad);
-            item.stock.sustancia.cupo_autorizado = parseFloat(item.stock.sustancia.cupo_autorizado)
-            item.stock.sustancia.cupo_disponible = item.stock.sustancia.cupo_autorizado - item.stock.sustancia.cupo_consumido
+            item.stock.cupo_disponible = item.stock.cupo_autorizado - item.stock.cupo_consumido;
         });
         this.data.detalleCompra = data;
         this.list_sustancia();
     },
     config_item: function (item) {
-        let cant = 0;
-        $.each(item.stock, function (istock, vstock) {
-            if (vstock.bodega) vstock.text = "Bod. " + vstock.bodega.nombre;
-            else if (vstock.laboratorio) vstock.text = "Lab. " + vstock.laboratorio.nombre;
-        });
-        item.cupo_autorizado = parseFloat(item.cupo_autorizado);
-        item.stock_selected = null;
         item.cupo_disponible = item.cupo_autorizado - item.cupo_consumido;
-        return {'id': -1, 'cantidad': 0.0000, 'stock': {'sustancia': item, 'cantidad': 0.0000}};
-    },
-    get_stock_item: function (dataIndex) {
-        let stock = [];
-        $.each(this.data.detalleCompra[dataIndex].stock.sustancia.stock, function (istock, vstock) {
-            if (vstock.bodega) {
-                vstock.text = "Bod. " + vstock.bodega.nombre;
-                stock.push(vstock);
-            }
-        });
-        return stock;
+        return {
+            'id': -1, 'cantidad': 0.0000, 'stock': item,
+            'bodega_selected': {'id': parseInt(this.data.bodega_selected.id), 'text': this.data.bodega_selected.text}
+        };
     },
     list_sustancia: function () {
         this.datatable.clear();
@@ -65,6 +58,19 @@ const compra = {
             }
         );
     },
+    update_bodega_seleted: function (bod_item) {
+        if (bod_item) this.data.bodega_selected = bod_item;
+    },
+    verify_bod_diferent: function () {
+        let diferent = false;
+        $.each(this.data.detalleCompra, function (index, item) {
+            if (item.bodega_selected.id !== parseInt(compra.data.bodega_selected.id)) {
+                diferent = true;
+                return false;
+            }
+        });
+        return diferent;
+    },
     verify_send_data: function (callback, error) {
         let isValidData = true;
         if (this.data.detalleCompra.length === 0) {
@@ -72,28 +78,27 @@ const compra = {
             error("¡Debe existir al menos 1 sustancia agregada en la solicitud!");
         } else {
             $.each(this.data.detalleCompra, function (index, item) {
-                if (item.cantidad_ingreso <= 0) {
+                if (item.cantidad <= 0) {
                     isValidData = false;
-                    error(`! La sustancia ${item.nombre} tiene una cantidad a solicitar invalida, por favor verifique ¡`);
+                    error(`! La sustancia ${item.stock.value} tiene una cantidad a solicitar invalida, por favor verifique ¡`);
                 }
             });
         }
         if (isValidData) callback();
-        else error("Ha ocurrido un error");
     },
-    set_stock_selected: function (dataIndex, idStock) {
-        $.each(this.data.detalleCompra[dataIndex].stock.sustancia.stock, function (istock, vstock) {
-            if (vstock.id === idStock) {
-                compra.data.detalleCompra[dataIndex].stock.sustancia.stock_selected = vstock;
+    verify_sustance_exist: function (new_item) {
+        let exist = false;
+        $.each(this.data.detalleCompra, function (index, item) {
+            if (new_item.id === item.id) {
+                exist = true;
+                return false;
             }
         });
+        return exist;
     }
 };
 
 $(function () {
-
-    const data = {'action': 'searchdetail', 'csrfmiddlewaretoken': getCookie('csrftoken')}
-
     //activar datatable a detalle de sustancias
     //asignar datable a objeto manejador de datos de la compra
     compra.datatable = $('#tblistado').DataTable({
@@ -105,12 +110,12 @@ $(function () {
                 "className": 'details-control',
                 'data': 'id'
             },
-            {'data': 'stock.sustancia.nombre'},
-            {'data': 'id'},
+            {'data': 'stock.value'},
+            {'data': 'bodega_selected.text'},
             {'data': 'cantidad'},
-            {'data': 'stock.sustancia.cupo_disponible'},
-            {'data': 'stock.sustancia.cupo_autorizado'},
-            {'data': 'stock.sustancia.unidad_medida.nombre'}
+            {'data': 'stock.cupo_disponible'},
+            {'data': 'stock.cupo_autorizado'},
+            {'data': 'stock.unidad_medida'}
         ],
         'columnDefs': [
             {
@@ -124,7 +129,7 @@ $(function () {
                 'targets': [2],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return '<div class="form-group form-group-sm"><select name="lugar_ingreso" class="form-control-sm" style="width: 100%"></select></div>';
+                    return `Bod. ${data}`;
                 }
             },
             {
@@ -145,6 +150,17 @@ $(function () {
         'theme': 'bootstrap4',
         'language': 'es'
     });
+
+
+    $('select[name=bodega]').on('change.select2', function (e) {
+        let data_select = $(this).select2('data');
+        compra.update_bodega_seleted(data_select[0]);
+    }).select2({
+        'theme': 'bootstrap4',
+        'language': 'es'
+    });
+
+    $('select[name=bodega]').trigger("change.select2");
 
     //activar plugin datetimepicker para las fechas
     $('#llegada_bodega').datetimepicker({
@@ -176,10 +192,34 @@ $(function () {
     });
 
     //activar el autocomplete en el buscador
-    autocompleteInput("search", "/sustancias/", {'action': "search_substance"},
-        function (item) {
-            compra.add_sustancia(item);
-        });
+    $('input[name=search]').focus().autocomplete({
+        source: function (request, response) {
+            let code_bod = compra.data.bodega_selected
+                ? compra.data.bodega_selected.id.length > 0
+                    ? parseInt(compra.data.bodega_selected.id)
+                    : 0
+                : 0;
+            if (code_bod === 0) {
+                message_info("Bodega no seleccionada");
+                return false;
+            }
+            let data = {
+                'term': request.term,
+                'action': "search_sus_compra",
+                'code_bod': code_bod
+            }
+            get_list_data_ajax('/sustancias/', data, function (res_data) {
+                response(res_data);
+            });
+        },
+        delay: 400,
+        minLength: 1,
+        select: function (event, ui) {
+            event.preventDefault();
+            compra.add_sustancia(ui.item);
+            $(this).val('');
+        }
+    });
 
     // Add event listener for opening and closing details
     addEventListenerOpenDetailRowDatatable('tblistado', compra.datatable, 'td.details-control',
@@ -187,43 +227,27 @@ $(function () {
             updateRowsCallback(row, data, dataIndex);
         });
 
-    get_async_data_callback(window.location.pathname, data,
-        function (response) {
+    let id_compra = $('#frmCompra').find('input[name=id_compra]').val();
+
+    get_list_data_ajax_loading('/compras/', {'action': 'searchdetail', 'id_comp': id_compra}
+        , function (response) {
             compra.add_detalle_compra(response);
-        },
-        function (error) {
-            message_error(error);
         });
 
     function updateRowsCallback(row, data, dataIndex) {
 
-        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.sustancia.cupo_disponible,
+        activePluguinTouchSpinInputRow(row, "cantidad", data.stock.cupo_disponible,
             0, 0, 0.1);
-
-        $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
-            let data_select = $(this).select2('data');
-            compra.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id));
-        }).select2({
-            'theme': 'bootstrap4',
-            'language': 'es',
-            'data': compra.get_stock_item(dataIndex),
-            'containerCssClass': "select2-font-size-sm"
-        });
-        if (data.stock.hasOwnProperty("id")) {
-            if (parseInt(data.stock.id) > 0) {
-                $(row).find('select[name="lugar_ingreso"]').val(data.stock.id.toString()); // Select the option with a value of '1'
-            }
-        }
-        $(row).find('select[name="lugar_ingreso"]').trigger('change.select2');
 
         $(row).find('input[name="cantidad"]').on('change', function (event) {
             let nueva_cantidad = parseFloat($(this).val());
             compra.update_cantidad_sustancia(nueva_cantidad, dataIndex);
         });
+
         $(row).find('a[rel="remove"]').on('click', function (event) {
             confirm_action(
                 'Notificación',
-                '¿Esta seguro de eliminar la sustancia ¡' + data.nombre + '!?',
+                '¿Esta seguro de eliminar la sustancia ¡' + data.stock.value + '!?',
                 function () {
                     compra.delete_sustancia(dataIndex);
                 }

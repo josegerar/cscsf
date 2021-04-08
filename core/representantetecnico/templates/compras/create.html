@@ -25,8 +25,11 @@
 {% block content %}
     <div class="content">
         <div class="card card-default">
-            <form method="post" action="." enctype="multipart/form-data">
+            <form id="frmCompra" method="post" action="." enctype="multipart/form-data">
                 <input type="hidden" name="action" value="{{ action }}"/>
+                {% if action == 'edit' %}
+                    <input type="hidden" name="id_compra" value="{{ form.instance.id }}"/>
+                {% endif %}
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-{{ icontitle }}"></i>
@@ -237,21 +240,18 @@
     <script type="application/javascript">
         $(function () {
             //envio de datos al servidor
-            $('form').on('submit', function (event) {
+            $('#frmCompra').on('submit', function (event) {
                 event.preventDefault();
                 let form = this;
                 let action_save = $(event.originalEvent.submitter).attr('rel');
                 compra.verify_send_data(function () {
                     let parameters = new FormData(form);
-
                     {% if action == 'add' %}
                         parameters.append('sustancias', JSON.stringify(compra.data.sustancias));
                     {% elif action == 'edit' %}
                         parameters.append('detalle_compra', JSON.stringify(compra.data.detalleCompra));
                     {% endif %}
-
                     disableEnableForm(form, true);
-
                     submit_with_ajax(
                         window.location.pathname, parameters
                         , 'Confirmación'
