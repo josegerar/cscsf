@@ -107,18 +107,14 @@ $(function () {
     });
 
     get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
-        if (response.length > 0) {
-            tblistado.clear();
-            tblistado.rows.add(response).draw();
-        }
+        tblistado.clear();
+        tblistado.rows.add(response).draw();
     });
 
     $('#btnSync').on('click', function (event) {
         get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
-            if (response.length > 0) {
-                tblistado.clear();
-                tblistado.rows.add(response).draw();
-            }
+            tblistado.clear();
+            tblistado.rows.add(response).draw();
         });
     });
 

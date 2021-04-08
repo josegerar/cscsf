@@ -7,7 +7,7 @@ from django.views.generic import DeleteView
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
 from core.bodega.models import Bodega
-from core.representantetecnico.models import Stock
+from core.representantetecnico.models import Stock, Solicitud, ComprasPublicas
 
 
 class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DeleteView):
@@ -19,7 +19,8 @@ class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Dele
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if Stock.objects.filter(bodega_id=self.object.id).exists():
+        if Stock.objects.filter(bodega_id=self.object.id).exists() or Solicitud.objects.filter(
+                bodega_id=self.object.id).exists() or ComprasPublicas.objects.filter(bodega_id=self.object.id):
             messages.error(request, 'Bodega ya posee stock registrado')
             messages.error(request, 'No es posible su eliminación')
             messages.error(request, 'Pongase en contacto con el administrador del sistema')

@@ -17,8 +17,11 @@ class ComprasForm(ModelForm):
         widgets = {
             'empresa': Select(attrs={
                 'class': 'form-control select2',
-                'style': 'width: 100%',
-                'autofocus': True
+                'style': 'width: 100%'
+            }),
+            'bodega': Select(attrs={
+                'class': 'form-control',
+                'style': 'width: 100%'
             }),
             'llegada_bodega': DateInput(format='%Y-%m-%d', attrs={
                 'class': 'form-control datetimepicker-input',

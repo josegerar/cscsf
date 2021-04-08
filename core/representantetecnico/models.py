@@ -82,15 +82,12 @@ class Sustancia(BaseModel):
     def __str__(self):
         return self.nombre
 
-    def get_cupo_consumido(self):
-        cupo_consumido = Inventario.objects.filter(
-            date_creation__year=datetime.now().year,
-            tipo_movimiento__nombre="addcompra",
-            stock__sustancia_id=self.id
-        ).aggregate(Sum("cantidad_movimiento"))
-        if cupo_consumido['cantidad_movimiento__sum'] is None:
-            cupo_consumido['cantidad_movimiento__sum'] = 0
-        return float(cupo_consumido['cantidad_movimiento__sum'])
+    def get_cupo_consumido(self, year):
+        """Trae el cupo consumido de una sustnacia en un año"""
+        with connection.cursor() as cursor:
+            cursor.execute("select get_cupo_consumido(%s, %s) as suma;", [year, self.id])
+            data_res = cursor.fetchone()
+        return float(data_res[0])
 
     def toJSON(self, view_stock=False):
         item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion,
@@ -251,6 +248,7 @@ class Proveedor(BaseModel):
 
 class ComprasPublicas(BaseModel):
     empresa = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Empresa", null=True)
+    bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, verbose_name="Bodega", null=True)
     llegada_bodega = models.DateField(default=timezone.now, verbose_name="Fecha llegada a bodega")
     hora_llegada_bodega = models.TimeField(default=timezone.now, verbose_name="Hora llegada a bodega")
     convocatoria = models.IntegerField(blank=True, null=True, validators=[validate_compras_convocatoria])

@@ -22,10 +22,6 @@
     <link href="{% static 'compras/css/create.css' %}" rel="stylesheet"/>
 {% endblock %}
 
-{% block header %}
-    {% include 'header.html' %}
-{% endblock %}
-
 {% block content %}
     <div class="content">
         <div class="card card-default">
@@ -40,47 +36,6 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-lg-8">
-                            <div class="card card-secondary">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias a ingresar
-                                    </h3>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Buscador de sustancias:</label>
-                                        <div class="input-group">
-                                            <input name="search"
-                                                   placeholder="Ingrese el nombre de la sustancia a buscar"
-                                                   autocomplete="off" type="text" class="form-control">
-                                            <span class="input-group-append">
-                                            <button type="button" rel="cleansearch" class="btn btn-danger btn-flat">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </span>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <button rel="removeall" type="button" class="btn btn-danger btn-xs btn-flat">
-                                        Eliminar todas las sustancias
-                                    </button>
-                                    <hr>
-                                    <table id="tblistado" class="table" style="width: 100%;">
-                                        <thead>
-                                        <th scope="col">Accion</th>
-                                        <th scope="col">Sustancia</th>
-                                        <th scope="col">Lugar ingreso</th>
-                                        <th scope="col">Cantidad ingreso</th>
-                                        <th scope="col">Cupo disponible</th>
-                                        <th scope="col">Cupo autorizado</th>
-                                        <th scope="col">Unidad de medida</th>
-                                        </thead>
-                                    </table>
-                                </div>
-                                <!-- /.card-body -->
-                            </div>
-                        </div>
                         <div class="col-lg-4">
                             <div class="card card-secondary">
                                 <div class="card-header">
@@ -99,6 +54,18 @@
                                             <label>Proveedor:</label>
                                         </div>
                                         {{ form.empresa }}
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="display: flex">
+                                            {% if form.bodega.field.required %}
+                                                <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                                    <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                                       style="color: red"></i>
+                                                </div>
+                                            {% endif %}
+                                            <label>Bodega:</label>
+                                        </div>
+                                        {{ form.bodega }}
                                     </div>
                                     <div class="form-group">
                                         <div style="display: flex">
@@ -185,6 +152,47 @@
                                         </div>
                                         {{ form.factura|add_class:'form-control' }}
                                     </div>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-boxes"></i> Detalle de sustancias a ingresar
+                                    </h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="search_substance_input">Buscador de sustancias:</label>
+                                        <div class="input-group">
+                                            <input name="search" id="search_substance_input"
+                                                   placeholder="Ingrese el nombre de la sustancia a buscar"
+                                                   autocomplete="off" type="text" class="form-control">
+                                            <span class="input-group-append">
+                                            <button type="button" rel="cleansearch" class="btn btn-danger btn-flat">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <button rel="removeall" type="button" class="btn btn-danger btn-xs btn-flat">
+                                        Eliminar todas las sustancias
+                                    </button>
+                                    <hr>
+                                    <table id="tblistado" class="table" style="width: 100%;">
+                                        <thead>
+                                        <th scope="col">Accion</th>
+                                        <th scope="col">Sustancia</th>
+                                        <th scope="col">Lugar ingreso</th>
+                                        <th scope="col">Cantidad ingreso</th>
+                                        <th scope="col">Cupo disponible</th>
+                                        <th scope="col">Cupo autorizado</th>
+                                        <th scope="col">Unidad de medida</th>
+                                        </thead>
+                                    </table>
                                 </div>
                                 <!-- /.card-body -->
                             </div>

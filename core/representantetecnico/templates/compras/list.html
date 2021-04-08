@@ -32,13 +32,12 @@
         <th scope="col">Llegada a bodega</th>
         <th scope="col">Hora llegada</th>
         <th scope="col">Convocatoria</th>
-        <th scope="col">Pedido de compras publicas</th>
-        <th scope="col">Factura</th>
-        <th scope="col">Guia transporte</th>
+        <th scope="col">Documentos</th>
         <th scope="col">Estado</th>
         {% if request.user.is_representative %}
             <th scope="col">Observaciones</th>
-            <th scope="col">Opciones</th>
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
         {% endif %}
     </tr>
     </thead>
@@ -63,13 +62,12 @@
 {% block script %}
     {% if request.user.is_representative %}
         {% include 'observacion.html' %}
+        {% include 'compras/modal/verDocumentos.html' %}
         <script src="{% static 'compras/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
         {% include 'comprasbdg/modal/confirmarCompra.html' %}
         {% include 'sendObs.html' %}
         {% include 'observacion.html' %}
         <script src="{% static 'comprasbdg/js/list.js' %}"></script>
-    {% elif request.user.is_laboratory_worker %}
-        <script src="{% static 'compras/js/list.js' %}"></script>
     {% endif %}
 {% endblock %}

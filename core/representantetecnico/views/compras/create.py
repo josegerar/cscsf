@@ -16,7 +16,6 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
     # appname.action(add, change, delete, view)_table
     permission_required = (
         'representantetecnico.add_compraspublicas',
-        'representantetecnico.add_compraspublicasdetalle',
     )
     model = ComprasPublicas
     form_class = ComprasForm
@@ -26,7 +25,6 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Registrar compra"
         context['icontitle'] = "plus"
         context['url_list'] = self.success_url
@@ -54,10 +52,8 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                             compra.save()
 
                             for i in sustancias:
-                                stock_selected = i['stock_selected']
-
                                 det = ComprasPublicasDetalle()
-                                det.stock_id = stock_selected['id']
+                                det.stock_id = i['id']
                                 det.compra_id = compra.id
                                 det.cantidad = float(i['cantidad_ingreso'])
                                 det.save()

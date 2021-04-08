@@ -94,6 +94,32 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
             data["error"] = str(e)
         return JsonResponse(data, safe=False)
 
+    def get(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.GET.get('action')
+            if action is not None:
+                if action == 'searchdata':
+                    id_s = request.GET.get('id')
+                    type = request.GET.get('type')
+                    data = []
+                    if type == 'un_med':
+                        query = ComprasPublicas.objects.all()
+                    else:
+                        query = ComprasPublicas.objects.all()
+                    for i in query:
+                        item = {'id': i.id, 'llegada_bodega': i.llegada_bodega,
+                                'hora_llegada_bodega': i.hora_llegada_bodega,
+                                'convocatoria': i.convocatoria, 'estado': i.estado_compra.estado,
+                                'pedido_compras_publicas': i.get_pedido_compras_publicas(),
+                                'guia_transporte': i.get_guia_transporte(), 'factura': i.get_factura(),
+                                'observacion': i.observacion, 'empresa': i.empresa.nombre}
+                        data.append(item)
+                    return JsonResponse(data, safe=False)
+        except Exception as e:
+            data['error'] = str(e)
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Compras registradas"

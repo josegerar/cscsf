@@ -159,7 +159,7 @@ $(function () {
             }
             let data = {
                 'term': request.term,
-                'action': "search_sus_comp",
+                'action': "search_sus_bod",
                 'code_bod': code_bod
             }
             get_list_data_ajax('/sustancias/', data, function (res_data) {

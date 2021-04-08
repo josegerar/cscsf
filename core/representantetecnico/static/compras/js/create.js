@@ -2,12 +2,21 @@
 const compra = {
     datatable: null,
     data: {
-        sustancias: []
+        sustancias: [],
+        bodega_selected: null
     },
     add_sustancia: function (item) {
+        if (this.verify_sustance_exist(item)) {
+            message_error("Sustancia ya agregada");
+            return false;
+        }
+        if (this.verify_bod_diferent()) {
+            message_error("Solo puede agregar sustancias a la compra de una sola bodega seleccionada");
+            return false;
+        }
         item = this.config_item(item);
         if (item.cupo_disponible <= 0) {
-            message_error("La sustancia " + item.nombre
+            message_error("La sustancia " + item.value
                 + " ha alcanzado su limite de cupo autorizado \n no se puede ingresar");
         } else {
             this.data.sustancias.push(item);
@@ -15,26 +24,17 @@ const compra = {
         this.list_sustancia();
     },
     config_item: function (item) {
-        $.each(item.stock, function (istock, vstock) {
-            if (vstock.bodega) vstock.text = "Bod. " + vstock.bodega.nombre;
-            else if (vstock.laboratorio) vstock.text = "Lab. " + vstock.laboratorio.nombre;
-        });
         item.cantidad_ingreso = 0;
-        item.cupo_autorizado = parseFloat(item.cupo_autorizado);
-        item.stock_selected = null;
         item.cupo_disponible = item.cupo_autorizado - item.cupo_consumido;
+        item.bodega_selected = {'id': parseInt(this.data.bodega_selected.id), 'text': this.data.bodega_selected.text}
         return item;
-    },
-    get_stock_item: function (dataIndex) {
-        let stock = [];
-        $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
-            if (vstock.bodega) stock.push(vstock);
-        });
-        return stock;
     },
     list_sustancia: function () {
         this.datatable.clear();
         this.datatable.rows.add(this.data.sustancias).draw();
+    },
+    update_bodega_seleted: function (bod_item) {
+        if (bod_item) this.data.bodega_selected = bod_item;
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
         this.data.sustancias[index].cantidad_ingreso = nueva_cantidad;
@@ -54,6 +54,16 @@ const compra = {
             }
         );
     },
+    verify_bod_diferent: function () {
+        let diferent = false;
+        $.each(this.data.sustancias, function (index, item) {
+            if (item.bodega_selected.id !== parseInt(compra.data.bodega_selected.id)) {
+                diferent = true;
+                return false;
+            }
+        });
+        return diferent;
+    },
     verify_send_data: function (callback, error) {
         let isValidData = true;
         if (this.data.sustancias.length === 0) {
@@ -64,18 +74,21 @@ const compra = {
             $.each(this.data.sustancias, function (index, item) {
                 if (item.cantidad_ingreso <= 0) {
                     isValidData = false;
-                    error(`! La sustancia ${item.nombre} tiene una cantidad a ingresar invalida, por favor verifique ¡`);
+                    error(`! La sustancia ${item.value} tiene una cantidad a ingresar invalida, por favor verifique ¡`);
                 }
             });
         }
         if (isValidData) callback();
     },
-    set_stock_selected: function (dataIndex, idStock) {
-        $.each(this.data.sustancias[dataIndex].stock, function (istock, vstock) {
-            if (vstock.id === idStock) {
-                compra.data.sustancias[dataIndex].stock_selected = vstock;
+    verify_sustance_exist: function (new_item) {
+        let exist = false;
+        $.each(this.data.sustancias, function (index, item) {
+            if (new_item.id === item.id) {
+                exist = true;
+                return false;
             }
         });
+        return exist;
     }
 };
 
@@ -84,19 +97,19 @@ $(function () {
     //asignar datable a objeto manejador de datos de la compra
     compra.datatable = $('#tblistado').DataTable({
         'responsive': true,
-        'destroy': true,
         "ordering": false,
+        "autoWidth": true,
         'columns': [
             {
                 "className": 'details-control',
                 'data': 'id'
             },
-            {'data': 'nombre'},
-            {'data': 'id'},
+            {'data': 'value'},
+            {'data': 'bodega_selected.text'},
             {'data': 'cantidad_ingreso'},
             {'data': 'cupo_disponible'},
             {'data': 'cupo_autorizado'},
-            {'data': 'unidad_medida.nombre'}
+            {'data': 'unidad_medida'}
         ],
         'columnDefs': [
             {
@@ -110,7 +123,7 @@ $(function () {
                 'targets': [2],
                 'orderable': false,
                 'render': function (data, type, row) {
-                    return '<div class="form-group form-group-sm"><select name="lugar_ingreso" class="form-control-sm" style="width: 100%"></select></div>';
+                    return `Bod. ${data}`;
                 }
             },
             {
@@ -128,6 +141,14 @@ $(function () {
 
     //activar plugin select2 a los select del formulario
     $('.select2').select2({
+        'theme': 'bootstrap4',
+        'language': 'es'
+    });
+
+    $('select[name=bodega]').on('change.select2', function (e) {
+        let data_select = $(this).select2('data');
+        compra.update_bodega_seleted(data_select[0]);
+    }).select2({
         'theme': 'bootstrap4',
         'language': 'es'
     });
@@ -168,10 +189,34 @@ $(function () {
     });
 
     //activar el autocomplete en el buscador
-    autocompleteInput("search", "/sustancias/", {'action': "search_substance"},
-        function (item) {
-            compra.add_sustancia(item);
-        });
+    $('input[name=search]').focus().autocomplete({
+        source: function (request, response) {
+            let code_bod = compra.data.bodega_selected
+                ? compra.data.bodega_selected.id.length > 0
+                    ? parseInt(compra.data.bodega_selected.id)
+                    : 0
+                : 0;
+            if (code_bod === 0) {
+                message_info("Bodega no seleccionada");
+                return false;
+            }
+            let data = {
+                'term': request.term,
+                'action': "search_sus_compra",
+                'code_bod': code_bod
+            }
+            get_list_data_ajax('/sustancias/', data, function (res_data) {
+                response(res_data);
+            });
+        },
+        delay: 400,
+        minLength: 1,
+        select: function (event, ui) {
+            event.preventDefault();
+            compra.add_sustancia(ui.item);
+            $(this).val('');
+        }
+    });
 
     // Add event listener for opening and closing details
     addEventListenerOpenDetailRowDatatable('tblistado', compra.datatable, 'td.details-control',
@@ -184,17 +229,6 @@ $(function () {
         activePluguinTouchSpinInputRow(row, 'cantidad', data.cupo_disponible,
             0, 0, 0.1);
 
-        $(row).find('select[name="lugar_ingreso"]').on('change.select2', function (e) {
-            let data_select = $(this).select2('data');
-            compra.set_stock_selected(parseInt(dataIndex), parseInt(data_select[0].id));
-        }).select2({
-            'theme': 'bootstrap4',
-            'language': 'es',
-            'data': compra.get_stock_item(dataIndex),
-            'containerCssClass': "select2-font-size-sm"
-        });
-        $(row).find('select[name="lugar_ingreso"]').trigger('change.select2');
-
         $(row).find('input[name="cantidad"]').on('change', function (event) {
             let nueva_cantidad = parseFloat($(this).val());
             compra.update_cantidad_sustancia(nueva_cantidad, dataIndex);
@@ -202,12 +236,11 @@ $(function () {
         $(row).find('a[rel="remove"]').on('click', function (event) {
             confirm_action(
                 'Notificación',
-                '¿Esta seguro de eliminar la sustancia ¡' + data.nombre + '!?',
+                '¿Esta seguro de eliminar la sustancia ¡' + data.value + '!?',
                 function () {
                     compra.delete_sustancia(dataIndex);
                 }
             );
         });
     }
-
 });

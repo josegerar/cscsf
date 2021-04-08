@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
@@ -53,15 +54,18 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                             item['is_del'] = False
                         data.append(item)
                     return JsonResponse(data, safe=False)
-                elif action == 'search_substance':
+                elif action == 'search_sus_compra':
                     data = []
-                    substances = Sustancia.objects.filter(nombre__icontains=request.GET['term'])[0:10]
-                    for i in substances:
-                        substance = i.toJSON(view_stock=True)
-                        substance['value'] = i.nombre
-                        data.append(substance)
+                    code_bod = request.GET.get('code_bod')
+                    for i in Stock.objects.filter(sustancia__nombre__icontains=request.GET['term'], bodega_id=code_bod)[
+                             0:10]:
+                        item = {'id': i.id, 'cupo_autorizado': float(i.sustancia.cupo_autorizado),
+                                'value': i.sustancia.nombre, 'unidad_medida': i.sustancia.unidad_medida.nombre,
+                                'cantidad_bodega': float(i.cantidad),
+                                'cupo_consumido': i.sustancia.get_cupo_consumido(timezone.now().year)}
+                        data.append(item)
                     return JsonResponse(data, safe=False)
-                elif action == 'search_sus_comp':
+                elif action == 'search_sus_bod':
                     data = []
                     code_bod = request.GET.get('code_bod')
                     term = request.GET.get('term')
