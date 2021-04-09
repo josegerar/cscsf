@@ -89,6 +89,14 @@ class Sustancia(BaseModel):
             data_res = cursor.fetchone()
         return float(data_res[0])
 
+    @staticmethod
+    def get_substances_solicitud(lab_id_in, bod_id_in, term):
+        """Trae el cupo consumido de una sustnacia en un año"""
+        with connection.cursor() as cursor:
+            cursor.execute("select * from get_substances_solicitud(%s, %s, %s);", [lab_id_in, bod_id_in, term])
+            data_res = dictfetchall(cursor)
+        return data_res
+
     def toJSON(self, view_stock=False):
         item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion,
                 'cupo_autorizado': self.cupo_autorizado, 'cupo_consumido': self.get_cupo_consumido()}
@@ -199,7 +207,7 @@ class Solicitud(BaseModel):
 
 class SolicitudDetalle(BaseModel):
     solicitud = models.ForeignKey(Solicitud, on_delete=models.CASCADE, verbose_name="Solicitud")
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="Stock", null=True)
+    sustancia = models.ForeignKey(Sustancia, on_delete=models.CASCADE, verbose_name="Sustancia", null=True)
     cantidad_solicitada = models.DecimalField(verbose_name="Cantidad solicitada", decimal_places=4, max_digits=8,
                                               null=True, default=0)
     cantidad_entregada = models.DecimalField(verbose_name="Cantidad entregada", decimal_places=4, max_digits=8,
@@ -216,8 +224,6 @@ class SolicitudDetalle(BaseModel):
         if self.solicitud is not None:
             if ver_solicitud:
                 item['solicitud'] = self.solicitud.toJSON()
-        if self.stock is not None:
-            item['stock'] = self.stock.toJSON(view_subtance=True, view_stock_substance=True)
         return item
 
     class Meta:

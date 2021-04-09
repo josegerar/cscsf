@@ -2,7 +2,8 @@ const solicitud = {
     datatable: null,
     data: {
         sustancias: [],
-        bodega_selected: null
+        bodega_selected: null,
+        lab_selected: null
     },
     add_sustancia: function (item) {
         if (this.verify_sustance_exist(item)) {
@@ -11,6 +12,10 @@ const solicitud = {
         }
         if (this.verify_bod_diferent()) {
             message_error("Solo puede agregar sustancias al informe de una sola bodega seleccionado");
+            return false;
+        }
+        if (this.verify_lab_diferent()) {
+            message_error("Solo puede agregar sustancias al informe de un solo laboratorio seleccionado");
             return false;
         }
         this.config_item(item);
@@ -26,6 +31,7 @@ const solicitud = {
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
         item.cantidad_bodega = parseFloat(item.cantidad_bodega);
         item.bodega_selected = {'id': parseInt(this.data.bodega_selected.id), 'text': this.data.bodega_selected.text}
+        item.lab_selected = {'id': parseInt(this.data.lab_selected.id), 'text': this.data.lab_selected.text}
         return item;
     },
     list_sustancia: function () {
@@ -34,6 +40,9 @@ const solicitud = {
     },
     update_bodega_seleted: function (bod_item) {
         if (bod_item) this.data.bodega_selected = bod_item;
+    },
+    update_laboratorio_seleted: function (lab_item) {
+        if (lab_item) this.data.lab_selected = lab_item;
     },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
         this.data.sustancias[index].cantidad_solicitud = nueva_cantidad;
@@ -57,6 +66,16 @@ const solicitud = {
         let diferent = false;
         $.each(this.data.sustancias, function (index, item) {
             if (item.bodega_selected.id !== parseInt(solicitud.data.bodega_selected.id)) {
+                diferent = true;
+                return false;
+            }
+        });
+        return diferent;
+    },
+    verify_lab_diferent: function () {
+        let diferent = false;
+        $.each(this.data.sustancias, function (index, item) {
+            if (item.lab_selected.id !== parseInt(solicitud.data.lab_selected.id)) {
                 diferent = true;
                 return false;
             }
@@ -136,7 +155,15 @@ $(function () {
     $('.select2').select2({
         'theme': 'bootstrap4',
         'language': 'es'
-    })
+    });
+
+    $('select[name=laboratorio]').on('change.select2', function (e) {
+        let data_select = $(this).select2('data');
+        solicitud.update_laboratorio_seleted(data_select[0]);
+    }).select2({
+        'theme': 'bootstrap4',
+        'language': 'es'
+    });
 
     $('select[name=bodega]').on('change.select2', function (e) {
         let data_select = $(this).select2('data');
@@ -157,10 +184,20 @@ $(function () {
                 message_info("Bodega no seleccionada");
                 return false;
             }
+            let code_lab = solicitud.data.lab_selected
+                ? solicitud.data.lab_selected.id.length > 0
+                    ? parseInt(solicitud.data.lab_selected.id)
+                    : 0
+                : 0;
+            if (code_lab === 0) {
+                message_info("Laboratorio no seleccionado");
+                return false;
+            }
             let data = {
                 'term': request.term,
-                'action': "search_sus_bod",
-                'code_bod': code_bod
+                'action': "search_sus_bod_lab",
+                'code_bod': code_bod,
+                'code_lab': code_lab
             }
             get_list_data_ajax('/sustancias/', data, function (res_data) {
                 response(res_data);
@@ -203,7 +240,7 @@ $(function () {
         $(row).find('a[rel="remove"]').on('click', function (event) {
             confirm_action(
                 'Notificación',
-                '¿Esta seguro de eliminar la sustancia ¡' + data.nombre + '!?',
+                '¿Esta seguro de eliminar la sustancia ¡' + data.value + '!?',
                 function () {
                     solicitud.delete_sustancia(dataIndex);
                 }

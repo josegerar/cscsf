@@ -46,7 +46,7 @@ $(function () {
             {
                 'targets': [6],
                 'render': function (data, type, row) {
-                    return '<a rel="openobs" class="nav-link" style="cursor: pointer; text-align: center">Ver</a>'
+                    return '<a rel="opendetail" class="nav-link" style="cursor: pointer; text-align: center">Ver</a>'
                 }
             },
             {
@@ -125,7 +125,7 @@ $(function () {
         });
 
     function updateRowsCallback(row, data, dataIndex) {
-        $(row).find('a[rel=openobs]').on('click', function (event) {
+        $(row).find('a[rel=opendetail]').on('click', function (event) {
             $('#modalDetalleSolicitud').find('button[type="submit"]').css("display", 'none');
             $('#modalDetalleSolicitud').find('input[name="action"]').val("");
             $('#modalDetalleSolicitud').find('input[name="id"]').val("");

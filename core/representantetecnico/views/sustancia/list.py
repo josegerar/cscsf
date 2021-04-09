@@ -87,6 +87,14 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                     'cantidad_lab': stock.cantidad
                                 })
                     return JsonResponse(data, safe=False)
+                elif action == 'search_sus_bod_lab':
+                    data = []
+                    code_lab = request.GET.get('code_lab')
+                    code_bod = request.GET.get('code_bod')
+                    term = request.GET.get('term')
+                    if code_lab is not None and code_bod is not None:
+                        data = Sustancia.get_substances_solicitud(code_lab, code_bod, term)
+                    return JsonResponse(data, safe=False)
                 elif action == 'search_stock':
                     id_s = request.GET.get('id_s')
                     type = request.GET.get('type')

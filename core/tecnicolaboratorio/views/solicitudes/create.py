@@ -61,7 +61,7 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
 
                                 for i in sustancias:
                                     det = SolicitudDetalle()
-                                    det.stock_id = i['id']
+                                    det.sustancia_id = i['id']
                                     det.solicitud_id = solicitud.id
                                     det.cantidad_solicitada = float(i['cantidad_solicitud'])
                                     det.save()

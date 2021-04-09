@@ -91,15 +91,16 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                         break
                                 i.save()
                                 # verificar si existe cupo para entregar la sustancia
-                                cupo_consumido = i.stock.sustancia.get_cupo_consumido(timezone.now().year)
-                                cupo_autorizado = float(i.stock.sustancia.cupo_autorizado)
+                                cupo_consumido = i.sustancia.get_cupo_consumido(timezone.now().year)
+                                cupo_autorizado = float(i.sustancia.cupo_autorizado)
                                 if cupo_consumido + float(i.cantidad_entregada) > cupo_autorizado:
                                     raise PermissionDenied(
                                         'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
-                                            i.stock.sustancia.nombre)
+                                            i.sustancia.nombre)
                                     )
                                 # disminuye stock en bodega
-                                stockbdg = Stock.objects.get(id=i.stock_id)
+                                stockbdg = Stock.objects.get(sustancia_id=i.sustancia.id,
+                                                             bodega_id=i.solicitud.bodega.id)
                                 stockbdg.cantidad = float(stockbdg.cantidad) - i.cantidad_entregada
                                 stockbdg.save()
 
@@ -111,8 +112,8 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                                 inv.save()
 
                                 # Aumenta el stock de el laboratorio
-                                stocklab = Stock.objects.get(laboratorio_id=solicitud.laboratorio.id,
-                                                             sustancia_id=i.stock.sustancia_id)
+                                stocklab = Stock.objects.get(laboratorio_id=i.solicitud.laboratorio.id,
+                                                             sustancia_id=i.sustancia.id)
                                 stocklab.cantidad = float(stocklab.cantidad) + i.cantidad_entregada
                                 stocklab.save()
 
@@ -219,8 +220,8 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     for i in SolicitudDetalle.objects.filter(solicitud_id=id_sl):
                         data.append({
                             'id': i.id,
-                            'sustancia': i.stock.sustancia.nombre,
-                            'cant_bdg': float(i.stock.cantidad),
+                            'sustancia': i.sustancia.nombre,
+                            'cant_bdg': float(i.sustancia.stock_set.get(bodega_id=i.solicitud.bodega.id).cantidad),
                             'cant_sol': float(i.cantidad_solicitada),
                             'cant_ent': float(i.cantidad_entregada),
                             'cant_con': float(i.cantidad_consumida)
@@ -231,11 +232,14 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     id_sol = request.GET.get('id_sol')
                     for dci in SolicitudDetalle.objects.filter(solicitud_id=id_sol):
                         item = {'id': dci.id, 'cantidad_solicitud': dci.cantidad_solicitada,
-                                'bodega_selected': {'id': dci.stock.bodega.id, 'text': dci.stock.bodega.nombre},
-                                'stock': {'id': dci.stock.id, 'cupo_autorizado': dci.stock.sustancia.cupo_autorizado,
-                                          'value': dci.stock.sustancia.nombre,
-                                          'unidad_medida': dci.stock.sustancia.unidad_medida.nombre,
-                                          'cantidad_bodega': dci.stock.cantidad}}
+                                'bodega_selected': {'id': dci.solicitud.bodega.id, 'text': dci.solicitud.bodega.nombre},
+                                'lab_selected': {'id': dci.solicitud.laboratorio.id,
+                                                 'text': dci.solicitud.laboratorio.nombre},
+                                'sustancia': {'id': dci.sustancia.id, 'cupo_autorizado': dci.sustancia.cupo_autorizado,
+                                              'value': dci.sustancia.nombre,
+                                              'unidad_medida': dci.sustancia.unidad_medida.nombre,
+                                              'cantidad_bodega': dci.sustancia.stock_set.get(
+                                                  bodega_id=dci.solicitud.bodega_id).cantidad}}
                         data.append(item)
                     return JsonResponse(data, safe=False)
         except Exception as e:

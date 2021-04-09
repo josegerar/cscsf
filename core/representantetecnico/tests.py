@@ -18,12 +18,12 @@ from django.contrib.auth import authenticate
 # p = Proveedor.objects.get(id=2)
 # print(p.id_empresa)
 from core.login.models import Persona
-from core.representantetecnico.models import User, EstadoTransaccion, InformesMensuales
+from core.representantetecnico.models import User, EstadoTransaccion, InformesMensuales, Sustancia
 
 #print(authenticate(username='jgarcia', password='123456'))
 #print(User.objects.all())
-query = EstadoTransaccion.objects.filter(informesmensuales__estado_informe__estado__in=['revision', 'registrado'])
-print(query)
+#query = EstadoTransaccion.objects.filter(informesmensuales__estado_informe__estado__in=['revision', 'registrado'])
+print(Sustancia.get_substances_solicitud(1, 1, 'ac'))
 #User.objects.create_user()
 #
 # g = Group.objects.all()

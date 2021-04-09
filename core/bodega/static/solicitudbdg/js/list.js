@@ -114,7 +114,6 @@ $(function () {
     });
 
     get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata'}, function (response) {
-        console.log(response);
         tblistado.clear();
         tblistado.rows.add(response).draw();
     });

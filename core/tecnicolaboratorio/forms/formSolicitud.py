@@ -19,11 +19,11 @@ class SolicitudForm(ModelForm):
         exclude = ['estado_solicitud', 'fecha_autorizacion', 'solicitante', 'observacion']
         widgets = {
             'laboratorio': Select(attrs={
-                'class': 'form-control select2',
+                'class': 'form-control',
                 'style': 'width: 100%'
             }),
             'bodega': Select(attrs={
-                'class': 'form-control select2bod',
+                'class': 'form-control',
                 'style': 'width: 100%'
             }),
             'tipo_actividad': Select(attrs={
