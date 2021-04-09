@@ -7,9 +7,6 @@ class EmpresaForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for form in self.visible_fields():
-            form.field.widget.attrs['class'] = 'form-control'
-            form.field.widget.attrs['autocomplete'] = 'off'
 
     class Meta:
         model = Proveedor
@@ -17,12 +14,16 @@ class EmpresaForm(ModelForm):
         widgets = {
             'nombre': TextInput(attrs={
                 'type': 'text',
+                'class': 'form-control',
+                'autocomplete': 'off',
                 'placeholder': 'Ingrese el nombre de la empresa'
             }),
             'ruc': NumberInput(attrs={
                 'placeholder': 'Ingrese el RUC de la empresa',
                 'type': 'text',
                 'minlength': 13,
+                'class': 'form-control',
+                'autocomplete': 'off',
                 'onkeypress': 'return event.charCode >= 48 && event.charCode <= 57'
             })
         }

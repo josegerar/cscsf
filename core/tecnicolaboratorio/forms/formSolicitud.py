@@ -1,6 +1,6 @@
 from django.forms import *
 
-from core.login.models import User, Persona
+from core.login.models import Persona
 from core.representantetecnico.models import Solicitud
 from core.tecnicolaboratorio.models import Laboratorio
 

@@ -4,6 +4,5 @@ from core.representantetecnico.models import User
 
 
 class CustomUserChangeForm(UserChangeForm):
-
     class Meta(UserChangeForm.Meta):
         model = User

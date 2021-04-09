@@ -77,6 +77,8 @@ class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMi
                         if informe_id is None and tipo_movimiento_del is not None:
                             raise Exception("Error al ejecutar la operación, recargue la pagina y vuelva a intentarlo")
                         informe = InformesMensuales.objects.get(id=informe_id)
+                        informe.estado_informe_id = estado_transaccion.id
+                        informe.save()
                         for det in informe.informesmensualesdetalle_set.all():
                             cantidad_desglose = det.desgloseinfomemensualdetalle_set.all().aggregate(Sum("cantidad"))
                             if cantidad_desglose["cantidad__sum"] != det.cantidad:
@@ -92,9 +94,6 @@ class InformesMensualesListView(LoginRequiredMixin, ValidatePermissionRequiredMi
                             inv.cantidad_movimiento = det.cantidad
                             inv.tipo_movimiento_id = tipo_movimiento_del.id
                             inv.save()
-
-                        informe.estado_informe_id = estado_transaccion.id
-                        informe.save()
                 else:
                     data['error'] = 'Ha ocurrido un error3'
             else:

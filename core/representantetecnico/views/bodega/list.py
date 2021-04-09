@@ -32,7 +32,7 @@ class BodegaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVi
                 if action == 'searchdata':
                     tipo = request.GET.get('type')
                     if tipo == 'bdg':
-                        query = Bodega.objects.filter(responsable_id= request.user.id)
+                        query = Bodega.objects.filter(responsable_id=request.user.id)
                     else:
                         query = Bodega.objects.all()
                     data = []

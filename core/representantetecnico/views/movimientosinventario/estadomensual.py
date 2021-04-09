@@ -5,7 +5,7 @@ from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import Inventario, Mes, Sustancia
+from core.representantetecnico.models import Inventario, Mes
 
 
 class EstadoMensualListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):

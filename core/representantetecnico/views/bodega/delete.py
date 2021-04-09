@@ -20,7 +20,7 @@ class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Dele
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if Stock.objects.filter(bodega_id=self.object.id).exists() or Solicitud.objects.filter(
-                bodega_id=self.object.id).exists() or ComprasPublicas.objects.filter(bodega_id=self.object.id):
+                bodega_id=self.object.id).exists() or ComprasPublicas.objects.filter(bodega_id=self.object.id).exists():
             messages.error(request, 'Bodega ya posee stock registrado')
             messages.error(request, 'No es posible su eliminación')
             messages.error(request, 'Pongase en contacto con el administrador del sistema')
@@ -30,7 +30,9 @@ class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Dele
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if Stock.objects.filter(bodega_id=self.object.id).exists():
+            if Stock.objects.filter(bodega_id=self.object.id).exists() or Solicitud.objects.filter(
+                    bodega_id=self.object.id).exists() or ComprasPublicas.objects.filter(
+                bodega_id=self.object.id).exists():
                 raise Exception("No es posible eliminar este registro")
             self.object.delete()
         except Exception as e:
@@ -39,7 +41,6 @@ class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Dele
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Eliminar bodega"
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url

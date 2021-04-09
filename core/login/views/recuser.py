@@ -1,9 +1,5 @@
-from django.conf import settings
-from django.contrib.auth.views import LoginView
 from django.core import mail
-from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.templatetags.static import static
 from django.views.generic import TemplateView
@@ -12,7 +8,7 @@ from app.settings import EMAIL_HOST_USER
 from core.login.models import User
 
 
-class recuperaruser(TemplateView):
+class RecuperarUser(TemplateView):
     template_name = "recuperarusuario.html"
 
     def post(self, request, *args, **kwargs):

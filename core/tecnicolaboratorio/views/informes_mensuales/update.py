@@ -9,8 +9,7 @@ from django.views.generic import UpdateView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin, PassRequestToFormViewMixin
-from core.representantetecnico.models import EstadoTransaccion, SolicitudDetalle, InformesMensuales, \
-    InformesMensualesDetalle
+from core.representantetecnico.models import EstadoTransaccion, InformesMensuales, InformesMensualesDetalle
 from core.tecnicolaboratorio.forms.formInformeMensual import InformeMensualForm
 
 
@@ -102,12 +101,6 @@ class InformesMensualesUpdateView(LoginRequiredMixin, ValidatePermissionRequired
                             data['error'] = 'ha ocurrido un error'
                     else:
                         data['error'] = form.errors
-
-                elif action == 'searchdetail':
-                    data = []
-                    detalle_solicitud = SolicitudDetalle.objects.filter(solicitud_id=self.object.id)
-                    for dci in detalle_solicitud:
-                        data.append(dci.toJSON(ver_solicitud=False))
                 else:
                     data['error'] = 'ha ocurrido un error'
             else:

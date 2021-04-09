@@ -29,6 +29,8 @@ class LaboratorioDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
     def post(self, request, *args, **kwargs):
         data = {}
         try:
+            if Stock.objects.filter(laboratorio_id=self.object.id).exists():
+                raise Exception('No es posible eliminar este registro')
             self.object.delete()
         except Exception as e:
             data['error'] = str(e)
@@ -36,7 +38,6 @@ class LaboratorioDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['usertitle'] = "Representante Técnico"
         context['title'] = "Eliminar laboratorio"
         context['icontitle'] = "trash-alt"
         context['url_list'] = self.success_url
