@@ -67,17 +67,10 @@
         {% endif %}
         <th scope="col">Laboratorio</th>
         <th scope="col">Actividad</th>
-        <th scope="col">Documento</th>
         <th scope="col">Codigo solicitud</th>
         <th scope="col">Estado</th>
+        <th scope="col">Fecha de autorización</th>
         <th scope="col">Detalles</th>
-        {% if request.user.is_representative %}
-            <th scope="col">Aprobar</th>
-        {% endif %}
-        {% if request.user.is_laboratory_worker %}
-            <th scope="col">Editar</th>
-            <th scope="col">Eliminar</th>
-        {% endif %}
     </tr>
     </thead>
     <tbody>
@@ -97,17 +90,11 @@
 {% endblock %}
 
 {% block script %}
-    {% include 'solicitudtl/modal/verdetalles.html' %}
     {% if request.user.is_representative %}
-        {% include 'solicitud/modal/autorizarSolicitud.html' %}
-        {% include 'sendObs.html' %}
         <script src="{% static 'solicitud/js/list.js' %}"></script>
     {% elif request.user.is_grocer %}
-        {% include 'solicitudbdg/modal/entregaSustanciaSolicitud.html' %}
-        {% include 'sendObs.html' %}
         <script src="{% static 'solicitudbdg/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
-        {% include 'observacion.html' %}
         <script src="{% static 'solicitudtl/js/list.js' %}"></script>
     {% endif %}
 {% endblock %}

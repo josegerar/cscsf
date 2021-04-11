@@ -1,17 +1,11 @@
-import json
-
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle, TipoMovimientoInventario, \
-    Inventario, Stock
+from core.representantetecnico.models import Solicitud, EstadoTransaccion, SolicitudDetalle
 from core.tecnicolaboratorio.models import Laboratorio
 
 
@@ -19,133 +13,6 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
     permission_required = ('representantetecnico.view_solicitud',)
     model = Solicitud
     template_name = "solicitud/list.html"
-
-    def post(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.POST.get('action')
-            if action is not None:
-                if action == 'revisionSolicitud':
-                    idsolicitud = request.POST.get('id')
-                    tipoobs = request.POST.get("tipoobs")
-                    if idsolicitud is not None and tipoobs is not None:
-                        with transaction.atomic():
-                            solicitud = Solicitud.objects.get(id=idsolicitud)
-                            if solicitud.estado_solicitud.estado in ['almacenado', 'entregado', 'recibido']:
-                                raise Exception("No es posible manipular este registro este registro")
-                            estado_solicitud = EstadoTransaccion.objects.get(estado='revision')
-                            observacion = request.POST.get('observacion')
-                            if observacion is None:
-                                observacion = ""
-                            if tipoobs == "rp":
-                                solicitud.observacion_representante = observacion
-                            elif tipoobs == "bdg":
-                                solicitud.observacion_bodega = observacion
-                            solicitud.estado_solicitud_id = estado_solicitud.id
-                            solicitud.save()
-                    else:
-                        data['error'] = 'ha ocurrido un error'
-                elif action == 'aprobarSolicitud':
-                    idsolicitud = request.POST.get('id')
-                    tipoobs = request.POST.get("tipoobs")
-                    if idsolicitud is not None and tipoobs is not None:
-                        with transaction.atomic():
-                            solicitud = Solicitud.objects.get(id=idsolicitud)
-                            if solicitud is not None:
-                                estado_solicitud = EstadoTransaccion.objects.get(estado='aprobado')
-                                if estado_solicitud is not None:
-                                    observacion = request.POST.get('observacion')
-                                    if observacion is None:
-                                        observacion = ""
-                                    if tipoobs == "rp":
-                                        solicitud.observacion_representante = observacion
-                                    elif tipoobs == "bdg":
-                                        solicitud.observacion_bodega = observacion
-                                    solicitud.estado_solicitud_id = estado_solicitud.id
-                                    solicitud.fecha_autorizacion = timezone.now()
-                                    solicitud.save()
-                                else:
-                                    data['error'] = 'ha ocurrido un error'
-                            else:
-                                data['error'] = 'ha ocurrido un error'
-                elif action == 'entregarSolicitud':
-                    idsolicitud = request.POST.get('id')
-                    detalle_solicitud = request.POST.get('detalles')
-                    observacion_solicitud = request.POST.get('observacion')
-                    if idsolicitud is not None and detalle_solicitud is not None and observacion_solicitud is not None:
-                        with transaction.atomic():
-                            detalle_solicitud = json.loads(detalle_solicitud)
-                            solicitud = Solicitud.objects.get(id=idsolicitud)
-                            tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
-                            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='add')
-                            estado_solicitud = EstadoTransaccion.objects.get(estado='entregado')
-                            solicitud.estado_solicitud_id = estado_solicitud.id
-                            solicitud.observacion_bodega = observacion_solicitud
-                            solicitud.save()
-                            detallesolicitud = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
-                            for i in detallesolicitud:
-                                # actualiza la cantidad a entregar
-                                for ds_new in detalle_solicitud:
-                                    if ds_new['id'] == i.id:
-                                        i.cantidad_entregada = float(ds_new['cant_ent'])
-                                        break
-                                i.save()
-                                # verificar si existe cupo para entregar la sustancia
-                                cupo_consumido = i.sustancia.get_cupo_consumido(timezone.now().year)
-                                cupo_autorizado = float(i.sustancia.cupo_autorizado)
-                                if cupo_consumido + float(i.cantidad_entregada) > cupo_autorizado:
-                                    raise PermissionDenied(
-                                        'La sustancia {} sobrepasa el cupo permitido, verifique'.format(
-                                            i.sustancia.nombre)
-                                    )
-                                # disminuye stock en bodega
-                                stockbdg = Stock.objects.get(sustancia_id=i.sustancia.id,
-                                                             bodega_id=i.solicitud.bodega.id)
-                                stockbdg.cantidad = float(stockbdg.cantidad) - i.cantidad_entregada
-                                stockbdg.save()
-
-                                # movimiento de inventario delete de bodega
-                                inv = Inventario()
-                                inv.solicitud_detalle_id = i.id
-                                inv.cantidad_movimiento = i.cantidad_entregada
-                                inv.tipo_movimiento_id = tipo_movimiento_del.id
-                                inv.save()
-
-                                # Aumenta el stock de el laboratorio
-                                stocklab = Stock.objects.get(laboratorio_id=i.solicitud.laboratorio.id,
-                                                             sustancia_id=i.sustancia.id)
-                                stocklab.cantidad = float(stocklab.cantidad) + i.cantidad_entregada
-                                stocklab.save()
-
-                                # movimiento de inventario addsustancialab en el laboratorio
-                                invlab = Inventario()
-                                invlab.solicitud_detalle_id = i.id
-                                invlab.cantidad_movimiento = i.cantidad_entregada
-                                invlab.tipo_movimiento_id = tipo_movimiento_add.id
-                                invlab.save()
-                    else:
-                        data['error'] = 'Ha ocurrido un error'
-                elif action == 'recibirSolicitud':
-                    idsolicitud = request.POST.get('id')
-                    if idsolicitud is not None:
-                        with transaction.atomic():
-                            solicitud = Solicitud.objects.get(id=idsolicitud)
-                            if solicitud is not None:
-                                estado_solicitud = EstadoTransaccion.objects.get(estado='recibido')
-                                if estado_solicitud is not None:
-                                    solicitud.estado_solicitud_id = estado_solicitud.id
-                                    solicitud.save()
-                                else:
-                                    data['error'] = 'ha ocurrido un error'
-                            else:
-                                data['error'] = 'ha ocurrido un error'
-                else:
-                    data['error'] = 'Ha ocurrido un error'
-            else:
-                data['error'] = 'Ha ocurrido un error'
-        except Exception as e:
-            data["error"] = str(e)
-        return JsonResponse(data, safe=False)
 
     def get(self, request, *args, **kwargs):
         data = {}
@@ -206,11 +73,8 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                             'solicitante': i.solicitante.get_user_info(),
                             'laboratorio': i.laboratorio.nombre,
                             'nombre_actividad': i.nombre_actividad,
-                            'documento': i.get_doc_solicitud(),
                             'fecha_autorizacion': i.get_fecha_autorizacion(),
                             'estado': i.estado_solicitud.estado,
-                            'obs_bd': i.observacion_bodega,
-                            'obs_rp': i.observacion_representante
                         }
                         data.append(item)
                     return JsonResponse(data, safe=False)
@@ -227,7 +91,7 @@ class SolicitudListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                             'cant_con': float(i.cantidad_consumida)
                         })
                     return JsonResponse(data, safe=False)
-                if action == 'searchdetail':
+                elif action == 'searchdetail':
                     data = []
                     id_sol = request.GET.get('id_sol')
                     for dci in SolicitudDetalle.objects.filter(solicitud_id=id_sol):

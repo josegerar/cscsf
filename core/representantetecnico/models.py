@@ -192,6 +192,9 @@ class Solicitud(BaseModel):
             return '{}{}'.format(MEDIA_URL, self.documento_solicitud)
         return ''
 
+    def estado_editables(self):
+        return ['revision', 'registrado']
+
     def get_fecha_autorizacion(self):
         if self.fecha_autorizacion is not None:
             return self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")

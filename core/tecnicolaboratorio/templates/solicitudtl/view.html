@@ -1,0 +1,295 @@
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}"/>
+    <link rel="stylesheet"
+          href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}"/>
+    <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
+
+    <script src="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.js' %}"></script>
+    <link href="{% static 'lib/bootstrap-touchspin-4.3.0/jquery.bootstrap-touchspin.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+    <div class="card card-default" style="margin-left: 10%; margin-right: 10%;">
+        <form method="post" action="." enctype="multipart/form-data">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ icontitle }}"></i>
+                    {{ title }}
+                </h3>
+            </div>
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Solicitante:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.solicitante.get_user_info }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Estado solicitud:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.estado_solicitud.estado }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Laboratorio solicitante:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.laboratorio.nombre }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Bodega a solicitar:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.bodega.nombre }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Nombre de actividad / proyecto:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.nombre_actividad }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Responsable actividad:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.responsable_actividad }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Tipo actividad:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.tipo_actividad.nombre }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Codigo solicitud:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.codigo_solicitud }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Fecha de creación:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.date_creation }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Fecha de autorización:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.fecha_autorizacion }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Documento solicitud:</label>
+                            <a class="btn btn-block btn-outline-secondary" target="_blank"
+                               href="{{ view.object.get_doc_solicitud }}">Ver documento</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- textarea -->
+                        <div class="form-group">
+                            <label>Observación representante técnico:</label>
+                            {% if request.user.is_representative and view.object.estado_solicitud.estado == 'registrado' %}
+                                <textarea name="observacionrp" class="form-control" rows="3"
+                                          placeholder="Ingrese su observación" required>
+                                    {{ view.object.observacion_representante }}
+                                </textarea>
+                            {% else %}
+                                <textarea name="observacionrp" class="form-control" rows="3"
+                                          disabled>{{ view.object.observacion_representante }}</textarea>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Observación bodega</label>
+                            {% if request.user.is_grocer and view.object.estado_solicitud.estado == 'aprobado' %}
+                                <textarea name="observacionbdg" class="form-control" rows="3"
+                                          placeholder="Ingrese su observación" required>
+                                    {{ view.object.observacion_bodega }}
+                                </textarea>
+                            {% else %}
+                                <textarea class="form-control" rows="3" name="observacionbdg"
+                                          disabled="">{{ view.object.observacion_bodega }}</textarea>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Detalle de solicitud:</label>
+                            <div class="table-responsive">
+                                <table class="table" id="tbdetallesolicitud">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Sustancia</th>
+                                        <th scope="col">Cantidad solicitada</th>
+                                        <th scope="col">
+                                            {% if request.user.is_grocer %}
+                                                {% if view.object.estado_solicitud.estado == 'aprobado' %}
+                                                    Cantidad a entregar
+                                                {% else %}
+                                                    Cantidad entregada
+                                                {% endif %}
+                                            {% else %}
+                                                Cantidad recibida
+                                            {% endif %}
+
+                                        </th>
+                                        <th scope="col">Cantidad consumida</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if request.user.is_representative or request.user.is_laboratory_worker or request.user.is_grocer and view.object.estado_solicitud.estado != 'aprobado' %}
+                                        {% for sd in view.object.solicituddetalle_set.all %}
+                                            <tr>
+                                                <th scope="row">{{ sd.id }}</th>
+                                                <td>{{ sd.sustancia.nombre }}</td>
+                                                <td>{{ sd.cantidad_solicitada }}</td>
+                                                <td>{{ sd.cantidad_entregada }}</td>
+                                                <td>{{ sd.cantidad_consumida }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                {% if request.user.is_representative %}
+                    {% if view.object.estado_solicitud.estado == 'registrado' %}
+                        <button rel="aprobarSolicitud" type="submit" class="btn btn-primary btn-flat">
+                            <i class="fas fa-save"></i>
+                            Aprobar solicitud
+                        </button>
+                        <button rel="revisionSolicitud" type="submit" class="btn btn-danger btn-flat">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Revisión solicitud
+                        </button>
+                    {% endif %}
+                {% elif request.user.is_laboratory_worker %}
+                    {% if view.object.estado_solicitud.estado == 'entregado' %}
+                        <button rel="recibirSolicitud" type="submit" class="btn btn-primary btn-flat">
+                            <i class="fas fa-save"></i>
+                            Recibir solicitud
+                        </button>
+                    {% endif %}
+                    {% if view.object.estado_solicitud.estado in  view.object.estado_editables %}
+                        <a href="{% url 'tl:actualizacionsolicitud' view.object.id %}" class="btn btn-primary btn-flat">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </a>
+                        <a href="{% url 'tl:eliminarsolicitud' view.object.id %}" class="btn btn-danger btn-flat">
+                            <i class="fas fa-times"></i>
+                            Eliminar
+                        </a>
+                    {% endif %}
+                {% elif request.user.is_grocer %}
+                    {% if view.object.estado_solicitud.estado == 'aprobado' %}
+                        <button rel="entregarSolicitud" type="submit" class="btn btn-primary btn-flat">
+                            <i class="fas fa-save"></i>
+                            Entregar solicitud
+                        </button>
+                        <button rel="revisionSolicitud" type="submit" class="btn btn-danger btn-flat">
+                            <i class="fas fa-save"></i>
+                            Revisión solicitud
+                        </button>
+                    {% endif %}
+                {% endif %}
+
+                <a href="{{ url_list }}" class="btn btn-default float-right btn-flat">
+                    <i class="fas fa-eject"></i>
+                    Cancelar
+                </a>
+            </div>
+            <!-- /.card-body -->
+        </form>
+        {% block send_form %}
+            <script>
+                $(function () {
+                    $('form').on('submit', function (event) {
+                        event.preventDefault();
+                        const form = this;
+                        const parameters = new FormData();
+                        let action_save = $(event.originalEvent.submitter).attr('rel');
+                        parameters.append('action', action_save);
+                        parameters.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+                        {% if request.user.is_representative %}
+                            {% if view.object.estado_solicitud.estado == 'registrado' %}
+                                parameters.append('tipoobs', 'rp');
+                                parameters.append('observacion', $(form).find('textarea[name=observacionrp]').val());
+                            {% endif %}
+                        {% endif %}
+                        {% if request.user.is_grocer %}
+                            {% if view.object.estado_solicitud.estado == 'aprobado' %}
+                                parameters.append('tipoobs', 'bdg');
+                                parameters.append('observacion', $(form).find('textarea[name=observacionbdg]').val());
+                                parameters.append("detalles", JSON.stringify(solicitud_entrega.data.detalles));
+                            {% endif %}
+                        {% endif %}
+                        submit_with_ajax(
+                            window.location.pathname, parameters
+                            , 'Confirmación'
+                            , '¿Estas seguro de realizar la siguiente acción?'
+                            , function callback(data) {
+                                location.reload();
+                            }, function cancelOrError() {
+
+                            }
+                        );
+                    });
+                });
+            </script>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block script %}
+    {% if request.user.is_grocer %}
+        {% if view.object.estado_solicitud.estado == 'aprobado' %}
+            <script src="{% static 'solicitudbdg/js/entregarSolicitud.js' %}"></script>
+        {% endif %}
+    {% endif %}
+{% endblock %}

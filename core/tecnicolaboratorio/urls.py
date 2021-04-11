@@ -14,6 +14,7 @@ from core.tecnicolaboratorio.views.solicitudes.create import SolicitudCreateView
 from core.tecnicolaboratorio.views.solicitudes.delete import SolicitudDeleteView
 from core.tecnicolaboratorio.views.solicitudes.list import SolicitudListView
 from core.tecnicolaboratorio.views.solicitudes.update import SolicitudUpdateView
+from core.tecnicolaboratorio.views.solicitudes.view import SolicitudView
 
 app_name = "tl"
 
@@ -23,6 +24,7 @@ urlpatterns = [
     path('solicitudes/registro/', SolicitudCreateView.as_view(), name="registrosolicitud"),
     path('solicitudes/update/<int:pk>/', SolicitudUpdateView.as_view(), name="actualizacionsolicitud"),
     path('solicitudes/delete/<int:pk>/', SolicitudDeleteView.as_view(), name="eliminarsolicitud"),
+    path('solicitudes/view/<int:pk>/', SolicitudView.as_view(), name="versolicitud"),
 
     # informes mensuales
     path('informes-mensuales/', InformesMensualesListView.as_view(), name="informesmensuales"),
