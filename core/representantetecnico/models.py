@@ -265,7 +265,7 @@ class ComprasPublicas(BaseModel):
     factura = models.FileField(upload_to='compras_publicas/%Y/%m/%d', null=True)
     estado_compra = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, verbose_name="Estado de compras",
                                       null=True)
-    observacion = models.TextField(verbose_name="Observación", null=True, blank=True)
+    observacion = models.TextField(verbose_name="Observación", null=True, blank=True, default="")
 
     def __str__(self):
         return str(self.id)
@@ -301,6 +301,11 @@ class ComprasPublicas(BaseModel):
         if self.factura:
             return '{}{}'.format(MEDIA_URL, self.factura)
         return ''
+
+    def get_observacion(self):
+        if self.observacion:
+            return self.observacion
+        return ""
 
     class Meta:
         verbose_name = "Compra Publica"

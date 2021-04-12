@@ -8,6 +8,7 @@ from core.representantetecnico.views.compras.create import ComprasCreateView
 from core.representantetecnico.views.compras.delete import ComprasDeleteView
 from core.representantetecnico.views.compras.list import ComprasListView
 from core.representantetecnico.views.compras.update import ComprasUpdateView
+from core.representantetecnico.views.compras.view import ComprasView
 from core.representantetecnico.views.empresa.create import EmpresaCreateView
 from core.representantetecnico.views.empresa.delete import EmpresaDeleteView
 from core.representantetecnico.views.empresa.list import EmpresaListView
@@ -52,6 +53,7 @@ urlpatterns = [
     path('compras/registro/', ComprasCreateView.as_view(), name="registrocompras"),
     path('compras/update/<int:pk>/', ComprasUpdateView.as_view(), name="actualizacioncompras"),
     path('compras/delete/<int:pk>/', ComprasDeleteView.as_view(), name="eliminarcompras"),
+    path('compras/view/<int:pk>/', ComprasView.as_view(), name="versolicitud"),
 
     # empresa
     path('empresas/', EmpresaListView.as_view(), name="empresas"),

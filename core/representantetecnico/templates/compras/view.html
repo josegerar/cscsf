@@ -1,0 +1,203 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <div class="card card-default" style="margin-left: 10%; margin-right: 10%;">
+        <form method="post" action="." enctype="multipart/form-data">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ icontitle }}"></i>
+                    {{ title }}
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Proveedor:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.empresa.nombre }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Estado compra:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.estado_compra.estado }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Bodega ingreso:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.bodega.nombre }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Convocatoria:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.convocatoria }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Hora llegada a bodega:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.hora_llegada_bodega }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Fecha llegada a bodega:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.llegada_bodega }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Pedido de compras publicas:</label>
+                            <a class="btn btn-block btn-outline-secondary" target="_blank"
+                               href="{{ view.object.get_pedido_compras_publicas }}">Ver pedido de compras publicas</a>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Factura:</label>
+                            <a class="btn btn-block btn-outline-secondary" target="_blank"
+                               href="{{ view.object.get_factura }}">Ver factura</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Gua de transporte:</label>
+                            <a class="btn btn-block btn-outline-secondary" target="_blank"
+                               href="{{ view.object.get_guia_transporte }}">Ver guia de trasporte</a>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Fecha de creación:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.date_creation }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            {% if request.user.is_grocer and view.object.estado_compra.estado == 'registrado' %}
+                                <div style="display: flex">
+                                    <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                        <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                           style="color: red"></i>
+                                    </div>
+                                    <label>Observación:</label>
+                                </div>
+                                <textarea class="form-control" rows="3" required
+                                          name="observacion">{{ view.object.get_observacion }}</textarea>
+                            {% else %}
+                                <label>Observación:</label>
+                                <textarea class="form-control" rows="3" name="observacion"
+                                          disabled="" readonly>{{ view.object.get_observacion }}</textarea>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Detalle de la compra:</label>
+                            <div class="table-responsive">
+                                <table class="table" id="tbdetallecompra">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Sustancia</th>
+                                        <th scope="col">Cantidad comprada</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for cpd in view.object.compraspublicasdetalle_set.all %}
+                                        <tr>
+                                            <th scope="row">{{ cpd.id }}</th>
+                                            <td>{{ cpd.stock.sustancia.nombre }}</td>
+                                            <td>{{ cpd.cantidad }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                {% if request.user.is_representative %}
+                    {% if view.object.estado_compra.estado != 'almacenado' %}
+                        <a href="{% url 'rp:actualizacioncompras' view.object.id %}" class="btn btn-primary btn-flat">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </a>
+                        <a href="{% url 'rp:eliminarcompras' view.object.id %}" class="btn btn-danger btn-flat">
+                            <i class="fas fa-times"></i>
+                            Eliminar
+                        </a>
+                    {% endif %}
+                {% elif request.user.is_grocer %}
+                    {% if view.object.estado_compra.estado == 'registrado' %}
+                        <button rel="confirmarCompra" class="btn btn-dark btn-flat">
+                            <i class="fas fa-save"></i>
+                            Confirmar compra
+                        </button>
+                        <button rel="revisionCompra" class="btn btn-danger btn-flat">
+                            <i class="fas fa-times"></i>
+                            Revisión compra
+                        </button>
+                    {% endif %}
+                {% endif %}
+                <a href="{{ url_list }}" class="btn btn-default float-right btn-flat">
+                    <i class="fas fa-eject"></i>
+                    Cancelar
+                </a>
+            </div>
+        </form>
+        <script>
+            $(function () {
+                $('form').on('submit', function (event) {
+                    event.preventDefault();
+                    const form = this;
+                    const parameters = new FormData();
+                    let action_save = $(event.originalEvent.submitter).attr('rel');
+                    parameters.append('action', action_save);
+                    parameters.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+                    {% if request.user.is_grocer %}
+                        {% if view.object.estado_compra.estado == 'registrado' %}
+                            parameters.append('observacion', $(form).find('textarea[name=observacion]').val());
+                        {% endif %}
+                    {% endif %}
+                    submit_with_ajax(
+                        window.location.pathname, parameters
+                        , 'Confirmación'
+                        , '¿Estas seguro de realizar la siguiente acción?'
+                        , function callback(data) {
+                            location.reload();
+                        }, function cancelOrError() {
+
+                        }
+                    );
+                });
+            });
+        </script>
+    </div>
+{% endblock %}

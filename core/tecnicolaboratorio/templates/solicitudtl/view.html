@@ -125,13 +125,19 @@
                     <div class="col-sm-6">
                         <!-- textarea -->
                         <div class="form-group">
-                            <label>Observación representante técnico:</label>
                             {% if request.user.is_representative and view.object.estado_solicitud.estado == 'registrado' %}
+                                <div style="display: flex">
+                                    <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                        <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                           style="color: red"></i>
+                                    </div>
+                                    <label>Observación representante técnico:</label>
+                                </div>
                                 <textarea name="observacionrp" class="form-control" rows="3"
-                                          placeholder="Ingrese su observación" required>
-                                    {{ view.object.observacion_representante }}
-                                </textarea>
+                                          placeholder="Ingrese su observación"
+                                          required>{{ view.object.observacion_representante }}</textarea>
                             {% else %}
+                                <label>Observación representante técnico:</label>
                                 <textarea name="observacionrp" class="form-control" rows="3"
                                           disabled>{{ view.object.observacion_representante }}</textarea>
                             {% endif %}
@@ -139,13 +145,19 @@
                     </div>
                     <div class="col-sm-6">
                         <div class="form-group">
-                            <label>Observación bodega</label>
                             {% if request.user.is_grocer and view.object.estado_solicitud.estado == 'aprobado' %}
+                                <div style="display: flex">
+                                    <div style="font-size: 0.5rem; margin-right: 3px; margin-top: 4px;">
+                                        <i class="fa fa-asterisk fa-xs" aria-hidden="true"
+                                           style="color: red"></i>
+                                    </div>
+                                    <label>Observación bodega:</label>
+                                </div>
                                 <textarea name="observacionbdg" class="form-control" rows="3"
-                                          placeholder="Ingrese su observación" required>
-                                    {{ view.object.observacion_bodega }}
-                                </textarea>
+                                          placeholder="Ingrese su observación"
+                                          required>{{ view.object.observacion_bodega }}</textarea>
                             {% else %}
+                                <label>Observación bodega:</label>
                                 <textarea class="form-control" rows="3" name="observacionbdg"
                                           disabled="">{{ view.object.observacion_bodega }}</textarea>
                             {% endif %}
@@ -246,43 +258,40 @@
             </div>
             <!-- /.card-body -->
         </form>
-        {% block send_form %}
-            <script>
-                $(function () {
-                    $('form').on('submit', function (event) {
-                        event.preventDefault();
-                        const form = this;
-                        const parameters = new FormData();
-                        let action_save = $(event.originalEvent.submitter).attr('rel');
-                        parameters.append('action', action_save);
-                        parameters.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-                        {% if request.user.is_representative %}
-                            {% if view.object.estado_solicitud.estado == 'registrado' %}
-                                parameters.append('tipoobs', 'rp');
-                                parameters.append('observacion', $(form).find('textarea[name=observacionrp]').val());
-                            {% endif %}
+        <script>
+            $(function () {
+                $('form').on('submit', function (event) {
+                    event.preventDefault();
+                    const form = this;
+                    const parameters = new FormData();
+                    let action_save = $(event.originalEvent.submitter).attr('rel');
+                    parameters.append('action', action_save);
+                    parameters.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+                    {% if request.user.is_representative %}
+                        {% if view.object.estado_solicitud.estado == 'registrado' %}
+                            parameters.append('tipoobs', 'rp');
+                            parameters.append('observacion', $(form).find('textarea[name=observacionrp]').val());
                         {% endif %}
-                        {% if request.user.is_grocer %}
-                            {% if view.object.estado_solicitud.estado == 'aprobado' %}
-                                parameters.append('tipoobs', 'bdg');
-                                parameters.append('observacion', $(form).find('textarea[name=observacionbdg]').val());
-                                parameters.append("detalles", JSON.stringify(solicitud_entrega.data.detalles));
-                            {% endif %}
+                    {% elif request.user.is_grocer %}
+                        {% if view.object.estado_solicitud.estado == 'aprobado' %}
+                            parameters.append('tipoobs', 'bdg');
+                            parameters.append('observacion', $(form).find('textarea[name=observacionbdg]').val());
+                            parameters.append("detalles", JSON.stringify(solicitud_entrega.data.detalles));
                         {% endif %}
-                        submit_with_ajax(
-                            window.location.pathname, parameters
-                            , 'Confirmación'
-                            , '¿Estas seguro de realizar la siguiente acción?'
-                            , function callback(data) {
-                                location.reload();
-                            }, function cancelOrError() {
+                    {% endif %}
+                    submit_with_ajax(
+                        window.location.pathname, parameters
+                        , 'Confirmación'
+                        , '¿Estas seguro de realizar la siguiente acción?'
+                        , function callback(data) {
+                            location.reload();
+                        }, function cancelOrError() {
 
-                            }
-                        );
-                    });
+                        }
+                    );
                 });
-            </script>
-        {% endblock %}
+            });
+        </script>
     </div>
 {% endblock %}
 

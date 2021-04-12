@@ -81,15 +81,8 @@
         <th scope="col">Llegada a bodega</th>
         <th scope="col">Hora llegada</th>
         <th scope="col">Convocatoria</th>
-        <th scope="col">Documentos</th>
         <th scope="col">Estado</th>
-        {% if request.user.is_representative %}
-            <th scope="col">Observaciones</th>
-            <th scope="col">Editar</th>
-            <th scope="col">Eliminar</th>
-        {% elif request.user.is_grocer %}
-            <th scope="col">Confirmar compra</th>
-        {% endif %}
+        <th scope="col">Detalles</th>
     </tr>
     </thead>
     <tbody>
@@ -111,13 +104,5 @@
 {% endblock %}
 
 {% block script %}
-    {% include 'compras/modal/verDocumentos.html' %}
-    {% include 'observacion.html' %}
-    {% if request.user.is_representative %}
-        <script src="{% static 'compras/js/list.js' %}"></script>
-    {% elif request.user.is_grocer %}
-        {% include 'comprasbdg/modal/confirmarCompra.html' %}
-        {% include 'sendObs.html' %}
-        <script src="{% static 'comprasbdg/js/list.js' %}"></script>
-    {% endif %}
+    <script src="{% static 'compras/js/list.js' %}"></script>
 {% endblock %}
