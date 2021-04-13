@@ -59,6 +59,10 @@
                 disableEnableForm(form, true);
                 {% if request.user.is_representative %}
                     parameters.append('usuarios', JSON.stringify(usuarios.data.usuarios));
+                    parameters.delete("id_persona")
+                    parameters.delete("email")
+                    parameters.delete("roles")
+                    parameters.delete("estados")
                     usuarios.verify_send_data(function () {
                         submitForm(parameters, action_save, form);
                     }, function (message) {

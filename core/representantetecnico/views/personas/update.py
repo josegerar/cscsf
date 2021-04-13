@@ -49,35 +49,37 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
                 form = self.get_form()
                 if form.is_valid():
                     persona = form.instance
-                    users_new = json.loads(request.POST['usuarios'])
-                    if persona is not None and users_new is not None:
-                        with transaction.atomic():
-                            for user in persona.user_set.all():
-                                for user_n in users_new:
-                                    estado_selected = user_n["estado_selected"]
-                                    if user.id == user_n['id']:
-                                        if estado_selected["value"] == "habilitado":
-                                            user.is_active = True
-                                        else:
-                                            user.is_active = False
-                                        if user.email != user_n['email']:
-                                            user.email = user_n['email']
-                                            res_messages_email = user.send_email_user(request)
-                                            if res_messages_email != 1:
-                                                raise Exception(
-                                                    'Ocurrio un error al intentar verificar un correo electronico, '
-                                                    'correo electronico {} no valido'.format(user["email"])
-                                                )
-                                        user.save()
-                                        break
-                            for user_n in users_new:
-                                if user_n['id'] == -1:
-                                    rol_selected = user_n["rol_selected"]
-                                    estado_selected = user_n["estado_selected"]
-                                    persona.create_custom_user(request, rol_selected, estado_selected,
-                                                               user_n["email"])
+                    self.actualiar_personas(persona, request)
                 else:
                     data['error'] = form.errors
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
+
+    def actualiar_personas(self, persona, request):
+        with transaction.atomic():
+            users_new = json.loads(request.POST['usuarios'])
+            for user in persona.user_set.all():
+                for user_n in users_new:
+                    estado_selected = user_n["estado_selected"]
+                    if user.id == user_n['id']:
+                        if estado_selected["value"] == "habilitado":
+                            user.is_active = True
+                        else:
+                            user.is_active = False
+                        if user.email != user_n['email']:
+                            user.email = user_n['email']
+                            res_messages_email = user.send_email_user(request)
+                            if res_messages_email != 1:
+                                raise Exception(
+                                    'Ocurrio un error al intentar verificar un correo electronico, '
+                                    'correo electronico {} no valido'.format(user["email"])
+                                )
+                        user.save()
+                        break
+            for user_n in users_new:
+                if user_n['id'] == -1:
+                    rol_selected = user_n["rol_selected"]
+                    estado_selected = user_n["estado_selected"]
+                    persona.create_custom_user(request, rol_selected, estado_selected,
+                                               user_n["email"])

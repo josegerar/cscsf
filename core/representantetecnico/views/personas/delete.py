@@ -30,13 +30,7 @@ class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, De
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if User.objects.filter(persona_id=self.object.id).exists() or Solicitud.objects.filter(
-                    responsable_actividad_id=self.object.id).exists():
-                raise Exception(
-                    'No es posible eliminar este registro'
-                    'Pongase en contacto con el administrador del sistema'
-                )
-            self.object.delete()
+            self.eliminar_persona()
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
@@ -56,3 +50,12 @@ class PersonasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, De
             context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Investigadores"})
         context['urls'].append({"uridj": reverse_lazy('rp:registropersonas'), "uriname": "Eliminar"})
         return context
+
+    def eliminar_persona(self):
+        if User.objects.filter(persona_id=self.object.id).exists() or Solicitud.objects.filter(
+                responsable_actividad_id=self.object.id).exists():
+            raise Exception(
+                'No es posible eliminar este registro'
+                'Pongase en contacto con el administrador del sistema'
+            )
+        self.object.delete()

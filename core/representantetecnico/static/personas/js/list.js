@@ -1,54 +1,38 @@
-$(function () {
-    const tblistado = $('#tblistado').DataTable({
-        'responsive': true,
-        'autoWidth': true,
-        'columns': [
-            {
-                "className": 'details-control',
-                'data': 'id'
-            },
-            {'data': 'nombre'},
-            {'data': 'apellido'},
-            {'data': 'cedula'},
-            {'data': 'tipo'},
-            {'data': 'id'},
-            {'data': 'id'},
-        ],
-        'columnDefs': [
-            {
-                'targets': [4],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    return '<button type="button" rel="ver_usuarios" class="btn btn-success btn-flat" >Ver</button>';
-                }
-            },
-            {
-                'targets': [5],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    return '<a href="/personas/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
-                }
-            },
-            {
-                'targets': [6],
-                'orderable': false,
-                'render': function (data, type, row) {
-                    if (row.is_del) {
-                        return '<a href="/personas/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
-                    }
-                    return ""
-                }
-            }
-        ],
-        'rowCallback': function (row, data, displayNum, displayIndex, dataIndex) {
-            updateRowsCallback(row, data, dataIndex);
-        }
-    });
+function format(d) {
+    // `d` is the original data object for the row
+    return `<table class="table table-sm table-active" id="tbusersperson${d.id}" style="font-size: 0.95rem; text-align: center; width: 100%">
+                <thead class="">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Estado</th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>`;
+}
 
-    const tbverusuarios = $('#tbverusuarios').DataTable({
+function activate_datatable_users(data) {
+    $(`#tbusersperson${data.id}`).DataTable({
         'responsive': true,
         'autoWidth': true,
+        'destroy': true,
+        'deferRender': true,
+        'paging': false,
+        'searching': false,
         'ordering': false,
+        'info': false,
+        'processing': true,
+        'ajax': {
+            'url': window.location.pathname,
+            'type': 'GET',
+            'data': function (d) {
+                d.action = "search_user_person";
+                d.person_id = data.id
+            },
+            'dataSrc': ''
+        },
         'columns': [
             {'data': 'id'},
             {'data': 'email'},
@@ -74,39 +58,74 @@ $(function () {
             }
         ]
     });
+}
 
-    get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata', 'type': 'rt'}
-        , function (response) {
-            tblistado.clear();
-            tblistado.rows.add(response).draw();
-        });
+$(function () {
+    const tblistado = $('#tblistado').DataTable({
+        'scrollX': true,
+        'autoWidth': false,
+        'destroy': true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': window.location.pathname,
+            'type': 'GET',
+            'data': function (d) {
+                d.action = "searchdata";
+            },
+            'dataSrc': ''
+        },
+        'columns': [
+            {
+                "className": 'details-control',
+                "orderable": false,
+                "data": null,
+                "defaultContent": ''
+            },
+            {'data': 'nombre'},
+            {'data': 'apellido'},
+            {'data': 'cedula'},
+            {'data': 'id'},
+            {'data': 'id'}
+        ],
+        'columnDefs': [
+            {
+                'targets': [4],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    return '<a href="/personas/update/' + row.id + '/" class="btn btn-primary"><i class="fas fa-edit"></i></a> ';
+                }
+            },
+            {
+                'targets': [5],
+                'orderable': false,
+                'render': function (data, type, row) {
+                    if (row.is_del) {
+                        return '<a href="/personas/delete/' + row.id + '/" type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>';
+                    }
+                    return ""
+                }
+            }
+        ]
+    });
 
     $('#btnSync').on('click', function (event) {
-        get_list_data_ajax_loading(window.location.pathname, {'action': 'searchdata', 'type': 'rt'}
-            , function (response) {
-                tblistado.clear();
-                tblistado.rows.add(response).draw();
-            });
+        tblistado.ajax.reload();
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', tblistado, 'td.details-control',
-        function (row, data, dataIndex) {
-            updateRowsCallback(row, data, dataIndex);
-        });
-
-    function updateRowsCallback(row, data, dataIndex) {
-        $(row).find('button[rel=ver_usuarios]').on('click', function (event) {
-            get_list_data_ajax_loading(window.location.pathname, {
-                    'action': 'search_user_person',
-                    'person_id': data.id
-                }
-                , function (res_data) {
-                    tbverusuarios.clear();
-                    tbverusuarios.rows.add(res_data).draw();
-                    $("#modalverusuarios").find('input[name=nombres_completos]').val(`${data.nombre} ${data.apellido}`);
-                    $("#modalverusuarios").modal("show");
-                });
-        });
-    }
+    $('#tblistado tbody').on('click', 'td.details-control', function () {
+        const tr = $(this).closest('tr');
+        const row = tblistado.row(tr);
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            // Open this row
+            row.child(format(row.data())).show();
+            tr.addClass('shown');
+            activate_datatable_users(row.data());
+        }
+    });
 });

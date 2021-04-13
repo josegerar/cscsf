@@ -5,9 +5,6 @@ from core.representantetecnico.models import Proveedor
 
 class EmpresaForm(ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     class Meta:
         model = Proveedor
         fields = '__all__'

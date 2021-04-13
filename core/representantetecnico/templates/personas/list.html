@@ -9,13 +9,15 @@
 {% block contenttable %}
     <thead>
     <tr>
-        <th scope="col">#</th>
+
+        {% if request.user.is_representative %}
+            <th scope="col">Usuarios</th>
+        {% else %}
+            <th scope="col">#</th>
+        {% endif %}
         <th scope="col">Nombres</th>
         <th scope="col">Apellidos</th>
         <th scope="col">Cedula</th>
-        {% if request.user.is_representative %}
-            <th scope="col">Usuarios</th>
-        {% endif %}
         {% if request.user.is_representative or request.user.is_laboratory_worker %}
             <th scope="col">Editar</th>
             <th scope="col">Eliminar</th>
@@ -30,7 +32,6 @@
 
 {% block script %}
     {% if request.user.is_representative %}
-        {% include 'personas/modal/verusuarios.html' %}
         <script src="{% static 'personas/js/list.js' %}"></script>
     {% elif request.user.is_laboratory_worker %}
         <script src="{% static 'personastl/js/list.js' %}"></script>

@@ -1,13 +1,14 @@
+let data_loaded = false;
 const usuarios = {
-    datatable: null,
-    data: {
-        usuarios: [],
-        roles: [
+    'datatable': null,
+    'data': {
+        'usuarios': [],
+        'roles': [
             {'id': 1, 'text': 'Representante tecnico', 'value': 'representante', 'select': false},
             {'id': 2, 'text': 'Técnico laboratorista', 'value': 'laboratorista', 'select': false},
             {'id': 3, 'text': 'Bodeguero', 'value': 'bodeguero', 'select': false},
         ],
-        estados: [
+        'estados': [
             {'id': 1, 'text': 'Habilitado', 'value': 'habilitado'},
             {'id': 2, 'text': 'Desabilitado', 'value': 'desabilitado'}
         ]
@@ -40,7 +41,6 @@ const usuarios = {
             item.permit_delete = false;
         });
         this.data.usuarios = array;
-        this.list_users();
     },
     delete_user: function (index) {
         if (!this.data.usuarios[index].permit_delete) {
@@ -50,11 +50,8 @@ const usuarios = {
         this.data.usuarios.splice(index, 1);
         this.list_users();
     },
-    list_users: function () {
-        if (this.datatable) {
-            this.datatable.clear();
-            this.datatable.rows.add(this.data.usuarios).draw();
-        }
+    get_users: function () {
+        return this.data.usuarios;
     },
     set_estado_selected: function (indexData, idestado) {
         $.each(this.data.estados, function (index, item) {
@@ -101,6 +98,10 @@ const usuarios = {
         return dif;
     },
     verify_send_data: function (callback, error) {
+        if (!data_loaded) {
+            message_info("Cargando...");
+            return false;
+        }
         let isValidData = true;
         if (!this.verify_rol_diferent()) {
             isValidData = false;
@@ -117,16 +118,32 @@ const usuarios = {
 }
 
 $(function () {
+    let id_persona = $('input[name=id_persona]').val();
     usuarios.datatable = $('#tbroles').DataTable({
         'responsive': true,
-        'autoWidth': false,
+        'autoWidth': true,
         'paging': false,
         'searching': false,
         'ordering': false,
         'info': false,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': '/personas/',
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'search_user_person';
+                d.person_id = id_persona;
+            },
+            "dataSrc": function (json) {
+                data_loaded = true;
+                usuarios.add_users(json);
+                return usuarios.get_users();
+            }
+        },
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'id'
             },
             {'data': 'email'},
@@ -175,18 +192,16 @@ $(function () {
 
     //evento para agregar un nuevo usuario en blanco
     $('button[rel="add_user"]').on('click', function (event) {
+        if (!data_loaded) {
+            message_info("Cargando...");
+            return false;
+        }
         usuarios.add_user_blank();
     });
 
-    let id_persona = $('input[name=id_persona]').val();
-
-    get_list_data_ajax_loading('/personas/', {'action': 'search_user_person', 'person_id': id_persona}
-        , function (res_data) {
-            usuarios.add_users(res_data);
-        });
-
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', usuarios.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', usuarios.datatable
+        , 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
         });

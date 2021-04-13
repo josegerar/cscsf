@@ -59,6 +59,12 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function recorrer_formdata(formdata = new FormData()) {
+    formdata.forEach(function (value, key, parent) {
+        console.log(`${key}: ${value}`);
+    });
+}
+
 
 function submit_with_ajax(
     url = window.location.pathname,

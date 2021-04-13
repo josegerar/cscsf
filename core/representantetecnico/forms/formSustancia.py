@@ -5,9 +5,6 @@ from core.representantetecnico.models import Sustancia
 
 class SustanciaForm(ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     class Meta:
         model = Sustancia
         fields = '__all__'
