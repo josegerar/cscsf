@@ -46,50 +46,7 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
                     form = self.get_form()
                     if form.is_valid():
                         sustancia = form.instance
-                        if sustancia is not None:
-                            with transaction.atomic():
-                                stock_new = json.loads(request.POST['desgloses'])
-                                tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='add')
-                                tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
-                                sustancia.save()
-
-                                stock_old = Stock.objects.filter(sustancia_id=sustancia.id)
-                                """Actualizar los stock ya agregados"""
-                                for st_old in stock_old:
-                                    for st_new in stock_new:
-                                        if st_old.id == st_new['id']:
-                                            if float(st_old.cantidad) != st_new['cantidad_ingreso']:
-                                                inv = Inventario()
-                                                inv.stock_id = st_old.id
-                                                if float(st_old.cantidad) > st_new['cantidad_ingreso']:
-                                                    inv.tipo_movimiento_id = tipo_movimiento_del.id
-                                                    inv.cantidad_movimiento = float(st_old.cantidad) - st_new['cantidad_ingreso']
-                                                if float(st_old.cantidad) < st_new['cantidad_ingreso']:
-                                                    inv.tipo_movimiento_id = tipo_movimiento_add.id
-                                                    inv.cantidad_movimiento = st_new['cantidad_ingreso'] - float(st_old.cantidad)
-                                                stock_old.cantidad = st_new['cantidad_ingreso']
-                                                inv.save()
-                                                st_old.save()
-                                            break
-                                """Añadir nuevos stock en caso de que se haya añadido un laboratorio o bodega nuevo"""
-                                for st_new in stock_new:
-                                    if st_new['id'] == -1:
-                                        stock = Stock()
-                                        stock.sustancia_id = sustancia.id
-                                        if st_new['tipo'] == 'bodega':
-                                            stock.bodega_id = st_new['id_lugar']
-                                        elif st_new['tipo'] == 'laboratorio':
-                                            stock.laboratorio_id = st_new['id_lugar']
-                                        stock.cantidad = float(st_new['cantidad_ingreso'])
-                                        stock.save()
-
-                                        inv = Inventario()
-                                        inv.stock_id = stock.id
-                                        inv.cantidad_movimiento = stock.cantidad
-                                        inv.tipo_movimiento_id = tipo_movimiento_add.id
-                                        inv.save()
-                        else:
-                            data['error'] = "Ha ocurrido un error"
+                        stock_new = json.loads(request.POST['desgloses'])
                     else:
                         data['error'] = form.errors
                 else:
@@ -99,3 +56,45 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
+
+    def update_sustancia(self, sustancia, stock_new):
+        with transaction.atomic():
+            tipo_movimiento_add = TipoMovimientoInventario.objects.get(nombre='add')
+            tipo_movimiento_del = TipoMovimientoInventario.objects.get(nombre='delete')
+            sustancia.save()
+            stock_old = sustancia.stock_set.all()
+            """Actualizar los stock ya agregados"""
+            for st_old in stock_old:
+                for st_new in stock_new:
+                    if st_old.id == st_new['id']:
+                        if float(st_old.cantidad) != st_new['cantidad_ingreso']:
+                            inv = Inventario()
+                            inv.stock_id = st_old.id
+                            if float(st_old.cantidad) > st_new['cantidad_ingreso']:
+                                inv.tipo_movimiento_id = tipo_movimiento_del.id
+                                inv.cantidad_movimiento = float(st_old.cantidad) - st_new['cantidad_ingreso']
+                            if float(st_old.cantidad) < st_new['cantidad_ingreso']:
+                                inv.tipo_movimiento_id = tipo_movimiento_add.id
+                                inv.cantidad_movimiento = st_new['cantidad_ingreso'] - float(st_old.cantidad)
+                            stock_old.cantidad = st_new['cantidad_ingreso']
+                            inv.save()
+                            st_old.save()
+                        break
+            """Añadir nuevos stock en caso de que se haya añadido un laboratorio o bodega nuevo"""
+            for st_new in stock_new:
+                if st_new['id'] == -1:
+                    stock = Stock()
+                    stock.sustancia_id = sustancia.id
+                    if st_new['tipo'] == 'bodega':
+                        stock.bodega_id = st_new['id_lugar']
+                    elif st_new['tipo'] == 'laboratorio':
+                        stock.laboratorio_id = st_new['id_lugar']
+                    stock.cantidad = float(st_new['cantidad_ingreso'])
+                    stock.save()
+
+                    inv = Inventario()
+                    inv.stock_id = stock.id
+                    inv.cantidad_movimiento = stock.cantidad
+                    inv.tipo_movimiento_id = tipo_movimiento_add.id
+                    inv.save()
+

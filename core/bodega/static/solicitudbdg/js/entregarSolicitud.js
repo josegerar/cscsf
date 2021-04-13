@@ -15,13 +15,12 @@ const solicitud_entrega = {
 }
 
 $(function () {
-    solicitud_entrega.datatable = $('#tbdetallesolicitud').on('xhr.dt', function (e, settings, json, xhr) {
-        solicitud_entrega.data.detalles = json;
-    }).DataTable({
+    solicitud_entrega.datatable = $('#tbdetallesolicitud').DataTable({
         'responsive': true,
         'autoWidth': true,
         'destroy': true,
         'deferRender': true,
+        'processing': true,
         'ajax': {
             'url': window.location.pathname,
             'type': 'GET',
@@ -35,7 +34,7 @@ $(function () {
         },
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'id'
             },
             {'data': 'sustancia'},
@@ -57,7 +56,8 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tbdetallesolicitud', solicitud_entrega.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tbdetallesolicitud'
+        , solicitud_entrega.datatable, 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallbackDetalle(row, data, dataIndex);
         });

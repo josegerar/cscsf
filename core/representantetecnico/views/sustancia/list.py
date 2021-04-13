@@ -39,37 +39,18 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     data = self.search_data(type, id_s, request.user)
                     return JsonResponse(data, safe=False)
                 elif action == 'search_sus_compra':
-                    data = []
-                    code_bod = request.GET.get('code_bod')
-                    for i in Stock.objects.filter(sustancia__nombre__icontains=request.GET['term'], bodega_id=code_bod)[
-                             0:10]:
-                        item = {'id': i.id, 'cupo_autorizado': float(i.sustancia.cupo_autorizado),
-                                'value': i.sustancia.nombre, 'unidad_medida': i.sustancia.unidad_medida.nombre,
-                                'cantidad_bodega': float(i.cantidad),
-                                'cupo_consumido': i.sustancia.get_cupo_consumido(timezone.now().year)}
-                        data.append(item)
-                    return JsonResponse(data, safe=False)
-                elif action == 'search_sus_bod':
-                    data = []
                     code_bod = request.GET.get('code_bod')
                     term = request.GET.get('term')
-                    for i in Stock.objects.filter(sustancia__nombre__icontains=term, bodega_id=code_bod)[0:10]:
-                        item = {'id': i.id, 'cupo_autorizado': i.sustancia.cupo_autorizado, 'value': i.sustancia.nombre,
-                                'unidad_medida': i.sustancia.unidad_medida.nombre, 'cantidad_bodega': i.cantidad}
-                        data.append(item)
+                    data = self.search_sus_compra(code_bod, term)
+                    return JsonResponse(data, safe=False)
+                elif action == 'search_sus_bod':
+                    code_bod = request.GET.get('code_bod')
+                    term = request.GET.get('term')
+                    data = self.search_sus_bod(code_bod, term)
                     return JsonResponse(data, safe=False)
                 elif action == 'search_sus_lab':
-                    data = []
                     code_lab = request.GET.get('code_lab')
-                    if code_lab is not None:
-                        for stock in Stock.objects.filter(laboratorio_id=code_lab)[0:10]:
-                            if stock.sustancia is not None and stock.sustancia.unidad_medida is not None:
-                                data.append({
-                                    'id': stock.id,
-                                    'value': stock.sustancia.nombre,
-                                    'unidad_medida': stock.sustancia.unidad_medida.nombre,
-                                    'cantidad_lab': stock.cantidad
-                                })
+                    data = self.search_sus_lab(code_lab)
                     return JsonResponse(data, safe=False)
                 elif action == 'search_sus_bod_lab':
                     data = []
@@ -80,29 +61,11 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                         data = Sustancia.get_substances_solicitud(code_lab, code_bod, term)
                     return JsonResponse(data, safe=False)
                 elif action == 'list_desgl_blank':
-                    data = []
-                    for i in Bodega.objects.all().order_by('nombre'):
-                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'bodega', 'cantidad_ingreso': 0.0000})
-                    for i in Laboratorio.objects.all().order_by('nombre'):
-                        data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio', 'cantidad_ingreso': 0.0000})
+                    data = self.list_desgl_blank()
                     return JsonResponse(data, safe=False)
                 elif action == 'list_desglose':
-                    data = []
                     sus_id = request.GET.get('sus_id')
-                    for i in Stock.objects.filter(sustancia_id=sus_id, laboratorio=None).order_by(
-                            "bodega__nombre"):
-                        data.append({'id': i.id, 'nombre': i.bodega.nombre, 'tipo': 'bodega',
-                                     'cantidad_ingreso': float(i.cantidad)})
-                    for i in Stock.objects.filter(sustancia_id=sus_id, bodega=None).order_by(
-                            "laboratorio__nombre"):
-                        data.append({'id': i.id, 'nombre': i.laboratorio.nombre, 'tipo': 'laboratorio',
-                                     'cantidad_ingreso': float(i.cantidad)})
-                    for i in Bodega.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
-                        data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'bodega',
-                                     'cantidad_ingreso': 0.0000})
-                    for i in Laboratorio.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
-                        data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio',
-                                     'cantidad_ingreso': 0.0000})
+                    self.list_desglose(sus_id)
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)
@@ -133,4 +96,61 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                 'is_del': i.is_del()
             }
             data.append(item)
+        return data
+
+    def search_sus_compra(self, code_bod, term):
+        data = []
+        for i in Stock.objects.filter(sustancia__nombre__icontains=term, bodega_id=code_bod)[
+                 0:10]:
+            item = {'id': i.id, 'cupo_autorizado': float(i.sustancia.cupo_autorizado),
+                    'value': i.sustancia.nombre, 'unidad_medida': i.sustancia.unidad_medida.nombre,
+                    'cantidad_bodega': float(i.cantidad),
+                    'cupo_consumido': i.sustancia.get_cupo_consumido(timezone.now().year)}
+            data.append(item)
+        return data
+
+    def search_sus_bod(self, code_bod, term):
+        data = []
+        for i in Stock.objects.filter(sustancia__nombre__icontains=term, bodega_id=code_bod)[0:10]:
+            item = {'id': i.id, 'cupo_autorizado': i.sustancia.cupo_autorizado, 'value': i.sustancia.nombre,
+                    'unidad_medida': i.sustancia.unidad_medida.nombre, 'cantidad_bodega': i.cantidad}
+            data.append(item)
+        return data
+
+    def search_sus_lab(self, code_lab):
+        data = []
+        for stock in Stock.objects.filter(laboratorio_id=code_lab)[0:10]:
+            if stock.sustancia is not None and stock.sustancia.unidad_medida is not None:
+                data.append({
+                    'id': stock.id,
+                    'value': stock.sustancia.nombre,
+                    'unidad_medida': stock.sustancia.unidad_medida.nombre,
+                    'cantidad_lab': stock.cantidad
+                })
+        return data
+
+    def list_desgl_blank(self):
+        data = []
+        for i in Bodega.objects.all().order_by('nombre'):
+            data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'bodega', 'cantidad_ingreso': 0.0000})
+        for i in Laboratorio.objects.all().order_by('nombre'):
+            data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio', 'cantidad_ingreso': 0.0000})
+        return data
+
+    def list_desglose(self, sus_id):
+        data = []
+        for i in Stock.objects.filter(sustancia_id=sus_id, laboratorio=None).order_by(
+                "bodega__nombre"):
+            data.append({'id': i.id, 'nombre': i.bodega.nombre, 'tipo': 'bodega',
+                         'cantidad_ingreso': float(i.cantidad)})
+        for i in Stock.objects.filter(sustancia_id=sus_id, bodega=None).order_by(
+                "laboratorio__nombre"):
+            data.append({'id': i.id, 'nombre': i.laboratorio.nombre, 'tipo': 'laboratorio',
+                         'cantidad_ingreso': float(i.cantidad)})
+        for i in Bodega.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
+            data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'bodega',
+                         'cantidad_ingreso': 0.0000})
+        for i in Laboratorio.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
+            data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio',
+                         'cantidad_ingreso': 0.0000})
         return data

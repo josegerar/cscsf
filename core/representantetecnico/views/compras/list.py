@@ -23,36 +23,7 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                 if action == 'searchdata':
                     id_s = request.GET.get('id')
                     type = request.GET.get('type')
-                    data = []
-                    if type == 'est':
-                        if request.user.is_grocer:
-                            query = ComprasPublicas.objects.filter(estado_compra_id=id_s,
-                                                                   bodega__responsable_id=request.user.id)
-                        else:
-                            query = ComprasPublicas.objects.filter(estado_compra_id=id_s)
-                    elif type == 'conv':
-                        if request.user.is_grocer:
-                            query = ComprasPublicas.objects.filter(convocatoria=id_s,
-                                                                   bodega__responsable_id=request.user.id)
-                        else:
-                            query = ComprasPublicas.objects.filter(convocatoria=id_s)
-                    elif type == 'emp':
-                        if request.user.is_grocer:
-                            query = ComprasPublicas.objects.filter(empresa_id=id_s,
-                                                                   bodega__responsable_id=request.user.id)
-                        else:
-                            query = ComprasPublicas.objects.filter(empresa_id=id_s)
-                    else:
-                        if request.user.is_grocer:
-                            query = ComprasPublicas.objects.filter(bodega__responsable_id=request.user.id)
-                        else:
-                            query = ComprasPublicas.objects.all()
-                    for i in query:
-                        item = {'id': i.id, 'llegada_bodega': i.llegada_bodega,
-                                'hora_llegada_bodega': i.hora_llegada_bodega,
-                                'convocatoria': i.convocatoria, 'estado': i.estado_compra.estado,
-                                'empresa': i.empresa.nombre}
-                        data.append(item)
+                    data = self.search_data(type, id_s, request.user)
                     return JsonResponse(data, safe=False)
                 elif action == 'searchdetail':
                     data = []
@@ -88,3 +59,33 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
             {"uridj": reverse_lazy('rp:compras'), "uriname": "Compras"}
         ]
         return context
+
+    def search_data(self, type, id_s, user):
+        data = []
+        if type == 'est':
+            if user.is_grocer:
+                query = ComprasPublicas.objects.filter(estado_compra_id=id_s, bodega__responsable_id=user.id)
+            else:
+                query = ComprasPublicas.objects.filter(estado_compra_id=id_s)
+        elif type == 'conv':
+            if user.is_grocer:
+                query = ComprasPublicas.objects.filter(convocatoria=id_s, bodega__responsable_id=user.id)
+            else:
+                query = ComprasPublicas.objects.filter(convocatoria=id_s)
+        elif type == 'emp':
+            if user.is_grocer:
+                query = ComprasPublicas.objects.filter(empresa_id=id_s, bodega__responsable_id=user.id)
+            else:
+                query = ComprasPublicas.objects.filter(empresa_id=id_s)
+        else:
+            if user.is_grocer:
+                query = ComprasPublicas.objects.filter(bodega__responsable_id=user.id)
+            else:
+                query = ComprasPublicas.objects.all()
+        for i in query:
+            item = {'id': i.id, 'llegada_bodega': i.llegada_bodega,
+                    'hora_llegada_bodega': i.hora_llegada_bodega,
+                    'convocatoria': i.convocatoria, 'estado': i.estado_compra.estado,
+                    'empresa': i.empresa.nombre}
+            data.append(item)
+        return data
