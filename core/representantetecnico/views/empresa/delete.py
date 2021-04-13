@@ -27,9 +27,7 @@ class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if ComprasPublicas.objects.filter(empresa_id=self.object.id).exists():
-                raise Exception('No es posible eliminar este registro')
-            self.object.delete()
+            self.eliminar_empresa()
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
@@ -45,3 +43,8 @@ class EmpresaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
             {"uridj": reverse_lazy('rp:registroempresa'), "uriname": "Eliminar"}
         ]
         return context
+
+    def eliminar_empresa(self):
+        if ComprasPublicas.objects.filter(empresa_id=self.object.id).exists():
+            raise Exception('No es posible eliminar este registro')
+        self.object.delete()

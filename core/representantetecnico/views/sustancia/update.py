@@ -47,6 +47,7 @@ class SustanciaUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, U
                     if form.is_valid():
                         sustancia = form.instance
                         stock_new = json.loads(request.POST['desgloses'])
+                        self.update_sustancia(sustancia, stock_new)
                     else:
                         data['error'] = form.errors
                 else:

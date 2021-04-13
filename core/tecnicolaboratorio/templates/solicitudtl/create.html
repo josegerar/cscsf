@@ -226,7 +226,6 @@
                 let action_save = $(event.originalEvent.submitter).attr('rel');
                 solicitud.verify_send_data(function () {
                     let parameters = new FormData(form);
-
                     {% if action == 'add' %}
                         parameters.append('sustancias', JSON.stringify(solicitud.data.sustancias));
                     {% elif action == 'edit' %}

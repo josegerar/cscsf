@@ -251,6 +251,9 @@
                     {% elif action == 'edit' %}
                         parameters.append('detalle_compra', JSON.stringify(compra.data.detalleCompra));
                     {% endif %}
+                    parameters.delete("search");
+                    parameters.delete("tblistado_length");
+                    parameters.delete("cantidad");
                     disableEnableForm(form, true);
                     submit_with_ajax(
                         window.location.pathname, parameters

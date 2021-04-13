@@ -28,11 +28,7 @@ class SustanciaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if Stock.objects.filter(sustancia_id=self.object.id).exists():
-                raise Exception(
-                    "No es posible eliminar este registro"
-                )
-            self.object.delete()
+            self.eliminar_sustancia()
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
@@ -48,3 +44,10 @@ class SustanciaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
             {"uridj": reverse_lazy('rp:eliminarsustancia'), "uriname": "Eliminar"}
         ]
         return context
+
+    def eliminar_sustancia(self):
+        if Stock.objects.filter(sustancia_id=self.object.id).exists():
+            raise Exception(
+                "No es posible eliminar este registro"
+            )
+        self.object.delete()

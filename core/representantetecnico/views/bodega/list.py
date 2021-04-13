@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -25,25 +26,27 @@ class BodegaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVi
         return context
 
     def get(self, request, *args, **kwargs):
-        data = {}
         try:
             action = request.GET.get('action')
             if action is not None:
                 if action == 'searchdata':
-                    tipo = request.GET.get('type')
-                    if tipo == 'bdg':
-                        query = Bodega.objects.filter(responsable_id=request.user.id)
-                    else:
-                        query = Bodega.objects.all()
-                    data = []
-                    for i in query:
-                        item = {'id': i.id, 'nombre': i.nombre, 'responsable': '', 'is_del': True, 'dir': i.direccion}
-                        if i.responsable is not None:
-                            item['responsable'] = i.responsable.get_user_info()
-                        if i.stock_set.all().exists():
-                            item['is_del'] = False
-                        data.append(item)
+                    data = self.search_data(request.user)
                     return JsonResponse(data, safe=False)
         except Exception as e:
-            data['error'] = str(e)
+            messages.error(request, str(e))
         return super().get(request, *args, **kwargs)
+
+    def search_data(self, user):
+        if user.is_grocer:
+            query = Bodega.objects.filter(responsable_id=user.id)
+        else:
+            query = Bodega.objects.all()
+        data = []
+        for i in query:
+            item = {'id': i.id, 'nombre': i.nombre, 'responsable': '', 'is_del': True, 'dir': i.direccion}
+            if i.responsable is not None:
+                item['responsable'] = i.responsable.get_user_info()
+            if i.stock_set.all().exists():
+                item['is_del'] = False
+            data.append(item)
+        return data

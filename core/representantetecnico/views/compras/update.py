@@ -54,49 +54,8 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
                     form = self.get_form()
                     if form.is_valid():
                         compra = form.instance
-                        estadocompra = EstadoTransaccion.objects.get(estado='registrado')
-                        if compra is not None and estadocompra is not None:
-                            with transaction.atomic():
-                                if compra.estado_compra.estado == 'almacenado':
-                                    raise Exception(
-                                        "Compra ya almacenada en stock, no se puede actualizar"
-                                    )
-                                detalle_compras_new = json.loads(request.POST['detalle_compra'])
-                                compra.estado_compra_id = estadocompra.id
-                                compra.save()
-                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=compra.id)
-
-                                for dc_old in detalle_compras_old:
-                                    exits_old = False
-                                    for dc_new in detalle_compras_new:
-                                        if dc_old.id == dc_new['id']:
-                                            exits_old = True
-                                            break
-                                    if exits_old is False:
-                                        dc_old.delete()
-
-                                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=compra.id)
-
-                                for dc_new in detalle_compras_new:
-                                    exits_old = False
-                                    item_det_new = None
-                                    stock_old = dc_new['stock']
-
-                                    for dc_old in detalle_compras_old:
-                                        if dc_old.id == dc_new['id']:
-                                            exits_old = True
-                                            item_det_new = dc_old
-                                            break
-
-                                    if exits_old is False and item_det_new is None:
-                                        item_det_new = ComprasPublicasDetalle()
-
-                                    item_det_new.stock_id = stock_old['id']
-                                    item_det_new.compra_id = compra.id
-                                    item_det_new.cantidad = float(dc_new['cantidad'])
-                                    item_det_new.save()
-                        else:
-                            data['error'] = 'ha ocurrido un error'
+                        detalle_compras_new = json.loads(request.POST['detalle_compra'])
+                        self.actualizar_compra(compra, detalle_compras_new)
                     else:
                         data['error'] = form.errors
                 else:
@@ -106,3 +65,47 @@ class ComprasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Upd
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
+
+    def actualizar_compra(self, compra, detalle_compras_new):
+        estadocompra = EstadoTransaccion.objects.get(estado='registrado')
+        if detalle_compras_new is not None:
+            with transaction.atomic():
+                if compra.estado_compra.estado == 'almacenado':
+                    raise Exception(
+                        "Compra ya almacenada en stock, no se puede actualizar"
+                    )
+                compra.estado_compra_id = estadocompra.id
+                compra.save()
+                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=compra.id)
+
+                for dc_old in detalle_compras_old:
+                    exits_old = False
+                    for dc_new in detalle_compras_new:
+                        if dc_old.id == dc_new['id']:
+                            exits_old = True
+                            break
+                    if exits_old is False:
+                        dc_old.delete()
+
+                detalle_compras_old = ComprasPublicasDetalle.objects.filter(compra_id=compra.id)
+
+                for dc_new in detalle_compras_new:
+                    exits_old = False
+                    item_det_new = None
+                    stock_old = dc_new['stock']
+
+                    for dc_old in detalle_compras_old:
+                        if dc_old.id == dc_new['id']:
+                            exits_old = True
+                            item_det_new = dc_old
+                            break
+
+                    if exits_old is False and item_det_new is None:
+                        item_det_new = ComprasPublicasDetalle()
+
+                    item_det_new.stock_id = stock_old['id']
+                    item_det_new.compra_id = compra.id
+                    item_det_new.cantidad = float(dc_new['cantidad'])
+                    item_det_new.save()
+        else:
+            raise Exception('Faltan datos')

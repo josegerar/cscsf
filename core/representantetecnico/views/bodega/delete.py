@@ -30,11 +30,7 @@ class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Dele
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if Stock.objects.filter(bodega_id=self.object.id).exists() or Solicitud.objects.filter(
-                    bodega_id=self.object.id).exists() or ComprasPublicas.objects.filter(
-                bodega_id=self.object.id).exists():
-                raise Exception("No es posible eliminar este registro")
-            self.object.delete()
+            self.eliminar_bodega()
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
@@ -50,3 +46,9 @@ class BodegaDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Dele
             {"uridj": reverse_lazy('rp:eliminarbodega'), "uriname": "Eliminar"}
         ]
         return context
+
+    def eliminar_bodega(self):
+        if Stock.objects.filter(bodega_id=self.object.id).exists() or Solicitud.objects.filter(
+                bodega_id=self.object.id).exists() or ComprasPublicas.objects.filter(bodega_id=self.object.id).exists():
+            raise Exception("No es posible eliminar este registro")
+        self.object.delete()

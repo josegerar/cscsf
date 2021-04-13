@@ -1,21 +1,15 @@
+let data_loaded = false;
 const sustancias = {
     datatable: null,
-    form_data_ajax: null,
     data: {
         desgloses: []
     },
-    init: function () {
-        let id_sustancia = $('input[name=id_sustancia]').val();
-        get_list_data_ajax_loading('/sustancias/', {'action': 'list_desglose', 'sus_id': id_sustancia}
-            , function (response) {
-                sustancias.data.desgloses = response;
-                sustancias.list_desgloses();
-                sustancias.update_cantiad_total();
-            });
+    add_desgloses: function (data) {
+        sustancias.data.desgloses = data;
+        sustancias.update_cantiad_total();
     },
-    list_desgloses: function () {
-        this.datatable.clear();
-        this.datatable.rows.add(this.data.desgloses).draw();
+    get_desgloses: function () {
+        return this.data.desgloses;
     },
     update_cantidad_desglose: function (cantidad, index) {
         this.data.desgloses[index].cantidad_ingreso = cantidad;
@@ -33,13 +27,29 @@ const sustancias = {
 }
 
 $(function () {
-
+    let id_sustancia = $('input[name=id_sustancia]').val();
     sustancias.datatable = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': true,
+        'destroy': true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': `/sustancias/view/${id_sustancia}/`,
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'list_desglose';
+            },
+            "dataSrc": function (json) {
+                data_loaded = true;
+                if (json.length === 0) message_info("No hay bodegas o laboratorios registrados");
+                sustancias.add_desgloses(json)
+                return sustancias.get_desgloses();
+            }
+        },
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'tipo'
             },
             {'data': 'nombre'},
@@ -59,17 +69,15 @@ $(function () {
         }
     });
 
-    sustancias.init();
-
     $("input[name='cupo_autorizado']").TouchSpin({
-            'verticalbuttons': true,
-            'min': 0.00,
-            'initval': 0.00,
-            'step': 0.1,
-            'decimals': 4,
-            'verticalupclass': 'glyphicon glyphicon-plus',
-            'verticaldownclass': 'glyphicon glyphicon-minus'
-        });
+        'verticalbuttons': true,
+        'min': 0.00,
+        'initval': 0.00,
+        'step': 0.1,
+        'decimals': 4,
+        'verticalupclass': 'glyphicon glyphicon-plus',
+        'verticaldownclass': 'glyphicon glyphicon-minus'
+    });
 
     //activar plugin select2 a los select del formulario
     $('.select2').select2({
@@ -78,7 +86,8 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', sustancias.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', sustancias.datatable
+        , 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
         });

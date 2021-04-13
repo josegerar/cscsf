@@ -1,9 +1,18 @@
 $(function () {
-    const data = {'action': 'searchdata', 'csrfmiddlewaretoken': getCookie("csrftoken")}
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
-        'autoWidth': false,
+        'autoWidth': true,
         'destroy': true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': window.location.pathname,
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'searchdata';
+            },
+            'dataSrc': ''
+        },
         'columns': [
             {'data': 'id'},
             {'data': 'nombre'},
@@ -31,19 +40,7 @@ $(function () {
         ]
     });
 
-    get_list_data_ajax_loading(window.location.pathname
-        , {'action': 'searchdata'}
-        , function (response) {
-            tblistado.clear();
-            tblistado.rows.add(response).draw();
-        });
-
     $('#btnSync').on('click', function (event) {
-        get_list_data_ajax_loading(window.location.pathname
-            , {'action': 'searchdata'}
-            , function (response) {
-                tblistado.clear();
-                tblistado.rows.add(response).draw();
-            });
+        tblistado.ajax.reload();
     });
 });

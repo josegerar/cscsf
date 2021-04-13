@@ -38,9 +38,11 @@
                                 <div class="card-body">
                                     <table id="tblistado" class="table" style="width: 100%">
                                         <thead>
-                                        <th scope="col">Tipo lugar</th>
-                                        <th scope="col">Nombre</th>
-                                        <th scope="col">Cantidad ingreso</th>
+                                        <tr>
+                                            <th scope="col">Tipo lugar</th>
+                                            <th scope="col">Nombre</th>
+                                            <th scope="col">Cantidad ingreso</th>
+                                        </tr>
                                         </thead>
                                     </table>
                                 </div>
@@ -151,10 +153,18 @@
         $(function () {
             $('form').on('submit', function (event) {
                 event.preventDefault();
+                if (!data_loaded) {
+                    message_info("Cargando..");
+                    return false;
+                }
                 let form = this;
                 let action_save = $(event.originalEvent.submitter).attr('rel');
                 let parameters = new FormData(form);
                 parameters.append('desgloses', JSON.stringify(sustancias.data.desgloses));
+                parameters.delete("tblistado_length");
+                parameters.delete("id_sustancia");
+                parameters.delete("cantidad_total");
+                parameters.delete("cantidad");
                 disableEnableForm(form, true);
                 submit_with_ajax(
                     undefined,

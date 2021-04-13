@@ -44,25 +44,24 @@ class ComprasCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                 form = self.get_form()
                 if form.is_valid():
                     compra = form.instance
-                    if compra is not None:
-                        with transaction.atomic():
-                            sustancias = json.loads(request.POST['sustancias'])
-                            estadocompra = EstadoTransaccion.objects.get(estado='registrado')
-                            compra.estado_compra_id = estadocompra.id
-                            compra.save()
-
-                            for i in sustancias:
-                                det = ComprasPublicasDetalle()
-                                det.stock_id = i['id']
-                                det.compra_id = compra.id
-                                det.cantidad = float(i['cantidad_ingreso'])
-                                det.save()
-                    else:
-                        data['error'] = 'Ha ocurrido un error'
+                    sustancias = json.loads(request.POST['sustancias'])
+                    self.registrar_compra(compra, sustancias)
                 else:
-                    data['error'] = 'Ha ocurrido un error'
+                    data['error'] = form.errors
             else:
                 data['error'] = 'No ha realizado ninguna accion'
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
+
+    def registrar_compra(self, compra, sustancias):
+        with transaction.atomic():
+            estadocompra = EstadoTransaccion.objects.get(estado='registrado')
+            compra.estado_compra_id = estadocompra.id
+            compra.save()
+            for i in sustancias:
+                det = ComprasPublicasDetalle()
+                det.stock_id = i['id']
+                det.compra_id = compra.id
+                det.cantidad = float(i['cantidad_ingreso'])
+                det.save()

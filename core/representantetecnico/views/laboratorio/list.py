@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -14,22 +15,14 @@ class LaboratorioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, L
     template_name = "laboratorio/list.html"
 
     def get(self, request, *args, **kwargs):
-        data = {}
         try:
             action = request.GET.get('action')
             if action is not None:
                 if action == 'searchdata':
-                    data = []
-                    for i in Laboratorio.objects.all():
-                        item = {'id': i.id, 'nombre': i.nombre, 'responsable': '', 'is_del': True, 'dir': i.direccion}
-                        if i.responsable is not None:
-                            item['responsable'] = i.responsable.get_user_info()
-                        if i.stock_set.all().exists():
-                            item['is_del'] = False
-                        data.append(item)
+                    data = self.search_data()
                     return JsonResponse(data, safe=False)
         except Exception as e:
-            data['error'] = str(e)
+            messages.error(request, str(e))
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -42,3 +35,14 @@ class LaboratorioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, L
             {"uridj": reverse_lazy('rp:laboratorios'), "uriname": "Laboratorios"}
         ]
         return context
+
+    def search_data(self):
+        data = []
+        for i in Laboratorio.objects.all():
+            item = {'id': i.id, 'nombre': i.nombre, 'responsable': '', 'is_del': True, 'dir': i.direccion}
+            if i.responsable is not None:
+                item['responsable'] = i.responsable.get_user_info()
+            if i.stock_set.all().exists():
+                item['is_del'] = False
+            data.append(item)
+        return data

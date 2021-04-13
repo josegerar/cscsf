@@ -1,3 +1,4 @@
+let data_loaded = false;
 const compra = {
     datatable: null,
     data: {
@@ -27,7 +28,6 @@ const compra = {
             item.stock.cupo_disponible = item.stock.cupo_autorizado - item.stock.cupo_consumido;
         });
         this.data.detalleCompra = data;
-        this.list_sustancia();
     },
     config_item: function (item) {
         item.cupo_disponible = item.cupo_autorizado - item.cupo_consumido;
@@ -35,6 +35,9 @@ const compra = {
             'id': -1, 'cantidad': 0.0000, 'stock': item,
             'bodega_selected': {'id': parseInt(this.data.bodega_selected.id), 'text': this.data.bodega_selected.text}
         };
+    },
+    get_detalles: function () {
+        return this.data.detalleCompra;
     },
     list_sustancia: function () {
         this.datatable.clear();
@@ -72,6 +75,10 @@ const compra = {
         return diferent;
     },
     verify_send_data: function (callback, error) {
+        if (!data_loaded) {
+            error("Cargando...");
+            return false;
+        }
         let isValidData = true;
         if (this.data.detalleCompra.length === 0) {
             isValidData = false;
@@ -99,15 +106,30 @@ const compra = {
 };
 
 $(function () {
+    let id_compra = $('#frmCompra').find('input[name=id_compra]').val();
     //activar datatable a detalle de sustancias
     //asignar datable a objeto manejador de datos de la compra
     compra.datatable = $('#tblistado').DataTable({
         'responsive': true,
-        'destroy': true,
         "ordering": false,
+        "autoWidth": true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': `/compras/view/${id_compra}/`,
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'searchdetail';
+            },
+            "dataSrc": function (json) {
+                data_loaded = true;
+                compra.add_detalle_compra(json);
+                return json;
+            }
+        },
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'id'
             },
             {'data': 'stock.value'},
@@ -194,6 +216,10 @@ $(function () {
     //activar el autocomplete en el buscador
     $('input[name=search]').focus().autocomplete({
         source: function (request, response) {
+            if (!data_loaded) {
+                message_info("Cargando...");
+                return false;
+            }
             let code_bod = compra.data.bodega_selected
                 ? compra.data.bodega_selected.id.length > 0
                     ? parseInt(compra.data.bodega_selected.id)
@@ -222,16 +248,10 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', compra.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', compra.datatable
+        , 'td.show-data-hide-controls',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
-        });
-
-    let id_compra = $('#frmCompra').find('input[name=id_compra]').val();
-
-    get_list_data_ajax_loading('/compras/', {'action': 'searchdetail', 'id_comp': id_compra}
-        , function (response) {
-            compra.add_detalle_compra(response);
         });
 
     function updateRowsCallback(row, data, dataIndex) {

@@ -29,9 +29,7 @@ class LaboratorioDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if Stock.objects.filter(laboratorio_id=self.object.id).exists():
-                raise Exception('No es posible eliminar este registro')
-            self.object.delete()
+            self.eliminar_laboratorio()
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
@@ -47,3 +45,8 @@ class LaboratorioDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
             {"uridj": reverse_lazy('rp:registrolaboratorio'), "uriname": "Eliminar"}
         ]
         return context
+
+    def eliminar_laboratorio(self):
+        if Stock.objects.filter(laboratorio_id=self.object.id).exists():
+            raise Exception('No es posible eliminar este registro')
+        self.object.delete()

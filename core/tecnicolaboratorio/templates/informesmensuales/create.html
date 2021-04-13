@@ -217,7 +217,6 @@
                 let form = this;
                 let action_save = $(event.originalEvent.submitter).attr('rel');
                 informe.verify_send_data(function () {
-                    console.log(form);
                     let parameters = new FormData(form);
                     if (!parameters.get('laboratorio')){
                         parameters.append('laboratorio', $('#frmCrearInforme').find('select[name=laboratorio]').val())

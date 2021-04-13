@@ -63,10 +63,6 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                 elif action == 'list_desgl_blank':
                     data = self.list_desgl_blank()
                     return JsonResponse(data, safe=False)
-                elif action == 'list_desglose':
-                    sus_id = request.GET.get('sus_id')
-                    self.list_desglose(sus_id)
-                    return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)
         return super().get(request, *args, **kwargs)
@@ -137,20 +133,4 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
             data.append({'id': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio', 'cantidad_ingreso': 0.0000})
         return data
 
-    def list_desglose(self, sus_id):
-        data = []
-        for i in Stock.objects.filter(sustancia_id=sus_id, laboratorio=None).order_by(
-                "bodega__nombre"):
-            data.append({'id': i.id, 'nombre': i.bodega.nombre, 'tipo': 'bodega',
-                         'cantidad_ingreso': float(i.cantidad)})
-        for i in Stock.objects.filter(sustancia_id=sus_id, bodega=None).order_by(
-                "laboratorio__nombre"):
-            data.append({'id': i.id, 'nombre': i.laboratorio.nombre, 'tipo': 'laboratorio',
-                         'cantidad_ingreso': float(i.cantidad)})
-        for i in Bodega.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
-            data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'bodega',
-                         'cantidad_ingreso': 0.0000})
-        for i in Laboratorio.objects.exclude(stock__sustancia_id=sus_id).order_by('nombre'):
-            data.append({'id': -1, 'id_lugar': i.id, 'nombre': i.nombre, 'tipo': 'laboratorio',
-                         'cantidad_ingreso': 0.0000})
-        return data
+

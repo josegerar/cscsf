@@ -72,7 +72,7 @@
                         <div class="form-group">
                             <label>Detalle de sustancia:</label>
                             <div class="table-responsive">
-                                <table class="table" id="tbdetallesustancia">
+                                <table class="table" id="tbdetallesustancia" style="width: 100%;">
                                     <thead>
                                     <tr>
                                         <th scope="col">#</th>
@@ -95,12 +95,12 @@
             </div>
             <div class="card-footer">
                 {% if request.user.is_representative %}
-                    <a href="{% url 'tl:actualizacionsolicitud' view.object.id %}" class="btn btn-primary btn-flat">
+                    <a href="{% url 'rp:actualizacionsustancia' view.object.id %}" class="btn btn-primary btn-flat">
                         <i class="fas fa-edit"></i>
                         Editar
                     </a>
                     {% if view.object.is_del %}
-                        <a href="{% url 'tl:eliminarsolicitud' view.object.id %}" class="btn btn-danger btn-flat">
+                        <a href="{% url 'rp:eliminarsustancia' view.object.id %}" class="btn btn-danger btn-flat">
                             <i class="fas fa-times"></i>
                             Eliminar
                         </a>
@@ -117,7 +117,9 @@
 {% endblock %}
 
 {% block script %}
-    {% if request.user.is_laboratory_worker %}
+    {% if request.user.is_representative %}
+        <script src="{% static 'sustancia/js/view.js' %}"></script>
+    {% else %}
         <script src="{% static 'sustanciastl/js/view.js' %}"></script>
     {% endif %}
 {% endblock %}

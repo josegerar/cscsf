@@ -1,13 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.views.generic import ListView
 
 from app.settings import LOGIN_REDIRECT_URL
 from core.base.mixins import ValidatePermissionRequiredMixin
-from core.representantetecnico.models import ComprasPublicas, ComprasPublicasDetalle, EstadoTransaccion, \
-    Proveedor
+from core.representantetecnico.models import ComprasPublicas, EstadoTransaccion, Proveedor
 
 
 class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
@@ -24,22 +22,6 @@ class ComprasListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
                     id_s = request.GET.get('id')
                     type = request.GET.get('type')
                     data = self.search_data(type, id_s, request.user)
-                    return JsonResponse(data, safe=False)
-                elif action == 'searchdetail':
-                    data = []
-                    id_comp = request.GET.get('id_comp')
-                    detalle_compras = ComprasPublicasDetalle.objects.filter(compra_id=id_comp)
-                    for dci in detalle_compras:
-                        item = {'id': dci.id, 'cantidad': float(dci.cantidad),
-                                'bodega_selected': {'id': dci.stock.bodega.id, 'text': dci.stock.bodega.nombre},
-                                'stock': {'id': dci.stock.id,
-                                          'cupo_autorizado': float(dci.stock.sustancia.cupo_autorizado),
-                                          'value': dci.stock.sustancia.nombre,
-                                          'unidad_medida': dci.stock.sustancia.unidad_medida.nombre,
-                                          'cantidad_bodega': float(dci.stock.cantidad),
-                                          'cupo_consumido': dci.stock.sustancia.get_cupo_consumido(
-                                              timezone.now().year)}}
-                        data.append(item)
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)

@@ -1,15 +1,14 @@
+let data_loaded = false;
 const sustancias = {
     datatable: null,
     data: {
         desgloses: []
     },
-    init: function () {
-        get_list_data_ajax_loading('/sustancias/', {'action': 'list_desgl_blank'}
-            , function (response) {
-                if (response.length === 0) message_info("No hay bodegas o laboratorios registrados");
-                sustancias.data.desgloses = response;
-                sustancias.list_desgloses();
-            });
+    add_desgloses: function (data) {
+        this.data.desgloses = data;
+    },
+    get_desgloses: function () {
+        return this.data.desgloses;
     },
     list_desgloses: function () {
         this.datatable.clear();
@@ -35,9 +34,24 @@ $(function () {
         'responsive': true,
         'autoWidth': true,
         'destroy': true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': '/sustancias/',
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'list_desgl_blank';
+            },
+            "dataSrc": function (json) {
+                data_loaded = true;
+                if (json.length === 0) message_info("No hay bodegas o laboratorios registrados");
+                sustancias.add_desgloses(json)
+                return sustancias.get_desgloses();
+            }
+        },
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'tipo'
             },
             {'data': 'nombre'},
@@ -57,17 +71,15 @@ $(function () {
         }
     });
 
-    sustancias.init();
-
     $("input[name='cupo_autorizado']").TouchSpin({
-            'verticalbuttons': true,
-            'min': 0.00,
-            'initval': 0.00,
-            'step': 0.1,
-            'decimals': 4,
-            'verticalupclass': 'glyphicon glyphicon-plus',
-            'verticaldownclass': 'glyphicon glyphicon-minus'
-        });
+        'verticalbuttons': true,
+        'min': 0.00,
+        'initval': 0.00,
+        'step': 0.1,
+        'decimals': 4,
+        'verticalupclass': 'glyphicon glyphicon-plus',
+        'verticaldownclass': 'glyphicon glyphicon-minus'
+    });
 
     //activar plugin select2 a los select del formulario
     $('.select2').select2({
@@ -76,7 +88,8 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', sustancias.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', sustancias.datatable
+        , 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
         });

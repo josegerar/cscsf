@@ -1,5 +1,5 @@
 $(function () {
-    let data = {'action': 'searchdata', 'year': 0, 'sus_id': 0, 'mes': 0}
+    let data = {'action': 'searchdata', 'year': 0, 'sus_id': 0, 'mes': 0};
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': true,

@@ -30,11 +30,7 @@ class ComprasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if self.object.estado_compra.estado == 'almacenado':
-                raise Exception(
-                    "Compra ya almacenada en stock, no se puede eliminar"
-                )
-            self.object.delete()
+            self.eliminar_compra()
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
@@ -50,3 +46,10 @@ class ComprasDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Del
             {"uridj": reverse_lazy('rp:registrocompras'), "uriname": "Eliminar"}
         ]
         return context
+
+    def eliminar_compra(self):
+        if self.object.estado_compra.estado == 'almacenado':
+            raise Exception(
+                "Compra ya almacenada en stock, no se puede eliminar"
+            )
+        self.object.delete()

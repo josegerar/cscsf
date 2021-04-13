@@ -1,7 +1,22 @@
 $(function () {
+    let data = {'action': 'searchdata', 'year': 0, 'sus_id': 0, 'mes': 0};
     const tblistado = $('#tblistado').DataTable({
         'responsive': true,
         'autoWidth': true,
+        'destroy': true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': window.location.pathname,
+            'type': 'GET',
+            'data': function (d) {
+                d.action = data.action;
+                d.year = data.year;
+                d.sus_id = data.sus_id;
+                d.mes = data.mes;
+            },
+            'dataSrc': ''
+        },
         'columns': [
             {'data': 'id'},
             {'data': 'sustancia'},
@@ -24,27 +39,13 @@ $(function () {
         ]
     });
 
-    get_list_data_ajax_loading(window.location.pathname
-        , {'action': 'searchdata', 'type': 'todo', 'year': 0, 'sus_id': 0, 'mes': 0}
-        , function (response) {
-            tblistado.clear();
-            tblistado.rows.add(response).draw();
-        });
-
     $('button[rel=btnSync]').on('click', function () {
-        get_list_data_ajax_loading(window.location.pathname
-            , {'action': 'searchdata', 'type': 'todo', 'year': 0, 'sus_id': 0, 'mes': 0}
-            , function (response) {
-                tblistado.clear();
-                tblistado.rows.add(response).draw();
-            });
+        data = {'action': 'searchdata', 'year': 0, 'sus_id': 0, 'mes': 0}
+        tblistado.ajax.reload();
     });
 
-    active_events_filters(['action', 'type', 'year', 'sus_id', 'mes'], function (data) {
-        get_list_data_ajax_loading(window.location.pathname, data
-            , function (response) {
-                tblistado.clear();
-                tblistado.rows.add(response).draw();
-            });
+    active_events_filters(['action', 'year', 'sus_id', 'mes'], function (data_send) {
+        data = data_send;
+        tblistado.ajax.reload();
     });
 });

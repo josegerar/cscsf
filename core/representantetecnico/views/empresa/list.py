@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -19,15 +20,10 @@ class EmpresaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
             action = request.GET.get('action')
             if action is not None:
                 if action == 'searchdata':
-                    data = []
-                    for i in Proveedor.objects.all():
-                        item = {'id': i.id, 'nombre': i.nombre, 'ruc': i.ruc, 'id_del': True}
-                        if ComprasPublicas.objects.filter(empresa_id=i.id).exists():
-                            item['id_del'] = False
-                        data.append(item)
+                    data = self.search_data()
                     return JsonResponse(data, safe=False)
         except Exception as e:
-            data['error'] = str(e)
+            messages.error(request, str(e))
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -40,3 +36,12 @@ class EmpresaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
             {"uridj": reverse_lazy('rp:empresas'), "uriname": "Empresas"}
         ]
         return context
+
+    def search_data(self):
+        data = []
+        for i in Proveedor.objects.all():
+            item = {'id': i.id, 'nombre': i.nombre, 'ruc': i.ruc, 'id_del': True}
+            if ComprasPublicas.objects.filter(empresa_id=i.id).exists():
+                item['id_del'] = False
+            data.append(item)
+        return data

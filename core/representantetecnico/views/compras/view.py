@@ -54,6 +54,18 @@ class ComprasView(LoginRequiredMixin, ValidatePermissionRequiredMixin, TemplateV
             data["error"] = str(e)
         return JsonResponse(data, safe=False)
 
+    def get(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.GET.get('action')
+            if action is not None:
+                if action == 'searchdetail':
+                    data = self.search_detail()
+                    return JsonResponse(data, safe=False)
+        except Exception as e:
+            data['error'] = str(e)
+        return super().get(request, *args, **kwargs)
+
     def confirmar_compra(self, observacion):
         with transaction.atomic():
             compras_publicas = self.object
@@ -100,3 +112,18 @@ class ComprasView(LoginRequiredMixin, ValidatePermissionRequiredMixin, TemplateV
                 observacion = ""
             compras_publicas.observacion = observacion
             compras_publicas.save()
+
+    def search_detail(self):
+        data = []
+        for dci in self.object.compraspublicasdetalle_set.all():
+            item = {'id': dci.id, 'cantidad': float(dci.cantidad),
+                    'bodega_selected': {'id': dci.stock.bodega.id, 'text': dci.stock.bodega.nombre},
+                    'stock': {'id': dci.stock.id,
+                              'cupo_autorizado': float(dci.stock.sustancia.cupo_autorizado),
+                              'value': dci.stock.sustancia.nombre,
+                              'unidad_medida': dci.stock.sustancia.unidad_medida.nombre,
+                              'cantidad_bodega': float(dci.stock.cantidad),
+                              'cupo_consumido': dci.stock.sustancia.get_cupo_consumido(
+                                  timezone.now().year)}}
+            data.append(item)
+        return data
