@@ -16,8 +16,11 @@
         {% if request.user.is_representative %}
             <th scope="col">Usuarios</th>
         {% endif %}
-        <th scope="col">Editar</th>
-        <th scope="col">Eliminar</th>
+        {% if request.user.is_representative or request.user.is_laboratory_worker %}
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
+        {% endif %}
+
     </tr>
     </thead>
     <tbody>

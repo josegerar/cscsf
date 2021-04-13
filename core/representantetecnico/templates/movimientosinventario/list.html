@@ -6,7 +6,7 @@
 
 {% block filtrostable %}
     <li class="nav-item">
-        <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}" data-year="0" data-mes="0"
+        <a rel="search" data-action="searchdata" data-year="0" data-mes="0"
            data-sus_id="0"
            class="nav-link" style="cursor: pointer">
             <i class="far fa-list-alt"></i>
@@ -24,7 +24,7 @@
         <ul class="nav nav-treeview" style="display: none;">
             {% for sustancia in sustancias %}
                 <li class="nav-item">
-                    <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}" data-year="0"
+                    <a rel="search" data-action="searchdata" data-year="0"
                        data-mes="0"
                        data-sus_id="{{ sustancia.id }}"
                        class="nav-link" style="cursor: pointer">
@@ -47,7 +47,7 @@
             <ul class="nav nav-treeview" style="display: none;">
                 {% for mes in meses %}
                     <li class="nav-item">
-                        <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}"
+                        <a rel="search" data-action="searchdata"
                            data-year="{{ year.anio }}"
                            data-mes="{{ mes.id }}" data-sus_id="0"
                            class="nav-link"
@@ -60,8 +60,6 @@
             </ul>
         </li>
     {% endfor %}
-
-
 {% endblock %}
 
 {% block contenttable %}

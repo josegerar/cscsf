@@ -13,11 +13,23 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="id_cantidad_consumida_registrada">Cantidad consumida en el mes:</label>
-                        <input type="text" name="cantidad_consumida_registrada" class="form-control"
-                               placeholder="Cantidad consumida en el mes" readonly disabled
-                               required="" id="id_cantidad_consumida_registrada">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="id_cantidad_consumida_registrada">Cantidad consumida en el mes:</label>
+                                <input type="text" name="cantidad_consumida_registrada" class="form-control"
+                                       placeholder="Cantidad consumida en el mes" readonly disabled
+                                       required="" id="id_cantidad_consumida_registrada">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="id_cantidad_desglose_total">Cantidad desglose:</label>
+                                <input type="text" name="cantidad_desglose_total" class="form-control"
+                                       placeholder="Cantidad desglose" readonly disabled
+                                       required="" id="id_cantidad_desglose_total" value="0">
+                            </div>
+                        </div>
                     </div>
                     <br>
                     <button rel="add_consumo" type="button" class="btn btn-secondary btn-flat btn-block">

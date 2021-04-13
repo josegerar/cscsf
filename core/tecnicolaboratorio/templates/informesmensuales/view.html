@@ -1,0 +1,163 @@
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}"/>
+    <link rel="stylesheet"
+          href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}"/>
+    <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+    <div class="card card-default" style="margin-left: 10%; margin-right: 10%;">
+        <form method="post" action="." enctype="multipart/form-data">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ icontitle }}"></i>
+                    {{ title }}
+                </h3>
+            </div>
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Laboratorista:</label>
+                            <input type="text" disabled class="form-control" readonly
+                                   value="{{ view.object.laboratorista.get_user_info }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Laboratorio:</label>
+                            <input type="text" class="form-control" disabled="" readonly
+                                   value="{{ view.object.laboratorio.nombre }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Mes:</label>
+                            <input type="text" disabled class="form-control" readonly
+                                   value="{{ view.object.mes.nombre }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Año:</label>
+                            <input type="text" class="form-control" disabled="" readonly
+                                   value="{{ view.object.year }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Fecha de creación:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.date_creation }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Estado informe:</label>
+                            <input type="text" class="form-control" disabled="" readonly
+                                   value="{{ view.object.estado_informe.estado }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Documento informe:</label>
+                            <a class="btn btn-block btn-outline-secondary" target="_blank"
+                               href="{{ view.object.get_doc_informe }}">Ver documento</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Detalle de informe:</label>
+                            <div class="table-responsive">
+                                <table class="table" id="tbdetalleinforme" style="text-align: center;">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 20%; ">Desglose</th>
+                                        <th scope="col" style="width: 20%;">Sustancia</th>
+                                        <th scope="col" style="width: 20%;">Unidad de medida</th>
+                                        <th scope="col" style="width: 20%;">Cantidad actual
+                                            laboratorio
+                                        </th>
+                                        <th scope="col" style="width: 20%; text-align: center;">Cantidad consumida</th>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                {% if request.user.is_laboratory_worker %}
+                    {% if view.object.estado_informe.estado != 'archivado' %}
+                        <button rel="archivar_informe" type="submit" class="btn btn-success btn-flat">
+                            <i class="fas fa-save"></i>
+                            Archivar informe
+                        </button>
+                        <a href="{% url 'tl:actualizacioninformesmensuales' view.object.id %}"
+                           class="btn btn-primary btn-flat">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </a>
+                        <a href="{% url 'tl:eliminarinformesmensuales' view.object.id %}"
+                           class="btn btn-danger btn-flat">
+                            <i class="fas fa-times"></i>
+                            Eliminar
+                        </a>
+                    {% endif %}
+                {% endif %}
+                <a href="{{ url_list }}" class="btn btn-default float-right btn-flat">
+                    <i class="fas fa-eject"></i>
+                    Cancelar
+                </a>
+            </div>
+            <!-- /.card-body -->
+        </form>
+        <script>
+            $(function () {
+                $('form').on('submit', function (event) {
+                    event.preventDefault();
+                    const parameters = new FormData();
+                    let action_save = $(event.originalEvent.submitter).attr('rel');
+                    parameters.append('action', action_save);
+                    parameters.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+                    submit_with_ajax(
+                        window.location.pathname, parameters
+                        , 'Confirmación'
+                        , '¿Estas seguro de realizar la siguiente acción?'
+                        , function callback(data) {
+                            location.reload();
+                        }, function cancelOrError() {
+
+                        }
+                    );
+                });
+            });
+        </script>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'informesmensuales/js/view.js' %}"></script>
+{% endblock %}

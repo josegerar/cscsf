@@ -20,19 +20,7 @@ class PersonaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
             action = request.GET.get('action')
             if action is not None:
                 if action == 'searchdata':
-                    data = []
-                    type_data = request.GET.get('type')
-                    if type_data == 'lab':
-                        query = Persona.objects.filter(user_creation_id=request.user.id)
-                    else:
-                        query = Persona.objects.exclude(id=request.user.persona_id)
-                    for per in query:
-                        item = {'id': per.id, 'nombre': per.nombre, 'apellido': per.apellido, 'cedula': per.cedula,
-                                'is_del': True}
-                        if User.objects.filter(persona_id=per.id).exists() or Solicitud.objects.filter(
-                                responsable_actividad_id=per.id).exists():
-                            item["is_del"] = False
-                        data.append(item)
+                    data = self.search_data(request.user)
                     return JsonResponse(data, safe=False)
                 elif action == 'search_user_person':
                     data = []
@@ -60,3 +48,18 @@ class PersonaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListV
             context['title'] = "Investigadores / Docentes"
             context['urls'].append({"uridj": reverse_lazy('rp:personas'), "uriname": "Investigadores"})
         return context
+
+    def search_data(self, user):
+        data = []
+        if user.is_grocer or user.is_laboratory_worker:
+            query = Persona.objects.filter(user=None)
+        else:
+            query = Persona.objects.all()
+        for per in query:
+            item = {'id': per.id, 'nombre': per.nombre, 'apellido': per.apellido, 'cedula': per.cedula,
+                    'is_del': True}
+            if User.objects.filter(persona_id=per.id).exists() or Solicitud.objects.filter(
+                    responsable_actividad_id=per.id).exists():
+                item["is_del"] = False
+            data.append(item)
+        return data

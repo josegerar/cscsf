@@ -32,19 +32,22 @@ class DesgloseSustanciaInformeMensualDeleteView(LoginRequiredMixin, ValidatePerm
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            with transaction.atomic():
-                if self.object.informe_mensual_detalle.informe.estado_informe.estado == "archivado":
-                    raise Exception('No es posible eliminar este registro')
-                desglose_informe_sustancia_detalle = self.object
-                if desglose_informe_sustancia_detalle is None:
-                    raise Exception(
-                        "Registro inexistente"
-                    )
-                solicitud_detalle = desglose_informe_sustancia_detalle.solicitud_detalle
-                if solicitud_detalle is not None:
-                    solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_informe_sustancia_detalle.cantidad
-                    solicitud_detalle.save()
-                desglose_informe_sustancia_detalle.delete()
+            self.delete_desglose()
         except Exception as e:
-            data['error'] = str(e)
+            messages.error(request, str(e))
         return JsonResponse(data)
+
+    def delete_desglose(self):
+        with transaction.atomic():
+            if self.object.informe_mensual_detalle.informe.estado_informe.estado == "archivado":
+                raise Exception('No es posible eliminar este registro')
+            desglose_informe_sustancia_detalle = self.object
+            if desglose_informe_sustancia_detalle is None:
+                raise Exception(
+                    "Registro inexistente"
+                )
+            solicitud_detalle = desglose_informe_sustancia_detalle.solicitud_detalle
+            if solicitud_detalle is not None:
+                solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_informe_sustancia_detalle.cantidad
+                solicitud_detalle.save()
+            desglose_informe_sustancia_detalle.delete()

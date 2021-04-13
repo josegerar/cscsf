@@ -33,17 +33,18 @@ class EstadoMensualListView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
             if action is not None:
                 if action == 'searchdata':
                     data = []
-                    type_data = request.GET.get('type')
                     mes = request.GET.get('mes')
                     year = request.GET.get('year')
-                    if type_data == 'lab_month':
-                        data_res = Inventario.get_data_inventario_mov(mes, year, request.user.id, 0)
-                    elif type_data == 'bdg_month':
-                        data_res = Inventario.get_data_inventario_mov(mes, year, 0, request.user.id)
-                    else:
-                        data_res = Inventario.get_data_inventario_mov(mes, year, 0, 0)
-                    data = data_res
+                    data = self.search_data(request.user, mes, year)
                     return JsonResponse(data, safe=False)
         except Exception as e:
             data['error'] = str(e)
         return super().get(request, *args, **kwargs)
+
+    def search_data(self, user, mes, year):
+        if user.is_laboratory_worker:
+            return Inventario.get_data_inventario_mov(mes, year, user.id, 0)
+        elif user.is_grocer:
+            return Inventario.get_data_inventario_mov(mes, year, 0, user.id)
+        else:
+            return Inventario.get_data_inventario_mov(mes, year, 0, 0)

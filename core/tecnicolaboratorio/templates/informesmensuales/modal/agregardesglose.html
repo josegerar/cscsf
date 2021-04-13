@@ -96,8 +96,7 @@
                 , 'Confirmación'
                 , '¿Estas seguro de realizar la siguiente acción?'
                 , function (data) {
-                    let id_detalle = $('#frmAgregarDesglose').find('input[name="id_detalle"]').val();
-                    informe.listConsumosSustanciaDetalleInforme(id_detalle);
+                    informe.datatable_desgloses.ajax.reload();
                     $('#modalAgregarDesglose').modal('hide');
                     disableEnableForm(form, false);
                 }, function (error) {
@@ -107,8 +106,7 @@
         });
 
         $('#modalAgregarDesglose').on('hidden.bs.modal', function (e) {
-            $('#frmAgregarDesglose').find('input[name="documento"]').val("");
-            $('#frmAgregarDesglose').find('input[name="cantidad"]').val(0);
+            informe.clean_form_add_desglose();
         });
     });
 </script>

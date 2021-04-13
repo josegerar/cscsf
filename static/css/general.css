@@ -22,3 +22,11 @@ table.dataTable tbody tr.selected {
 .help ul {
     padding-inline-start: unset;
 }
+
+td.details-control {
+    background: url('../lib/datatables-1.10.20/images/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    background: url('../lib/datatables-1.10.20/images/details_close.png') no-repeat center center;
+}

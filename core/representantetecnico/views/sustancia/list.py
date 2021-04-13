@@ -36,23 +36,7 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                 if action == 'searchdata':
                     id_s = request.GET.get('id')
                     type = request.GET.get('type')
-                    data = []
-                    if type == 'un_med':
-                        query = Sustancia.objects.filter(unidad_medida_id=id_s)
-                    else:
-                        query = Sustancia.objects.all()
-                    for i in query:
-                        item = {
-                            'id': i.id,
-                            'nombre': i.nombre,
-                            'descripcion': i.descripcion,
-                            'cupo_autorizado': i.cupo_autorizado,
-                            'unidad_medida': i.unidad_medida.nombre,
-                            'is_del': True
-                        }
-                        if i.stock_set.all().exists():
-                            item['is_del'] = False
-                        data.append(item)
+                    data = self.search_data(type, id_s, request.user)
                     return JsonResponse(data, safe=False)
                 elif action == 'search_sus_compra':
                     data = []
@@ -95,26 +79,6 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
                     if code_lab is not None and code_bod is not None:
                         data = Sustancia.get_substances_solicitud(code_lab, code_bod, term)
                     return JsonResponse(data, safe=False)
-                elif action == 'search_stock':
-                    id_s = request.GET.get('id_s')
-                    type = request.GET.get('type')
-                    data = []
-                    if type == 'lab':
-                        query = Stock.objects.filter(laboratorio__responsable_id=request.user.id, sustancia_id=id_s)
-                    elif type == 'bdg':
-                        query = Stock.objects.filter(bodega__responsable_id=request.user.id, sustancia_id=id_s)
-                    else:
-                        query = Stock.objects.filter(sustancia_id=id_s)
-                    for i in query:
-                        item = {'id': i.id, 'cantidad': i.cantidad, 'type': '', 'nombre': ''}
-                        if i.laboratorio is not None:
-                            item['type'] = 'laboratorio'
-                            item['nombre'] = i.laboratorio.nombre
-                        elif i.bodega is not None:
-                            item['type'] = 'bodega'
-                            item['nombre'] = i.bodega.nombre
-                        data.append(item)
-                    return JsonResponse(data, safe=False)
                 elif action == 'list_desgl_blank':
                     data = []
                     for i in Bodega.objects.all().order_by('nombre'):
@@ -143,3 +107,30 @@ class SustanciaListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Lis
         except Exception as e:
             data['error'] = str(e)
         return super().get(request, *args, **kwargs)
+
+    def search_data(self, type, id_s, user):
+        data = []
+        if type == 'un_med':
+            if user.is_laboratory_worker:
+                query = Sustancia.objects.filter(unidad_medida_id=id_s, stock__laboratorio__responsable_id=user.id)
+            elif user.is_grocer:
+                query = Sustancia.objects.filter(unidad_medida_id=id_s, stock__bodega__responsable_id=user.id)
+            else:
+                query = Sustancia.objects.filter(unidad_medida_id=id_s)
+        else:
+            if user.is_laboratory_worker:
+                query = Sustancia.objects.filter(stock__laboratorio__responsable_id=user.id)
+            elif user.is_grocer:
+                query = Sustancia.objects.filter(stock__bodega__responsable_id=user.id)
+            else:
+                query = Sustancia.objects.all()
+        for i in query:
+            item = {
+                'id': i.id,
+                'nombre': i.nombre,
+                'cupo_autorizado': i.cupo_autorizado,
+                'unidad_medida': i.unidad_medida.nombre,
+                'is_del': i.is_del()
+            }
+            data.append(item)
+        return data

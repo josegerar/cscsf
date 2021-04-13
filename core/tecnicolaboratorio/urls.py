@@ -10,6 +10,7 @@ from core.tecnicolaboratorio.views.informes_mensuales.create import InformesMens
 from core.tecnicolaboratorio.views.informes_mensuales.delete import InformesMensualesDeleteView
 from core.tecnicolaboratorio.views.informes_mensuales.list import InformesMensualesListView
 from core.tecnicolaboratorio.views.informes_mensuales.update import InformesMensualesUpdateView
+from core.tecnicolaboratorio.views.informes_mensuales.view import InformeMensualView
 from core.tecnicolaboratorio.views.solicitudes.create import SolicitudCreateView
 from core.tecnicolaboratorio.views.solicitudes.delete import SolicitudDeleteView
 from core.tecnicolaboratorio.views.solicitudes.list import SolicitudListView
@@ -33,6 +34,7 @@ urlpatterns = [
          name="actualizacioninformesmensuales"),
     path('informes-mensuales/delete/<int:pk>/', InformesMensualesDeleteView.as_view(),
          name="eliminarinformesmensuales"),
+    path('informes-mensuales/view/<int:pk>/', InformeMensualView.as_view(), name="verinformesmensuales"),
 
     # informes mensuales desglose
     path('informes-mensuales/desglose-sustancia/', DesgloseSustanciaInformeMensualListView.as_view(),

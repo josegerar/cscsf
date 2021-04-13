@@ -6,7 +6,7 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from app.settings import MEDIA_URL
-from core.base.query_aux import dictfetchall
+from core.base.formaters import dictfetchall
 from core.bodega.models import Bodega
 from core.login.models import User, BaseModel, Persona
 from core.representantetecnico.files.read import BASE_REPOSITORY, rearm_url
@@ -95,6 +95,16 @@ class Sustancia(BaseModel):
             cursor.execute("select * from get_substances_solicitud(%s, %s, %s);", [lab_id_in, bod_id_in, term])
             data_res = dictfetchall(cursor)
         return data_res
+
+    def get_description(self):
+        if self.descripcion:
+            return self.descripcion
+        return ""
+
+    def is_del(self):
+        if self.stock_set.all().exists():
+            return False
+        return True
 
     def toJSON(self, view_stock=False):
         item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion,
@@ -360,6 +370,7 @@ class InformesMensuales(BaseModel):
     laboratorio = models.ForeignKey(Laboratorio, on_delete=models.CASCADE, verbose_name="Laboratorio")
     mes = models.ForeignKey(Mes, on_delete=models.CASCADE, verbose_name="Mes", null=True)
     year = models.IntegerField(default=timezone.now().year, verbose_name="Año")
+    doc_informe = models.FileField(upload_to='informemensual/%Y/%m/%d', null=True)
     estado_informe = models.ForeignKey(EstadoTransaccion, on_delete=models.CASCADE, null=True, editable=False)
 
     def __str__(self):
@@ -374,6 +385,11 @@ class InformesMensuales(BaseModel):
         if self.mes is not None:
             item['mes'] = self.mes.toJSON()
         return item
+
+    def get_doc_informe(self):
+        if self.doc_informe:
+            return '{}{}'.format(MEDIA_URL, self.doc_informe)
+        return ''
 
     @staticmethod
     def verify_month_exist_with_year(month_id, year, lab_id):

@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -29,24 +30,23 @@ class MovimientosInventarioListView(LoginRequiredMixin, ValidatePermissionRequir
         return context
 
     def get(self, request, *args, **kwargs):
-        data = {}
         try:
             action = request.GET.get('action')
             if action is not None:
                 if action == 'searchdata':
-                    data = []
-                    type_data = request.GET.get('type')
                     mes = request.GET.get('mes')
                     year = request.GET.get('year')
                     sustancia = request.GET.get('sus_id')
-                    if type_data == 'lab':
-                        data_res = Inventario.get_mov_inv_tl(request.user.id, sustancia, year, mes)
-                    elif type_data == 'bdg':
-                        data_res = Inventario.get_mov_inv_bdg(request.user.id, sustancia, year, mes)
-                    else:
-                        data_res = Inventario.get_mov_inv_rt(sustancia, year, mes)
-                    data = data_res
+                    data = self.search_data(request.user, sustancia, year, mes)
                     return JsonResponse(data, safe=False)
         except Exception as e:
-            data['error'] = str(e)
+            messages.error(request, str(e))
         return super().get(request, *args, **kwargs)
+
+    def search_data(self, user, sustancia, year, mes):
+        if user.is_laboratory_worker:
+            return Inventario.get_mov_inv_tl(user.id, sustancia, year, mes)
+        elif user.is_grocer:
+            return Inventario.get_mov_inv_bdg(user.id, sustancia, year, mes)
+        else:
+            return Inventario.get_mov_inv_rt(sustancia, year, mes)

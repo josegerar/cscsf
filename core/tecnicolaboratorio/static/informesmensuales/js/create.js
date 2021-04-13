@@ -87,7 +87,7 @@ $(function () {
         "autoWidth": true,
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'id'
             },
             {'data': 'value'},
@@ -147,7 +147,8 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', informe.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', informe.datatable
+        , 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
         });

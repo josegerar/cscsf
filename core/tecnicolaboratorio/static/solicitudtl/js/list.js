@@ -5,6 +5,7 @@ $(function () {
         'autoWidth': true,
         'destroy': true,
         'deferRender': true,
+        'processing': true,
         'ajax': {
             'url': window.location.pathname,
             'type': 'GET',
@@ -16,10 +17,7 @@ $(function () {
             'dataSrc': ''
         },
         'columns': [
-            {
-                "className": 'details-control',
-                'data': 'id'
-            },
+            {'data': 'id'},
             {'data': 'laboratorio'},
             {'data': 'nombre_actividad'},
             {'data': 'codigo'},
@@ -45,6 +43,7 @@ $(function () {
             }
         ]
     });
+
     $('#btnSync').on('click', function (event) {
         data = {'id': 0, 'action': 'searchdata', 'type': 'todo'};
         tblistado.ajax.reload();

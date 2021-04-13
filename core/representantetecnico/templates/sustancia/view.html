@@ -1,0 +1,123 @@
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}"/>
+    <link rel="stylesheet"
+          href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}"/>
+    <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="card card-default" style="margin-left: 10%; margin-right: 10%;">
+        <form method="post" action="." enctype="multipart/form-data">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ icontitle }}"></i>
+                    {{ title }}
+                </h3>
+            </div>
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Nombre:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.nombre }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Unidad de medida:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.unidad_medida }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- text input -->
+                        <div class="form-group">
+                            <label>Cupo autorizado:</label>
+                            <input type="text" disabled class="form-control"
+                                   value="{{ view.object.cupo_autorizado }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Fecha de creación:</label>
+                            <input type="text" class="form-control" disabled=""
+                                   value="{{ view.object.date_creation }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Descripción:</label>
+                            <textarea name="observacionrp" class="form-control" rows="4"
+                                      disabled>{{ view.object.get_description }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Detalle de sustancia:</label>
+                            <div class="table-responsive">
+                                <table class="table" id="tbdetallesustancia">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        {% if request.user.is_representative %}
+                                            <th scope="col">Tipo lugar</th>
+                                            <th scope="col">Lugar</th>
+                                        {% elif request.user.is_laboratory_worker %}
+                                            <th scope="col">Laboratorio</th>
+                                        {% endif %}
+                                        <th scope="col">Cantidad</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                {% if request.user.is_representative %}
+                    <a href="{% url 'tl:actualizacionsolicitud' view.object.id %}" class="btn btn-primary btn-flat">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </a>
+                    {% if view.object.is_del %}
+                        <a href="{% url 'tl:eliminarsolicitud' view.object.id %}" class="btn btn-danger btn-flat">
+                            <i class="fas fa-times"></i>
+                            Eliminar
+                        </a>
+                    {% endif %}
+                {% endif %}
+                <a href="{{ url_list }}" class="btn btn-default float-right btn-flat">
+                    <i class="fas fa-eject"></i>
+                    Cancelar
+                </a>
+            </div>
+            <!-- /.card-body -->
+        </form>
+    </div>
+{% endblock %}
+
+{% block script %}
+    {% if request.user.is_laboratory_worker %}
+        <script src="{% static 'sustanciastl/js/view.js' %}"></script>
+    {% endif %}
+{% endblock %}

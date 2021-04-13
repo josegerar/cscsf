@@ -57,33 +57,12 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
                     form = self.get_form()
                     if form.is_valid():
                         informe = form.instance
-                        estado_transaccion = EstadoTransaccion.objects.get(estado="registrado")
-                        if informe is not None and estado_transaccion is not None:
-                            with transaction.atomic():
-                                if InformesMensuales.verify_month_exist_with_year(informe.mes.id, informe.year,
-                                                                                  informe.laboratorio.id):
-                                    raise Exception(
-                                        'Ya existe un informe registrado con este mes para este año con el '
-                                        'laboratorio {}'.format(informe.laboratorio.nombre)
-                                    )
-                                sustancias = json.loads(request.POST['sustancias'])
-                                informe.laboratorista_id = request.user.id
-                                informe.estado_informe_id = estado_transaccion.id
-                                informe.save()
-
-                                for i in sustancias:
-                                    det = InformesMensualesDetalle()
-                                    det.stock_id = i['id']
-                                    det.informe_id = informe.id
-                                    det.cantidad = float(i['cantidad_consumida'])
-                                    det.save()
-                                data["id"] = informe.id
-                                data["url"] = reverse_lazy('tl:actualizacioninformesmensuales',
-                                                           kwargs={'pk': informe.id})
-                        else:
-                            data['error'] = 'Ha ocurrido un error'
+                        sustancias = json.loads(request.POST['sustancias'])
+                        self.create_informe(informe, sustancias, request.user)
+                        data['id'] = informe.id
+                        data['url'] = reverse_lazy('tl:actualizacioninformesmensuales', kwargs={'pk': informe.id})
                     else:
-                        data['error'] = 'Ha ocurrido un error'
+                        data['error'] = form.error
                 else:
                     data['error'] = 'Ha ocurrido un error'
             else:
@@ -91,3 +70,23 @@ class InformesMensualesCreateView(LoginRequiredMixin, ValidatePermissionRequired
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
+
+    def create_informe(self, informe, sustancias, user):
+        estado_transaccion = EstadoTransaccion.objects.get(estado="registrado")
+        with transaction.atomic():
+            if InformesMensuales.verify_month_exist_with_year(informe.mes.id, informe.year,
+                                                              informe.laboratorio.id):
+                raise Exception(
+                    'Ya existe un informe registrado con este mes para este año con el '
+                    'laboratorio {}'.format(informe.laboratorio.nombre)
+                )
+            informe.laboratorista_id = user.id
+            informe.estado_informe_id = estado_transaccion.id
+            informe.save()
+
+            for i in sustancias:
+                det = InformesMensualesDetalle()
+                det.stock_id = i['id']
+                det.informe_id = informe.id
+                det.cantidad = float(i['cantidad_consumida'])
+                det.save()

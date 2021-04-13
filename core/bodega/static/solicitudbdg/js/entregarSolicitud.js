@@ -3,6 +3,12 @@ const solicitud_entrega = {
         detalles: []
     },
     datatable: null,
+    add_detalle_solicitud_entrega: function (detalles) {
+        solicitud_entrega.data.detalles = detalles;
+    },
+    get_detalles: function () {
+        return this.data.detalles;
+    },
     update_cantidad_entrega: function (nueva_cantidad, index) {
         this.data.detalles[index].cant_ent = nueva_cantidad;
     }
@@ -22,7 +28,10 @@ $(function () {
             'data': function (d) {
                 d.action = 'search_detalle';
             },
-            'dataSrc': ''
+            "dataSrc": function (json) {
+                solicitud_entrega.add_detalle_solicitud_entrega(json);
+                return solicitud_entrega.get_detalles();
+            }
         },
         'columns': [
             {

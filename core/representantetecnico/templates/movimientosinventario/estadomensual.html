@@ -17,7 +17,7 @@
             <ul class="nav nav-treeview" style="display: none;">
                 {% for mes in meses %}
                     <li class="nav-item">
-                        <a rel="search" data-action="searchdata" data-type="{{ request.user|get_type_user }}_month"
+                        <a rel="search" data-action="searchdata" data-type="month"
                            data-year="{{ year.anio }}"
                            data-mes="{{ mes.id }}" class="nav-link" style="cursor: pointer">
                             <i class="far fa-circle nav-icon"></i>

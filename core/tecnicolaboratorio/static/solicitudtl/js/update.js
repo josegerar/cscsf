@@ -29,12 +29,10 @@ const solicitud = {
     add_detalle_solicitud: function (data = []) {
         $.each(data, function (index, item) {
             item.cantidad_solicitud = parseFloat(item.cantidad_solicitud);
-            item.sustancia.cupo_autorizado = parseFloat(item.sustancia.cupo_autorizado)
-            item.sustancia.cantidad_bodega = parseFloat(item.sustancia.cantidad_bodega)
-
+            item.sustancia.cantidad_bodega = parseFloat(item.sustancia.cantidad_bodega);
+            item.sustancia.cupo_autorizado = parseFloat(item.sustancia.cupo_autorizado);
         });
         this.data.detalleSolicitud = data;
-        this.list_sustancia();
     },
     config_item: function (item) {
         item.cupo_autorizado = parseFloat(item.cupo_autorizado);
@@ -46,6 +44,9 @@ const solicitud = {
             'bodega_selected': {'id': parseInt(this.data.bodega_selected.id), 'text': this.data.bodega_selected.text},
             'lab_selected': {'id': parseInt(this.data.lab_selected.id), 'text': this.data.lab_selected.text},
         };
+    },
+    get_detalles: function () {
+        return this.data.detalleSolicitud;
     },
     list_sustancia: function () {
         this.datatable.clear();
@@ -123,13 +124,30 @@ const solicitud = {
 }
 
 $(function () {
+    let data_loaded = false;
+    let id_solicitud = $('#formCrearSolicitud').find('input[name=id_solicitud]').val();
     solicitud.datatable = $('#tblistado').DataTable({
         'responsive': true,
         "ordering": false,
         "autoWidth": true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': '/solicitudes/',
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'searchdetail';
+                d.id_sol = id_solicitud;
+            },
+            "dataSrc": function (json) {
+                data_loaded = true;
+                solicitud.add_detalle_solicitud(json);
+                return solicitud.get_detalles();
+            }
+        },
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'id'
             },
             {'data': 'sustancia.value'},
@@ -163,13 +181,6 @@ $(function () {
         }
     });
 
-    let id_solicitud = $('#formCrearSolicitud').find('input[name=id_solicitud]').val();
-
-    get_list_data_ajax_loading('/solicitudes/', {'action': 'searchdetail', 'id_sol': id_solicitud}
-        , function (response) {
-            solicitud.add_detalle_solicitud(response);
-        });
-
     //activar plugin select2 a los select del formulario
     $('.select2').select2({
         'theme': 'bootstrap4',
@@ -197,6 +208,10 @@ $(function () {
 
     $('input[name=search]').focus().autocomplete({
         source: function (request, response) {
+            if (!data_loaded) {
+                message_info("Cargando...");
+                return false;
+            }
             let code_bod = solicitud.data.bodega_selected
                 ? solicitud.data.bodega_selected.id.length > 0
                     ? parseInt(solicitud.data.bodega_selected.id)
@@ -235,7 +250,8 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', solicitud.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', solicitud.datatable
+        , 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
         });

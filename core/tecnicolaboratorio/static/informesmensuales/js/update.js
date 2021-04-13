@@ -1,8 +1,11 @@
+let data_loaded = false;
 const informe = {
     datatable: null,
     datatable_desgloses: null,
     data: {
+        detalle_informe_selected: {'id': 0},
         detalleInforme: [],
+        desglose_detalle: [],
         laboratorio: null
     },
     add_details: function (details) {
@@ -12,7 +15,17 @@ const informe = {
             item.is_saved = true;
         });
         this.data.detalleInforme = details;
-        this.list_sustancias();
+    },
+    add_desglose_detalle: function (data) {
+        let cantidad_total = 0;
+        $.each(data, function (index, item) {
+            item.cantidad_consumida = parseFloat(item.cantidad_consumida);
+            item.cantidad_consumida_total = parseFloat(item.cantidad_consumida_total);
+            item.cantidad_solicitada = parseFloat(item.cantidad_solicitada);
+            cantidad_total += item.cantidad_consumida;
+        });
+        this.data.desglose_detalle = data;
+        this.update_input_cantidad_desglose(cantidad_total);
     },
     add_sustancia: function (item) {
         item = this.config_item(item);
@@ -27,6 +40,16 @@ const informe = {
         this.data.detalleInforme.push(item);
         this.list_sustancias();
     },
+    clean_form_add_desglose: function () {
+        $('#frmAgregarDesglose').find('input[name="documento"]').val("");
+        $('#frmAgregarDesglose').find('input[name="cantidad"]').val(0);
+        $('#frmAgregarDesglose').find('input[name="investigador"]').val("");
+        $('#frmAgregarDesglose').find('input[name="cantidad_solicitada"]').val(0);
+        $('#frmAgregarDesglose').find('input[name="cantidad_consumida"]').val(0);
+        $('#frmAgregarDesglose').find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
+            max: 0
+        });
+    },
     config_item: function (item) {
         return {
             'id': -1, 'cantidad': 0,
@@ -40,22 +63,21 @@ const informe = {
             'is_saved': false,
         }
     },
+    get_detalles: function () {
+        return this.data.detalleInforme;
+    },
+    get_deglose_detalle: function () {
+        return this.data.desglose_detalle;
+    },
     list_sustancias: function () {
         this.datatable.clear();
         this.datatable.rows.add(this.data.detalleInforme).draw();
     },
-    listConsumosSustanciaDetalleInforme: function (id_detalle) {
-        get_list_data_ajax_loading('/informes-mensuales/desglose-sustancia/', {
-                'action': 'search_desglose_sustancia',
-                'detalle_informe_id': id_detalle
-            },
-            function (res_data) {
-                informe.datatable_desgloses.clear();
-                informe.datatable_desgloses.rows.add(res_data).draw();
-            });
-    },
     update_cantidad_sustancia: function (nueva_cantidad, index) {
         this.data.detalleInforme[index].cantidad = nueva_cantidad;
+    },
+    update_input_cantidad_desglose: function (value) {
+        $('#frmDetalleConsumoSustanciaInforme').find('input[name=cantidad_desglose_total]').val(value);
     },
     update_laboratorio_seleted: function (lab_item) {
         if (lab_item) this.data.laboratorio = lab_item;
@@ -71,6 +93,10 @@ const informe = {
         return diferent;
     },
     verify_send_data: function (callback, error) {
+        if (!data_loaded) {
+            error("Cargando...");
+            return false;
+        }
         let isValidData = true;
         $.each(this.data.detalleInforme, function (index, item) {
             if (item.cantidad <= 0) {
@@ -92,16 +118,32 @@ const informe = {
     }
 }
 $(function () {
-
+    let data_loaded_desglose = false;
+    const informe_id = $('#frmCrearInforme').find('input[name=id_informe]').val();
     const csrfmiddlewaretoken = getCookie("csrftoken");
 
     informe.datatable = $('#tblistado').DataTable({
         'responsive': true,
         "ordering": false,
         "autoWidth": true,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': '/informes-mensuales/',
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'informe_detail';
+                d.informe_id = informe_id;
+            },
+            "dataSrc": function (json) {
+                data_loaded = true;
+                informe.add_details(json);
+                return informe.get_detalles();
+            }
+        },
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'id'
             },
             {'data': 'stock.nombre'},
@@ -146,6 +188,21 @@ $(function () {
         'searching': false,
         'ordering': false,
         'info': false,
+        'deferRender': true,
+        'processing': true,
+        'ajax': {
+            'url': '/informes-mensuales/desglose-sustancia/',
+            'type': 'GET',
+            'data': function (d) {
+                d.action = 'search_desglose_sustancia';
+                d.detalle_informe_id = informe.data.detalle_informe_selected.id;
+            },
+            "dataSrc": function (json) {
+                data_loaded_desglose = true;
+                informe.add_desglose_detalle(json);
+                return informe.get_deglose_detalle();
+            }
+        },
         'columns': [
             {'data': 'solicitud'},
             {'data': 'cantidad_solicitada'},
@@ -186,13 +243,6 @@ $(function () {
         }
     });
 
-    let informe_id = $('#frmCrearInforme').find('input[name=id_informe]').val();
-
-    get_list_data_ajax_loading('/informes-mensuales/', {'action': 'informe_detail', 'informe_id': informe_id}
-        , function (res_data) {
-            informe.add_details(res_data);
-        });
-
     //activar plugin select2 a los select del formulario
     $('.select2').select2({
         'theme': 'bootstrap4',
@@ -206,6 +256,10 @@ $(function () {
 
     $('input[name=search]').focus().autocomplete({
         source: function (request, response) {
+            if (!data_loaded) {
+                message_info("Cargando...");
+                return false;
+            }
             let code_lab = informe.data.laboratorio
                 ? informe.data.laboratorio.id.length > 0
                     ? parseInt(informe.data.laboratorio.id)
@@ -234,7 +288,8 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', informe.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', informe.datatable
+        , 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
         });
@@ -245,6 +300,7 @@ $(function () {
         'initval': 0,
         'decimals': 4,
         'step': 0.1,
+        'max': 0,
         'verticalupclass': 'glyphicon glyphicon-plus',
         'verticaldownclass': 'glyphicon glyphicon-minus'
     });
@@ -271,40 +327,32 @@ $(function () {
         });
 
         $(row).find('a[rel="movimientos"]').on('click', function (event) {
-            get_list_data_ajax_loading('/informes-mensuales/desglose-sustancia/', {
-                    'action': 'search_desglose_sustancia',
-                    'detalle_informe_id': data.id
-                },
-                function (res_data) {
-                    informe.datatable_desgloses.clear();
-                    informe.datatable_desgloses.rows.add(res_data).draw();
-                    $('#frmDetalleConsumoSustanciaInforme').find('h5').text(`Lista de desgloses de sustancia ${data.stock.nombre}`)
-                    $('#frmDetalleConsumoSustanciaInforme').find('input[name="stock_id"]').val(data.stock.id);
-                    $('#frmDetalleConsumoSustanciaInforme').find('input[name="sustancia_nombre"]').val(data.stock.nombre);
-                    $('#frmDetalleConsumoSustanciaInforme').find('input[name="id_detalle"]').val(data.id);
-                    $('#frmDetalleConsumoSustanciaInforme').find('input[name="cantidad_consumida_registrada"]').val(data.cantidad);
-                    $('#modalDetalleConsumoSustanciaInforme').modal({
-                        backdrop: 'static',
-                        show: true
-                    });
-                });
+            informe.data.detalle_informe_selected = data;
+            data_loaded_desglose = false;
+            informe.datatable_desgloses.ajax.reload();
+            $('#frmDetalleConsumoSustanciaInforme').find('h5').text(`Lista de desgloses de sustancia ${data.stock.nombre}`)
+            $('#frmDetalleConsumoSustanciaInforme').find('input[name="stock_id"]').val(data.stock.id);
+            $('#frmDetalleConsumoSustanciaInforme').find('input[name="sustancia_nombre"]').val(data.stock.nombre);
+            $('#frmDetalleConsumoSustanciaInforme').find('input[name="id_detalle"]').val(data.id);
+            $('#frmDetalleConsumoSustanciaInforme').find('input[name="cantidad_consumida_registrada"]').val(data.cantidad);
+            $('#modalDetalleConsumoSustanciaInforme').modal({
+                backdrop: 'static',
+                show: true
+            });
         });
     }
 
-    $('#frmDetalleConsumoSustanciaInforme').find('button[rel="btnSync"]').on('click', function (event) {
-        let id_detalle = $('#frmDetalleConsumoSustanciaInforme').find('input[name="id_detalle"]').val();
-        get_list_data_ajax_loading('/informes-mensuales/desglose-sustancia/', {
-                'action': 'search_desglose_sustancia',
-                'detalle_informe_id': id_detalle
-            },
-            function (res_data) {
-                informe.datatable_desgloses.clear();
-                informe.datatable_desgloses.rows.add(res_data).draw();
-            });
+    $('#frmDetalleConsumoSustanciaInforme').find('button[rel="btnSyncDesgl"]').on('click', function (event) {
+        data_loaded_desglose = false;
+        informe.datatable_desgloses.ajax.reload();
     });
 
     //evento para agregar un nuevo desglose de consumo de sustancia del informe
     $('#frmDetalleConsumoSustanciaInforme').find('button[rel="add_consumo"]').on('click', function (event) {
+        if (!data_loaded_desglose) {
+            message_info('Cargando...');
+            return false;
+        }
         let stock_id = $('#frmDetalleConsumoSustanciaInforme').find('input[name="stock_id"]').val();
         let sustancia_nombre = $('#frmDetalleConsumoSustanciaInforme').find('input[name="sustancia_nombre"]').val();
         let id_detalle = $('#frmDetalleConsumoSustanciaInforme').find('input[name="id_detalle"]').val();
@@ -326,7 +374,7 @@ $(function () {
                 });
                 $('#frmAgregarDesglose').find('select[name="solicitud_detalle"]').on('change.select2', function (e) {
                     let data_select = $(this).select2('data');
-                    if (data_select.length > 0 && parseInt(data_select[0]) > 0) {
+                    if (data_select.length > 0 && parseInt(data_select[0].id) > 0) {
                         let cantidad_solicitada = parseFloat(data_select[0].cantidad_solicitada);
                         let cantidad_consumida = parseFloat(data_select[0].cantidad_consumida);
 
@@ -337,6 +385,8 @@ $(function () {
                         $('#frmAgregarDesglose').find('input[name="cantidad"]').trigger("touchspin.updatesettings", {
                             max: cantidad_solicitada - cantidad_consumida
                         });
+                    } else {
+                        informe.clean_form_add_desglose();
                     }
                 });
                 $('#frmAgregarDesglose').find('select[name="solicitud_detalle"]').trigger('change.select2');
@@ -357,10 +407,9 @@ $(function () {
                 , 'Confirmación'
                 , '¿Estas seguro de realizar la siguiente acción?'
                 , function (data) {
-                    let id_detalle = $('#frmDetalleConsumoSustanciaInforme').find('input[name="id_detalle"]').val();
-                    informe.listConsumosSustanciaDetalleInforme(id_detalle);
+                    informe.datatable_desgloses.ajax.reload();
                 }, function (error) {
-                    console.log(error);
+                    console.error(error);
                 }
             );
         });

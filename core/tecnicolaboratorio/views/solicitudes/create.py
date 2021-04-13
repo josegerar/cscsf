@@ -51,22 +51,8 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                     form = self.get_form()
                     if form.is_valid():
                         solicitud = form.instance
-                        estadosolicitud = EstadoTransaccion.objects.get(estado='registrado')
-                        if solicitud is not None and estadosolicitud is not None:
-                            with transaction.atomic():
-                                sustancias = json.loads(request.POST['sustancias'])
-                                solicitud.estado_solicitud_id = estadosolicitud.id
-                                solicitud.solicitante_id = request.user.id
-                                solicitud.save()
-
-                                for i in sustancias:
-                                    det = SolicitudDetalle()
-                                    det.sustancia_id = i['id']
-                                    det.solicitud_id = solicitud.id
-                                    det.cantidad_solicitada = float(i['cantidad_solicitud'])
-                                    det.save()
-                        else:
-                            data['error'] = 'Ha ocurrido un error'
+                        sustancias = json.loads(request.POST['sustancias'])
+                        self.create_solicitud(solicitud, sustancias, request.user)
                     else:
                         data['error'] = form.errors
                 else:
@@ -76,3 +62,17 @@ class SolicitudCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
+
+    def create_solicitud(self, solicitud, sustancias, user):
+        estadosolicitud = EstadoTransaccion.objects.get(estado='registrado')
+        with transaction.atomic():
+            solicitud.estado_solicitud_id = estadosolicitud.id
+            solicitud.solicitante_id = user.id
+            solicitud.save()
+
+            for i in sustancias:
+                det = SolicitudDetalle()
+                det.sustancia_id = i['id']
+                det.solicitud_id = solicitud.id
+                det.cantidad_solicitada = float(i['cantidad_solicitud'])
+                det.save()

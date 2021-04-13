@@ -55,51 +55,10 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
                     form = self.get_form()
                     if form.is_valid():
                         solicitud = form.instance
-                        estadosolicitud = EstadoTransaccion.objects.get(estado='registrado')
-                        if solicitud is not None and estadosolicitud is not None:
-                            with transaction.atomic():
-                                if solicitud.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado',
-                                                                         'recibido']:
-                                    raise Exception("No es posible actualizar este registro")
-                                detalle_solicitud_new = json.loads(request.POST['detalle_solicitud'])
-                                solicitud.estado_solicitud_id = estadosolicitud.id
-                                solicitud.save()
-                                detalle_solicitud_old = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
-
-                                for dc_old in detalle_solicitud_old:
-                                    exits_old = False
-                                    for dc_new in detalle_solicitud_new:
-                                        if dc_old.id == dc_new['id']:
-                                            exits_old = True
-                                            break
-                                    if exits_old is False:
-                                        dc_old.delete()
-
-                                detalle_solicitud_old = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
-
-                                for dc_new in detalle_solicitud_new:
-                                    exits_old = False
-                                    item_det_new = None
-                                    sustancia_new = dc_new['sustancia']
-
-                                    for dc_old in detalle_solicitud_old:
-                                        if dc_old.id == dc_new['id']:
-                                            exits_old = True
-                                            item_det_new = dc_old
-                                            break
-
-                                    if exits_old is False and item_det_new is None:
-                                        item_det_new = SolicitudDetalle()
-
-                                    item_det_new.sustancia_id = sustancia_new['id']
-                                    item_det_new.solicitud_id = solicitud.id
-                                    item_det_new.cantidad_solicitada = float(dc_new['cantidad_solicitud'])
-                                    item_det_new.save()
-
-                        else:
-                            data['error'] = 'ha ocurrido un error'
+                        detalle_solicitud_new = json.loads(request.POST['detalle_solicitud'])
+                        self.update_informe(solicitud, detalle_solicitud_new)
                     else:
-                        data['error'] = 'ha ocurrido un error'
+                        data['error'] = form.errors
                 else:
                     data['error'] = 'ha ocurrido un error'
             else:
@@ -107,3 +66,44 @@ class SolicitudUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin,
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
+
+    def update_informe(self, solicitud, detalle_solicitud_new):
+        with transaction.atomic():
+            estadosolicitud = EstadoTransaccion.objects.get(estado='registrado')
+            if solicitud.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado',
+                                                     'recibido']:
+                raise Exception("No es posible actualizar este registro")
+
+            solicitud.estado_solicitud_id = estadosolicitud.id
+            solicitud.save()
+            detalle_solicitud_old = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
+
+            for dc_old in detalle_solicitud_old:
+                exits_old = False
+                for dc_new in detalle_solicitud_new:
+                    if dc_old.id == dc_new['id']:
+                        exits_old = True
+                        break
+                if exits_old is False:
+                    dc_old.delete()
+
+            detalle_solicitud_old = SolicitudDetalle.objects.filter(solicitud_id=solicitud.id)
+
+            for dc_new in detalle_solicitud_new:
+                exits_old = False
+                item_det_new = None
+                sustancia_new = dc_new['sustancia']
+
+                for dc_old in detalle_solicitud_old:
+                    if dc_old.id == dc_new['id']:
+                        exits_old = True
+                        item_det_new = dc_old
+                        break
+
+                if exits_old is False and item_det_new is None:
+                    item_det_new = SolicitudDetalle()
+
+                item_det_new.sustancia_id = sustancia_new['id']
+                item_det_new.solicitud_id = solicitud.id
+                item_det_new.cantidad_solicitada = float(dc_new['cantidad_solicitud'])
+                item_det_new.save()

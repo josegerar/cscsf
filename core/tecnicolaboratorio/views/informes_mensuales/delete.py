@@ -31,17 +31,7 @@ class InformesMensualesDeleteView(LoginRequiredMixin, ValidatePermissionRequired
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            with transaction.atomic():
-                informe = self.object
-                if informe.estado_informe.estado == "archivado":
-                    raise Exception("No es posible eliminar este registro")
-                for det in informe.informesmensualesdetalle_set.all():
-                    for desglose_det in det.desgloseinfomemensualdetalle_set.all():
-                        solicitud_detalle = desglose_det.solicitud_detalle
-                        if solicitud_detalle is not None:
-                            solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_det.cantidad
-                            solicitud_detalle.save()
-                informe.delete()
+            self.delete_informe()
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
@@ -57,3 +47,16 @@ class InformesMensualesDeleteView(LoginRequiredMixin, ValidatePermissionRequired
             {"uridj": reverse_lazy('tl:eliminarinformesmensuales'), "uriname": "Eliminar"}
         ]
         return context
+
+    def delete_informe(self):
+        with transaction.atomic():
+            informe = self.object
+            if informe.estado_informe.estado == "archivado":
+                raise Exception("No es posible eliminar este registro")
+            for det in informe.informesmensualesdetalle_set.all():
+                for desglose_det in det.desgloseinfomemensualdetalle_set.all():
+                    solicitud_detalle = desglose_det.solicitud_detalle
+                    if solicitud_detalle is not None:
+                        solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida - desglose_det.cantidad
+                        solicitud_detalle.save()
+            informe.delete()

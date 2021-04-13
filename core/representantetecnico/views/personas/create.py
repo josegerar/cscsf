@@ -1,5 +1,6 @@
 import json
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import JsonResponse
@@ -46,24 +47,7 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
                     form = self.get_form()
                     if form.is_valid():
                         persona = form.instance
-                        if persona is not None:
-                            with transaction.atomic():
-                                persona.save()
-                                if request.user.is_representative:
-                                    usuarios = json.loads(request.POST['usuarios'])
-                                    is_valid_new_users = Persona.validate_new_users(users=usuarios)
-                                    if is_valid_new_users is False:
-                                        raise Exception(
-                                            'Ocurrio un error al crear un usuario, '
-                                            'por favor verifique la información a registrar del usuario'
-                                        )
-                                    for user_item in usuarios:
-                                        rol_selected = user_item["rol_selected"]
-                                        estado_selected = user_item["estado_selected"]
-                                        persona.create_custom_user(request, rol_selected, estado_selected,
-                                                                   user_item["email"])
-                        else:
-                            data['error'] = 'Ha ocurrido un error'
+                        self.create_persona(persona, request)
                     else:
                         data['error'] = form.errors
                 else:
@@ -71,5 +55,25 @@ class PersonaCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Cre
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
-            data['error'] = str(e)
+            messages.error(request, str(e))
         return JsonResponse(data)
+
+    def create_persona(self, persona, request):
+        with transaction.atomic():
+            persona.save()
+            if request.user.is_representative:
+                self.create_users_persona(persona, request)
+
+    def create_users_persona(self, persona, request):
+        usuarios = json.loads(request.POST.get('usuarios'))
+        is_valid_new_users = Persona.validate_new_users(users=usuarios)
+        if is_valid_new_users is False:
+            raise Exception(
+                'Ocurrio un error al crear un usuario, '
+                'por favor verifique la información a registrar del usuario'
+            )
+        for user_item in usuarios:
+            rol_selected = user_item["rol_selected"]
+            estado_selected = user_item["estado_selected"]
+            persona.create_custom_user(request, rol_selected, estado_selected,
+                                       user_item["email"])

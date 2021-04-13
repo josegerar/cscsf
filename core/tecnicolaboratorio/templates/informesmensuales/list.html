@@ -65,10 +65,9 @@
         <th scope="col">Laboratorio</th>
         <th scope="col">Mes</th>
         <th scope="col">Año</th>
+        <th scope="col">Fecha creación</th>
+        <th scope="col">Estado</th>
         <th scope="col">Detalles</th>
-        <th scope="col">Archivar</th>
-        <th scope="col">Editar</th>
-        <th scope="col">Eliminar</th>
     </tr>
     </thead>
     <tbody>
@@ -89,8 +88,6 @@
 {% endblock %}
 
 {% block script %}
-    {% include 'informesmensuales/modal/verdetalles.html' %}
-    {% include 'informesmensuales/modal/verdesglose.html' %}
     {% if request.user.is_representative %}
 
     {% elif request.user.is_grocer %}

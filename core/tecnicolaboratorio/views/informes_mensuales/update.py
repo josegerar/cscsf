@@ -55,50 +55,9 @@ class InformesMensualesUpdateView(LoginRequiredMixin, ValidatePermissionRequired
                     form = self.get_form()
                     if form.is_valid():
                         informe_mensual = form.instance
-                        estadoinforme = EstadoTransaccion.objects.get(estado='registrado')
-                        if informe_mensual is not None and estadoinforme is not None:
-                            with transaction.atomic():
-                                if informe_mensual.estado_informe.estado == "archivado":
-                                    raise Exception('No es posible actualizar este registro')
-                                detalle_informe_new = json.loads(request.POST['detalle_informe'])
-                                informe_mensual.estado_informe_id = estadoinforme.id
-                                informe_mensual.laboratorista_id = request.user.id
-                                informe_mensual.save()
-                                detalle_informe_old = InformesMensualesDetalle.objects.filter(
-                                    informe_id=informe_mensual.id)
-
-                                for dc_old in detalle_informe_old:
-                                    exits_old = False
-                                    for dc_new in detalle_informe_new:
-                                        if dc_old.id == dc_new['id']:
-                                            exits_old = True
-                                            break
-                                    if exits_old is False:
-                                        dc_old.delete()
-
-                                detalle_informe_old = InformesMensualesDetalle.objects.filter(
-                                    informe_id=informe_mensual.id)
-
-                                for dc_new in detalle_informe_new:
-                                    exits_old = False
-                                    item_det_new = None
-                                    stock_new = dc_new['stock']
-
-                                    for dc_old in detalle_informe_old:
-                                        if dc_old.id == dc_new['id']:
-                                            exits_old = True
-                                            item_det_new = dc_old
-                                            break
-
-                                    if exits_old is False and item_det_new is None:
-                                        item_det_new = InformesMensualesDetalle()
-
-                                    item_det_new.stock_id = stock_new['id']
-                                    item_det_new.informe_id = informe_mensual.id
-                                    item_det_new.cantidad = float(dc_new['cantidad'])
-                                    item_det_new.save()
-                        else:
-                            data['error'] = 'ha ocurrido un error'
+                        self.verify_form_informe_updated(informe_mensual)
+                        detalle_informe_new = json.loads(request.POST['detalle_informe'])
+                        self.update_informe(informe_mensual, detalle_informe_new, request.user)
                     else:
                         data['error'] = form.errors
                 else:
@@ -108,3 +67,54 @@ class InformesMensualesUpdateView(LoginRequiredMixin, ValidatePermissionRequired
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
+
+    def verify_form_informe_updated(self, informe_new):
+        informe_old = InformesMensuales.objects.get(pk=informe_new.id)
+        if informe_old.laboratorio_id != informe_new.laboratorio_id:
+            raise Exception('No se puede actualizar un laboratorio diferente')
+        if informe_old.mes.id != informe_new.mes.id:
+            raise Exception("No se puede actualizar a un mes diferente")
+        if informe_old.year != informe_new.year:
+            raise Exception("No se puede actualizar a un año diferente")
+
+    def update_informe(self, informe_mensual, detalle_informe_new, user):
+        estadoinforme = EstadoTransaccion.objects.get(estado='registrado')
+        with transaction.atomic():
+            if informe_mensual.estado_informe.estado == "archivado":
+                raise Exception('No es posible actualizar este registro')
+            informe_mensual.estado_informe_id = estadoinforme.id
+            informe_mensual.laboratorista_id = user.id
+            informe_mensual.save()
+            detalle_informe_old = InformesMensualesDetalle.objects.filter(
+                informe_id=informe_mensual.id)
+
+            for dc_old in detalle_informe_old:
+                exits_old = False
+                for dc_new in detalle_informe_new:
+                    if dc_old.id == dc_new['id']:
+                        exits_old = True
+                        break
+                if exits_old is False:
+                    dc_old.delete()
+
+            detalle_informe_old = InformesMensualesDetalle.objects.filter(
+                informe_id=informe_mensual.id)
+
+            for dc_new in detalle_informe_new:
+                exits_old = False
+                item_det_new = None
+                stock_new = dc_new['stock']
+
+                for dc_old in detalle_informe_old:
+                    if dc_old.id == dc_new['id']:
+                        exits_old = True
+                        item_det_new = dc_old
+                        break
+
+                if exits_old is False and item_det_new is None:
+                    item_det_new = InformesMensualesDetalle()
+
+                item_det_new.stock_id = stock_new['id']
+                item_det_new.informe_id = informe_mensual.id
+                item_det_new.cantidad = float(dc_new['cantidad'])
+                item_det_new.save()

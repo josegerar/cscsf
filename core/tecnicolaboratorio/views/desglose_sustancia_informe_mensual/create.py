@@ -26,27 +26,27 @@ class DesgloseSustanciaInformeMensualCreateView(LoginRequiredMixin, ValidatePerm
                 if action == 'add':
                     form = self.get_form()
                     if form.is_valid():
-                        with transaction.atomic():
-                            desglose_sustancia_informe_mensual = form.instance
-                            id_detalle = int(request.POST.get('id_detalle'))
-                            if desglose_sustancia_informe_mensual is not None and id_detalle is not None:
-                                if desglose_sustancia_informe_mensual.cantidad <= 0:
-                                    raise Exception('Debe ingresar una cantidad de cosumo valida')
-                                if desglose_sustancia_informe_mensual.solicitud_detalle_id is not None:
-                                    solicitud_detalle = SolicitudDetalle.objects.get(
-                                        id=desglose_sustancia_informe_mensual.solicitud_detalle_id)
-                                    solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida + desglose_sustancia_informe_mensual.cantidad
-                                    solicitud_detalle.save()
-                                desglose_sustancia_informe_mensual.informe_mensual_detalle_id = id_detalle
-                                desglose_sustancia_informe_mensual.save()
-                            else:
-                                raise Exception("Error en los datos")
+                        desglose_sustancia_informe_mensual = form.instance
+                        id_detalle = int(request.POST.get('id_detalle'))
+                        self.create_desglose(desglose_sustancia_informe_mensual, id_detalle)
                     else:
                         data['error'] = form.errors
                 else:
-                    data['error'] = 'Ha ocurrido un error3'
+                    data['error'] = 'Ha ocurrido un error'
             else:
-                data['error'] = 'Ha ocurrido un error4'
+                data['error'] = 'Ha ocurrido un error'
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
+
+    def create_desglose(self, desglose_sustancia_informe_mensual, id_detalle):
+        with transaction.atomic():
+            if desglose_sustancia_informe_mensual.cantidad <= 0:
+                raise Exception('Debe ingresar una cantidad de consumo valida')
+            if desglose_sustancia_informe_mensual.solicitud_detalle_id is not None:
+                solicitud_detalle = SolicitudDetalle.objects.get(
+                    id=desglose_sustancia_informe_mensual.solicitud_detalle_id)
+                solicitud_detalle.cantidad_consumida = solicitud_detalle.cantidad_consumida + desglose_sustancia_informe_mensual.cantidad
+                solicitud_detalle.save()
+            desglose_sustancia_informe_mensual.informe_mensual_detalle_id = id_detalle
+            desglose_sustancia_informe_mensual.save()

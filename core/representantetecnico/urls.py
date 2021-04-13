@@ -23,11 +23,11 @@ from core.representantetecnico.views.personas.create import PersonaCreateView
 from core.representantetecnico.views.personas.delete import PersonasDeleteView
 from core.representantetecnico.views.personas.list import PersonaListView
 from core.representantetecnico.views.personas.update import PersonasUpdateView
-from core.representantetecnico.views.repositorio.list import RepositorioListView
 from core.representantetecnico.views.sustancia.create import SustanciaCreateView
 from core.representantetecnico.views.sustancia.delete import SustanciaDeleteView
 from core.representantetecnico.views.sustancia.list import SustanciaListView
 from core.representantetecnico.views.sustancia.update import SustanciaUpdateView
+from core.representantetecnico.views.sustancia.view import SustanciaView
 
 app_name = "rp"
 
@@ -43,6 +43,7 @@ urlpatterns = [
     path('sustancias/', SustanciaListView.as_view(), name="sustancias"),
     path('sustancias/update/<int:pk>/', SustanciaUpdateView.as_view(), name="actualizacionsustancia"),
     path('sustancias/delete/<int:pk>/', SustanciaDeleteView.as_view(), name="eliminarsustancia"),
+    path('sustancias/view/<int:pk>/', SustanciaView.as_view(), name="versustancias"),
 
     # inventario
     path('inventario/movimientos/', MovimientosInventarioListView.as_view(), name="movimientoinventario"),

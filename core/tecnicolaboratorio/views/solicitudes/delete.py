@@ -31,11 +31,9 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            if self.object.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado', 'recibido', 'archivado']:
-                raise Exception('No es posible eliminar este registro')
-            self.object.delete()
+            self.delete_solicitud()
         except Exception as e:
-            data['error'] = str(e)
+            messages.error(request, str(e))
         return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
@@ -49,3 +47,8 @@ class SolicitudDeleteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, D
             {"uridj": reverse_lazy('tl:eliminarsolicitud'), "uriname": "Eliminar"}
         ]
         return context
+
+    def delete_solicitud(self):
+        if self.object.estado_solicitud.estado in ['almacenado', 'entregado', 'aprobado', 'recibido', 'archivado']:
+            raise Exception('No es posible eliminar este registro')
+        self.object.delete()
