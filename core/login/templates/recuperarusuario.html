@@ -28,16 +28,19 @@
     <script src="{% static 'lib/sweetalert2-9.10.0/sweetalert2.all.min.js' %}"></script>
 
 </head>
-<body class="hold-transition login-page">
+<body class="hold-transition login-page fondoPantalla">
 <div class="main-container-load">
-    <div class="card-body">
+    <div class="card-body" style="margin-top: 50%">
         <div class="login-logo">
-            <a href="{% url 'session:login' %}"><b>CSCSF</b> UTEQ</a>
+            <a href="{% url 'session:login' %}"></a>
         </div>
         <!-- /.login-logo -->
         <div class="card" style="width: 350px;">
             <div class="card-body">
-                <p class="login-box-msg" style="font-size: 20px; font-weight: bold;">Recuperar usuario</p>
+                <p class="login-box-msg modal-header"
+                   style="font-size: 22px; font-weight: bold; font-family: 'Courier New'; justify-content: center;">
+                    CSCSF - UTEQ</p>
+                <p class="login-box-msg" style="font-size: 16px; margin-top: 10px">Recuperar usuario</p>
                 <form id="frmRecuperarUser" autocomplete="off" method="post" action=".">
                     <input type="hidden" name="action" value="sendUser"/>
                     {% csrf_token %}

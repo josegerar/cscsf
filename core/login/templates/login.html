@@ -19,17 +19,19 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <!-- sweetalert2  -->
     <script src="{% static 'lib/sweetalert2-9.10.0/sweetalert2.all.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/general.css' %}">
 
 </head>
-<body class="hold-transition login-page">
+<body class="hold-transition login-page fondoPantalla">
 <div class="login-box">
     <div class="login-logo">
-        <a href="{% url 'session:login' %}"><b>CSCSF</b> UTEQ</a>
+        <a href="{% url 'session:login' %}"></a>
     </div>
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg" style="font-size: 16px; font-weight: bold;">Inicie sesion con sus credenciales</p>
+            <p class="login-box-msg modal-header" style="font-size: 22px; font-weight: bold; font-family: 'Courier New'; justify-content: center;">CSCSF - UTEQ</p>
+            <p class="login-box-msg" style="font-size: 16px; margin-top: 10px">Inicie sesion con sus credenciales</p>
             <form action="." method="post">
                 <input type="hidden" name="next" value="{{ next }}"/>
                 {% csrf_token %}

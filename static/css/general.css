@@ -27,6 +27,22 @@ td.details-control {
     background: url('../lib/datatables-1.10.20/images/details_open.png') no-repeat center center;
     cursor: pointer;
 }
+
 tr.shown td.details-control {
     background: url('../lib/datatables-1.10.20/images/details_close.png') no-repeat center center;
+}
+
+.fondoPantalla {
+}
+.fondoPantalla::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: url('../img/fondoLogin.jpg') no-repeat center center fixed;
+    background-size: cover;
+    opacity: .6;
+    content: "";
+    z-index: -1;
 }
