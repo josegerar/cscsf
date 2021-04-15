@@ -13,14 +13,33 @@
         <th scope="col">Nombre</th>
         <th scope="col">Dirección</th>
         <th scope="col">Responsable</th>
-        <th scope="col">Editar</th>
-        <th scope="col">Eliminar</th>
+        {% if request.user.is_representative %}
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
+        {% endif %}
     </tr>
     </thead>
     <tbody>
     </tbody>
 {% endblock %}
 
+{% block buttons_list %}
+    {% if request.user.is_representative %}
+        <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+            <i class="fas fa-plus"></i>
+            Nuevo registro
+        </a>
+    {% endif %}
+    <button id="btnSync" type="button" class="btn btn-primary btn-success">
+        <i class="fas fa-sync"></i>
+        Actualizar
+    </button>
+{% endblock %}
+
 {% block script %}
-    <script src="{% static 'laboratorios/js/list.js' %}"></script>
+    {% if request.user.is_representative %}
+        <script src="{% static 'laboratorios/js/list.js' %}"></script>
+    {% elif request.user.is_laboratory_worker %}
+        <script src="{% static 'laboratoriostl/js/list.js' %}"></script>
+    {% endif %}
 {% endblock %}

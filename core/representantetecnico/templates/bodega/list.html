@@ -24,6 +24,12 @@
 {% endblock %}
 
 {% block buttons_list %}
+    {% if request.user.is_representative %}
+        <a href="{{ create_url }}" class="btn btn-primary btn-flat">
+            <i class="fas fa-plus"></i>
+            Nuevo registro
+        </a>
+    {% endif %}
     <button rel="btnSync" type="button" class="btn btn-primary btn-success">
         <i class="fas fa-sync"></i>
         Actualizar

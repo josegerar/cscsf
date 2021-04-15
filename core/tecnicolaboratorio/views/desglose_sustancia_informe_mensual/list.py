@@ -8,7 +8,7 @@ from core.representantetecnico.models import DesgloseInfomeMensualDetalle
 
 
 class DesgloseSustanciaInformeMensualListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
-    permission_required = ('representantetecnico.view_informesmensuales',)
+    permission_required = ('representantetecnico.view_desgloseinfomemensualdetalle',)
     model = DesgloseInfomeMensualDetalle
     template_name = "desglosesustanciainformemensual/list.html"
 

@@ -19,7 +19,7 @@ class LaboratorioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, L
             action = request.GET.get('action')
             if action is not None:
                 if action == 'searchdata':
-                    data = self.search_data()
+                    data = self.search_data(request.user)
                     return JsonResponse(data, safe=False)
         except Exception as e:
             messages.error(request, str(e))
@@ -36,9 +36,13 @@ class LaboratorioListView(LoginRequiredMixin, ValidatePermissionRequiredMixin, L
         ]
         return context
 
-    def search_data(self):
+    def search_data(self, user):
         data = []
-        for i in Laboratorio.objects.all():
+        if user.is_laboratory_worker:
+            query = Laboratorio.objects.filter(responsable_id=user.id)
+        else:
+            query = Laboratorio.objects.all()
+        for i in query:
             item = {'id': i.id, 'nombre': i.nombre, 'responsable': '', 'is_del': True, 'dir': i.direccion}
             if i.responsable is not None:
                 item['responsable'] = i.responsable.get_user_info()
