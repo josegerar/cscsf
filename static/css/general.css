@@ -32,8 +32,6 @@ tr.shown td.details-control {
     background: url('../lib/datatables-1.10.20/images/details_close.png') no-repeat center center;
 }
 
-.fondoPantalla {
-}
 .fondoPantalla::before {
     position: absolute;
     top: 0;
@@ -45,4 +43,22 @@ tr.shown td.details-control {
     opacity: .6;
     content: "";
     z-index: -1;
+}
+
+.login-title {
+    font-size: 22px;
+    font-weight: bold;
+    font-family: 'Courier New', serif;
+    justify-content: center;
+}
+
+.download-title {
+    padding: 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.download-link {
+    box-shadow: 1px 1px 2px 3px #e6e6e6;
 }

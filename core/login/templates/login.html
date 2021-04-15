@@ -30,7 +30,9 @@
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg modal-header" style="font-size: 22px; font-weight: bold; font-family: 'Courier New'; justify-content: center;">CSCSF - UTEQ</p>
+            <p class="login-box-msg modal-header"
+               style="font-size: 22px; font-weight: bold; font-family: 'Courier New'; justify-content: center;">CSCSF -
+                UTEQ</p>
             <p class="login-box-msg" style="font-size: 16px; margin-top: 10px">Inicie sesion con sus credenciales</p>
             <form action="." method="post">
                 <input type="hidden" name="next" value="{{ next }}"/>
@@ -60,9 +62,10 @@
                     </div>
                 </div>
                 <div class="row" style="justify-content: center; font-size: 13px; margin-top: 6px;">
-                    <a href="{% url 'session:recuperarpass' %}" >¿Olvidó su contraseña?</a>
-                </div><div class="row" style="justify-content: center; font-size: 13px;">
-                    <a href="{% url 'session:recuperaruser' %}"  >¿Olvidó su usuario?</a>
+                    <a href="{% url 'session:recuperarpass' %}">¿Olvidó su contraseña?</a>
+                </div>
+                <div class="row" style="justify-content: center; font-size: 13px;">
+                    <a href="{% url 'session:recuperaruser' %}">¿Olvidó su usuario?</a>
                 </div>
             </form>
         </div>
@@ -89,6 +92,27 @@
     </script>
 </div>
 <!-- /.login-box -->
+<br>
+<div class="login-box">
+    <div class="card">
+        <div class="card-body">
+            <div class="login-box-msg modal-header login-title download-link">
+                DESCARGAS
+            </div>
+            <div class="row" style="padding-top: 5px; justify-content: center">
+                <a class="download-link" href="{% static 'files/manualAccesoCSCSF.pdf' %}" target="_blank"
+                   style="float: left;">
+                    <div class="card" style="width: 6rem;">
+                        <img class="card-img-top" src="{% static 'img/icono_descarga.jpg' %}" alt="Card image cap">
+                        <div class="card-body download-title">
+                            Manual de acceso al sistema
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- jQuery -->
 <script src="{% static 'lib/jquery-3.3.1-dist/jquery.min.js' %}"></script>
 <!-- Bootstrap 4 -->
