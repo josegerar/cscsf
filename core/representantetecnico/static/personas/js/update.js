@@ -28,6 +28,12 @@ const usuarios = {
         this.data.usuarios.push(new_user);
         this.list_users();
     },
+    list_users: function () {
+        if (this.datatable) {
+            this.datatable.clear();
+            this.datatable.rows.add(this.data.usuarios).draw();
+        }
+    },
     add_users: function (array = []) {
         $.each(array, function (idex, item) {
 

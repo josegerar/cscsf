@@ -190,6 +190,7 @@ $(function () {
         'min': year_act - 1,
         'max': year_act + 1,
         'step': 1,
+        'forcestepdivisibility': 'none',
         'verticalupclass': 'glyphicon glyphicon-plus',
         'verticaldownclass': 'glyphicon glyphicon-minus'
     });

@@ -62,7 +62,11 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
             for user in persona.user_set.all():
                 for user_n in users_new:
                     estado_selected = user_n["estado_selected"]
+                    rol_selected = user_n["rol_selected"]
                     if user.id == user_n['id']:
+                        if self.verify_rol_changed(rol_selected, request.user):
+                            raise Exception("No puede cambiarse el rol a un usuario ya creado, "
+                                            "verificar información")
                         if estado_selected["value"] == "habilitado":
                             user.is_active = True
                         else:
@@ -83,3 +87,15 @@ class PersonasUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, Up
                     estado_selected = user_n["estado_selected"]
                     persona.create_custom_user(request, rol_selected, estado_selected,
                                                user_n["email"])
+
+    def verify_rol_changed(self, rol_selected, user):
+        if rol_selected["value"] == "representante":
+            if user.is_representative:
+                return False
+        elif rol_selected["value"] == "laboratorista":
+            if user.is_laboratory_worker:
+                return False
+        elif rol_selected["value"] == "bodeguero":
+            if user.is_grocer:
+                return False
+        return False
