@@ -25,7 +25,7 @@
     <!-- Popper -->
     <script src="{% static 'lib/popper-1.14.3-dist/umd/popper.min.js' %}"></script>
     <!-- Bootstrap 4 -->
-    <script src="{% static 'lib/bootstrap-4.1.3-dist/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'lib/adminlte-3.1.0-dist/js/adminlte.min.js' %}"></script>
     <!-- AdminLTE for demo purposes -->
@@ -53,35 +53,38 @@
             {% include 'header.html' %}
         {% endblock %}
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper" style="padding-top: 4em">
-            <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            {% include 'validateheader.html' %}
-                        </div><!-- /.col -->
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                {% for item in urls %}
-                                    {% if forloop.last %}
-                                        <li class="breadcrumb-item active">{{ item.uriname }}</li>
-                                    {% else %}
-                                        <li class="breadcrumb-item"><a href="{{ item.uridj }}">{{ item.uriname }}</a>
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ol>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
+        {% block contentwrapper %}
+            <div class="content-wrapper" style="padding-top: 4em">
+                <!-- Content Header (Page header) -->
+                <div class="content-header">
+                    <div class="container">
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                {% include 'validateheader.html' %}
+                            </div><!-- /.col -->
+                            <div class="col-sm-6">
+                                <ul class="breadcrumb float-sm-right">
+                                    {% for item in urls %}
+                                        {% if forloop.last %}
+                                            <li class="breadcrumb-item active">{{ item.uriname }}</li>
+                                        {% else %}
+                                            <li class="breadcrumb-item"><a
+                                                    href="{{ item.uridj }}">{{ item.uriname }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div><!-- /.col -->
+                        </div><!-- /.row -->
+                    </div><!-- /.container-fluid -->
+                </div>
+                <!-- /.content-header -->
+
+                {% block content %}
+
+                {% endblock %}
             </div>
-            <!-- /.content-header -->
-
-            {% block content %}
-
-            {% endblock %}
-        </div>
+        {% endblock %}
         <!-- /.content-wrapper -->
         <!-- /.content -->
         {% include 'dashboard/modal/changePassword.html' %}

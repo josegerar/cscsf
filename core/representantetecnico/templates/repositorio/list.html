@@ -3,55 +3,91 @@
 {% load static %}
 
 {% block head %}
-    <link href="{% static 'lib/fontawesome-free/js/fontawesome.js' %}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}"/>
+    <link rel="stylesheet"
+          href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}"/>
+    <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
+
     <link rel="stylesheet" type="text/css"
           href="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.css' %}">
     <script src="{% static 'lib/jquery-contextmenu-dist/dist/jquery.contextMenu.min.js' %}"></script>
+
     <script src="{% static 'bootstrap-toasts/dist/bootstrap-toasts.js' %}"></script>
+
     <script src="{% static 'repositorio/js/fireEventsUrl.js' %}"></script>
 {% endblock %}
 
-{% block header %}
-    {% include 'header.html' %}
-{% endblock %}
-
 {% block contentwrapper %}
-    <div class="content-wrapper">
-        {% csrf_token %}
-        {% include 'repositorio/modal/createFolder.html' %}
-        {% include 'repositorio/modal/viewFile.html' %}
-        <div>
-            {% block contentheader %}
-                <!-- Content Header (Page header) -->
-                <div class="content-header">
-                    <div class="container">
-                        <div class="row mb-2">
-                            <div class="col-sm-6">
-                                <h5 class="m-0"> Representante tecnico <small>CSCSF-UTEQ</small></h5>
-                            </div><!-- /.col -->
-                            <div class="col-sm-6">
-                                <ol class="breadcrumb float-sm-right">
-                                    <li class="breadcrumb-item active">Home</li>
-                                </ol>
-                            </div><!-- /.col -->
-                        </div><!-- /.row -->
-                    </div><!-- /.container-fluid -->
+    <div class="content-wrapper" style="padding-top: 4em">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        {% include 'validateheader.html' %}
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ul class="breadcrumb float-sm-right" id="rutasrepositorio">
+                            <li class="breadcrumb-item active">Home</li>
+                        </ul>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
+        <div class="card card-default">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <div class="card">
+                            <div class="card-header">
+                                Ubicaciones
+                            </div>
+                            <div class="card-body">
+                                <ul rel="lista_filtros" class="nav nav-pills nav-sidebar flex-column"
+                                    data-widget="treeview" role="menu"
+                                    data-accordion="false">
+                                    <li class="nav-item">
+                                        <a rel="search" data-action="searchcontent" data-type="repository"
+                                           class="nav-link"
+                                           style="cursor: pointer">
+                                            <i class="far fa-list-alt"></i>
+                                            <p>Mi repositorio <i class="right fas fa-angle-left"></i></p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a rel="search" data-action="searchcontent" data-type="recicle"
+                                           class="nav-link"
+                                           style="cursor: pointer">
+                                            <i class="far fa-trash-alt"></i>
+                                            <p>Reciclaje <i class="right fas fa-angle-left"></i></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-10">
+                        <div id="context-menu-file" class="card">
+                            <table id="tblistado" class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="width: 5%">T</th>
+                                    <th scope="col" style="width: 65%">Nombre</th>
+                                    <th scope="col" style="width: 30%">Fecha creación</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <input type="file" id="myFile" multiple size="50" style="display: none;"
+                                   accept="application/pdf">
+                        </div>
+                    </div>
                 </div>
-                <!-- /.content-header -->
-            {% endblock %}
-            <div id="context-menu-file" class="card"
-                 style="overflow-y: scroll;margin-left: 10%; margin-right: 10%; min-height: 80vh; max-height: 80vh">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th scope="col" style="width: 5%">T</th>
-                        <th scope="col" style="width: 95%">Nombre</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <input type="file" id="myFile" multiple size="50" style="display: none;" accept="application/pdf">
             </div>
         </div>
     </div>
@@ -60,8 +96,9 @@
     </div>
 {% endblock %}
 {% block script %}
+    {% include 'repositorio/modal/createFolder.html' %}
+    {% include 'repositorio/modal/viewFile.html' %}
     <script src="{% static 'repositorio/js/list.js' %}"></script>
-    <script src="{% static 'repositorio/js/create.js' %}"></script>
     <script src="{% static 'repositorio/js/uploadfile.js' %}"></script>
     <script src="{% static 'repositorio/js/contextmenu.js' %}"></script>
     <script src="{% static 'repositorio/js/progressbar.js' %}"></script>

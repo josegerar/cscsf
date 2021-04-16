@@ -7,22 +7,20 @@ $(function () {
 });
 
 function viewFile(data) {
-    var url = data.itemdata.url + data.itemdata.nombre_real;
-    fileExists(url, (response, err, exists) => {
+    fileExists(data.url, (response, err, exists) => {
         if (exists) {
-            var file = document.getElementById("viewFilePDF");
-            var clone = file.cloneNode(true);
-            clone.setAttribute('src', url);
+            let file = document.getElementById("viewFilePDF");
+            let clone = file.cloneNode(true);
+            clone.setAttribute('src', data.url);
             file.parentNode.replaceChild(clone, file)
-            $('#viewFileModal').find('h5').text(data.itemdata.nombre_real);
+            $('#viewFileModal').find('h5').text(data.nombre);
             $('#viewFileModal').modal('show');
             $('#viewFileModal').on('hide.bs.modal', function (e) {
-                if (data.parent) {
-                    data.itemdata = data.parent;
-                    delete data.parent;
-                    history.pushState(data, null, window.location.origin + data.urlrepository + data.itemdata.id + '/');
+                if (data.parent > 0) {
+                    let parent = {'id': data.parent, 'is_dir': true};
+                    history.pushState(parent, null, window.location.origin + repositorio.urlrepository + parent.id + '/');
                 } else {
-                    history.pushState(null, null, window.location.origin + data.urlrepository);
+                    history.pushState(null, null, window.location.origin + repositorio.urlrepository);
                 }
             });
         } else {

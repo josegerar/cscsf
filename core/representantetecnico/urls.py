@@ -23,6 +23,8 @@ from core.representantetecnico.views.personas.create import PersonaCreateView
 from core.representantetecnico.views.personas.delete import PersonasDeleteView
 from core.representantetecnico.views.personas.list import PersonaListView
 from core.representantetecnico.views.personas.update import PersonasUpdateView
+from core.representantetecnico.views.repositorio.create import RepositorioCreateView
+from core.representantetecnico.views.repositorio.list import RepositorioListView
 from core.representantetecnico.views.sustancia.create import SustanciaCreateView
 from core.representantetecnico.views.sustancia.delete import SustanciaDeleteView
 from core.representantetecnico.views.sustancia.list import SustanciaListView
@@ -69,8 +71,9 @@ urlpatterns = [
     path('personas/delete/<int:pk>/', PersonasDeleteView.as_view(), name="eliminarpersonas"),
 
     # repositorio
-    # path('repositorio/', RepositorioListView.as_view(), name="repositorio"),
-    # path('repositorio/<int:pk>/', RepositorioListView.as_view(), name="repositorioid"),
+    path('repositorio/', RepositorioListView.as_view(), name="repositorio"),
+    path('repositorio/<int:pk>/', RepositorioListView.as_view(), name="repositorioid"),
+    #path('repositorio/registro/', RepositorioCreateView.as_view(), name="registrorepositorio"),
 
     # laboratorio
     path('laboratorios/', LaboratorioListView.as_view(), name="laboratorios"),

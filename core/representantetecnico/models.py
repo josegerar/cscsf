@@ -2,15 +2,12 @@ from datetime import datetime
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models, connection
-from django.forms import model_to_dict
 from django.utils import timezone
 
 from app.settings import MEDIA_URL
 from core.base.formaters import dictfetchall
 from core.bodega.models import Bodega
 from core.login.models import User, BaseModel, Persona
-from core.representantetecnico.files.read import BASE_REPOSITORY, rearm_url
-from core.representantetecnico.files.write import create_folder, create_file
 from core.representantetecnico.validators import validate_compras_convocatoria
 from core.tecnicolaboratorio.models import Laboratorio
 
@@ -38,10 +35,6 @@ class EstadoTransaccion(models.Model):
     def __str__(self):
         return str(self.estado)
 
-    def toJSON(self):
-        item = {'estado': self.estado, 'descripcion': self.descripcion}
-        return item
-
     class Meta:
         verbose_name = "Estado de transacción"
         verbose_name_plural = "Estado de transacciones"
@@ -57,10 +50,6 @@ class UnidadMedida(models.Model):
 
     def __str__(self):
         return self.nombre
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        return item
 
     class Meta:
         verbose_name = "Unidad de medida"
@@ -106,18 +95,6 @@ class Sustancia(BaseModel):
             return False
         return True
 
-    def toJSON(self, view_stock=False):
-        item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion,
-                'cupo_autorizado': self.cupo_autorizado, 'cupo_consumido': self.get_cupo_consumido()}
-        if self.unidad_medida is not None:
-            item['unidad_medida'] = self.unidad_medida.toJSON()
-        item['stock'] = []
-        if self.stock_set is not None:
-            if view_stock is True:
-                for i in self.stock_set.all():
-                    item['stock'].append(i.toJSON(view_subtance=False))
-        return item
-
     class Meta:
         verbose_name = "Sustancia"
         verbose_name_plural = "Sustancias"
@@ -133,21 +110,6 @@ class Stock(BaseModel):
 
     def __str__(self):
         return str(self.id)
-
-    def toJSON(self, view_subtance=False, view_stock_substance=False):
-        item = {'id': self.id, 'cantidad': self.cantidad}
-        if self.bodega is not None:
-            item['bodega'] = self.bodega.toJSON()
-        if self.laboratorio is not None:
-            item['laboratorio'] = self.laboratorio.toJSON()
-        if self.sustancia is not None:
-            if view_subtance is True:
-                if view_stock_substance is False:
-                    item['sustancia'] = self.sustancia.toJSON(view_stock=False)
-                else:
-                    item['sustancia'] = self.sustancia.toJSON(view_stock=True)
-
-        return item
 
     class Meta:
         verbose_name = "Stock sustancia"
@@ -174,28 +136,6 @@ class Solicitud(BaseModel):
 
     def __str__(self):
         return str(self.id)
-
-    def toJSON(self):
-        item = {'id': self.id, 'nombre_actividad': self.nombre_actividad,
-                'documento': self.get_doc_solicitud(), 'observacion_representante': self.observacion_representante,
-                'observacion_bodega': self.observacion_bodega, 'codigo_solicitud': self.codigo_solicitud}
-        if self.fecha_autorizacion is not None:
-            item['fecha_autorizacion'] = self.fecha_autorizacion.strftime("%Y-%m-%d %H:%M:%S")
-        if self.solicitante is not None:
-            item['solicitante'] = self.solicitante.get_user_info()
-        if self.estado_solicitud is not None:
-            item['estado_solicitud'] = self.estado_solicitud.toJSON()
-        if self.laboratorio is not None:
-            item['laboratorio'] = self.laboratorio.nombre
-        if self.tipo_actividad is not None:
-            item['tipo_actividad'] = self.tipo_actividad.__str__()
-        if self.responsable_actividad is not None:
-            item['responsable_actividad'] = self.responsable_actividad.toJSON()
-        item['detallesolicitud'] = []
-        if self.solicituddetalle_set is not None:
-            for i in self.solicituddetalle_set.all():
-                item['detallesolicitud'].append(i.toJSON(ver_solicitud=False))
-        return item
 
     def get_doc_solicitud(self):
         if self.documento_solicitud:
@@ -230,14 +170,6 @@ class SolicitudDetalle(BaseModel):
     def __str__(self):
         return str(self.id)
 
-    def toJSON(self, ver_solicitud=False):
-        item = {'id': self.id, 'cantidad_solicitada': self.cantidad_solicitada,
-                'cantidad_entregada': self.cantidad_entregada, 'cantidad_consumida': self.cantidad_consumida}
-        if self.solicitud is not None:
-            if ver_solicitud:
-                item['solicitud'] = self.solicitud.toJSON()
-        return item
-
     class Meta:
         verbose_name = "Solicitud Detalle"
         verbose_name_plural = "Solicitud Detalles"
@@ -252,10 +184,6 @@ class Proveedor(BaseModel):
 
     def __str__(self):
         return self.nombre
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        return item
 
     class Meta:
         verbose_name = "Empresa"
@@ -279,23 +207,6 @@ class ComprasPublicas(BaseModel):
 
     def __str__(self):
         return str(self.id)
-
-    def toJSON(self):
-        item = {'id': self.id, 'llegada_bodega': self.llegada_bodega, 'hora_llegada_bodega': self.hora_llegada_bodega,
-                'convocatoria': self.convocatoria, 'pedido_compras_publicas': self.get_pedido_compras_publicas(),
-                'guia_transporte': self.get_guia_transporte(), 'factura': self.get_factura(),
-                'observacion': self.observacion}
-        if self.empresa is not None:
-            item['empresa'] = self.empresa.toJSON()
-        else:
-            item['empresa'] = Proveedor().toJSON()
-        item['detallecompra'] = []
-        if self.compraspublicasdetalle_set is not None:
-            for i in self.compraspublicasdetalle_set.all():
-                item['detallecompra'].append(i.toJSON(rel_compraspublicas=True))
-        if self.estado_compra is not None:
-            item['estado'] = self.estado_compra.toJSON()
-        return item
 
     def get_pedido_compras_publicas(self):
         if self.pedido_compras_publicas:
@@ -332,14 +243,6 @@ class ComprasPublicasDetalle(BaseModel):
     def __str__(self):
         return str(self.id)
 
-    def toJSON(self, rel_compraspublicas=False):
-        item = {'id': self.id, 'cantidad': self.cantidad}
-        if rel_compraspublicas is False:
-            item['compra'] = self.compra.toJSON()
-        if self.stock is not None:
-            item['stock'] = self.stock.toJSON(view_subtance=True, view_stock_substance=True)
-        return item
-
     class Meta:
         verbose_name = "Compra Publica Detalle"
         verbose_name_plural = "Compras Publicas Detalles"
@@ -353,10 +256,6 @@ class Mes(models.Model):
 
     def __str__(self):
         return str(self.nombre)
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        return item
 
     class Meta:
         verbose_name = "Mes"
@@ -375,16 +274,6 @@ class InformesMensuales(BaseModel):
 
     def __str__(self):
         return str(self.id)
-
-    def toJSON(self):
-        item = {'id': self.id, 'year': self.year}
-        if self.laboratorista is not None:
-            item['laboratorista'] = self.laboratorista.toJSON()
-        if self.laboratorio is not None:
-            item['laboratorio'] = self.laboratorio.toJSON()
-        if self.mes is not None:
-            item['mes'] = self.mes.toJSON()
-        return item
 
     def get_doc_informe(self):
         if self.doc_informe:
@@ -416,14 +305,6 @@ class InformesMensualesDetalle(BaseModel):
     def __str__(self):
         return str(self.id)
 
-    def toJSON(self, ver_informe=False):
-        item = {'id': self.id, 'cantidad': self.cantidad}
-        if ver_informe:
-            item['informe'] = self.informe.toJSON()
-        if self.stock is not None:
-            item['stock'] = self.stock.toJSON(view_subtance=True, view_stock_substance=True)
-        return item
-
     class Meta:
         verbose_name = "Informe mensual Detalle"
         verbose_name_plural = "Informes mensuales Detalles"
@@ -439,12 +320,6 @@ class DesgloseInfomeMensualDetalle(BaseModel):
 
     def __str__(self):
         return str(self.id)
-
-    def toJSON(self):
-        item = {"id": self.id, "documento": self.get_documento()}
-        if self.informe_mensual_detalle is not None:
-            item["informe_mensual_detalle"] = self.informe_mensual_detalle.id
-        return item
 
     def get_documento(self):
         if self.documento:
@@ -465,10 +340,6 @@ class TipoMovimientoInventario(models.Model):
     def __str__(self):
         return str(self.nombre)
 
-    def toJSON(self):
-        item = {'id': self.id, 'nombre': self.nombre, 'descripcion': self.descripcion}
-        return item
-
     class Meta:
         verbose_name = "Tipo de movimiento de inventario"
         verbose_name_plural = "Tipos de movimientos de inventario"
@@ -488,13 +359,6 @@ class Inventario(BaseModel):
 
     def __str__(self):
         return str(self.id)
-
-    def toJSON(self):
-        item = {'id': self.id, 'cantidad': self.cantidad_movimiento,
-                'fecha': self.date_creation.strftime("%Y-%m-%d %H:%M:%S")}
-        if self.tipo_movimiento is not None:
-            item['tipo_movimiento'] = self.tipo_movimiento.toJSON()
-        return item
 
     @staticmethod
     def get_mov_inv_tl(laboratorista_id, sustancia_id, year, mes):
@@ -562,82 +426,20 @@ class Inventario(BaseModel):
 
 
 class Repositorio(BaseModel):
-    nombre_usuario = models.CharField(max_length=500, verbose_name="Nombre archivo(usuario)")
-    nombre_real = models.CharField(max_length=500, verbose_name="Nombre archivo(real)")
-    url = models.CharField(max_length=500, verbose_name="Ruta archivo")
-    is_deleted = models.BooleanField(default=False)
+    nombre = models.CharField(max_length=500, verbose_name="Nombre carpeta", null=True, blank=True)
+    documento = models.FileField(upload_to='repositorio/%Y/%m/%d', null=True, blank=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     is_recicle_bin = models.BooleanField(default=False)
     is_file = models.BooleanField(default=False)
     is_dir = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.url)
+        return str(self.id)
 
-    def get_content_folder(self, pk):
-        path = None
-        object_act = None
-        if pk is None:
-            path = BASE_REPOSITORY
-        else:
-            object_act = Repositorio.objects.get(id=pk)
-            path = object_act.url + object_act.nombre_real + '\\'
-        return self.get_content_folder_url(path, object_act)
-
-    def get_content_folder_url(self, path_url, object_act):
-        data = {}
-        if object_act is not None:
-            data['object'] = object_act.toJSON()
-            if object_act.is_file is True:
-                path_url = object_act.url
-                if path_url != BASE_REPOSITORY:
-                    path_parts = object_act.url.split("\\")
-                    folder_name = path_parts[len(path_parts) - 2]
-                    path_parent = rearm_url(path_parts, 2)
-                    parent = Repositorio.objects.get(nombre_real=folder_name, url=path_parent)
-                    data['parent'] = parent.toJSON()
-        data_folders = Repositorio.objects.filter(url=path_url).exclude(is_file=True)
-        data['folders'] = []
-        for i in data_folders:
-            data['folders'].append(i.toJSON())
-        data_files = Repositorio.objects.filter(url=path_url).exclude(is_dir=True)
-        data['files'] = []
-        for i in data_files:
-            data['files'].append(i.toJSON())
-        return data
-
-    def create_folder(self, foldername, pk):
-        folder_parent = self.get_folder_parent(pk)
-        create_folder(name_folder=foldername, folder_parent=folder_parent)
-        self.nombre_real = foldername
-        self.nombre_usuario = foldername
-        self.url = folder_parent
-        self.folder = folder_parent
-        self.is_dir = True
-        self.save()
-
-    def create_file(self, fileUpload, pk):
-        folder_parent = self.get_folder_parent(pk)
-        create_file(fileUpload, folder_parent)
-        self.nombre_real = fileUpload.name
-        self.nombre_usuario = fileUpload.name
-        self.url = folder_parent
-        self.folder = folder_parent
-        self.is_file = True
-        self.save()
-
-    def get_folder_parent(self, pk):
-        folder_parent = None
-        if pk is None:
-            folder_parent = BASE_REPOSITORY
-        else:
-            objectroot = Repositorio.objects.get(pk=pk)
-            path = objectroot.url + objectroot.nombre_real + '\\'
-            folder_parent = path
-        return folder_parent
-
-    def toJSON(self):
-        item = model_to_dict(self, exclude=[])
-        return item
+    def save(self, *args, **kwargs):
+        if self.is_file and self.id is None:
+            self.nombre = self.documento.file.name
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Repositorio"

@@ -1,5 +1,4 @@
 from django.db import models
-from django.forms import model_to_dict
 
 from core.base.models import BaseModel
 from core.login.models import User
@@ -13,12 +12,6 @@ class Bodega(BaseModel):
 
     def __str__(self):
         return self.nombre
-
-    def toJSON(self):
-        item = model_to_dict(self, exclude=['responsable'])
-        if self.responsable is not None:
-            item['responsable'] = self.responsable.get_user_info()
-        return item
 
     class Meta:
         verbose_name = "Bodega"

@@ -137,7 +137,7 @@ $(function () {
         'info': false,
         'columns': [
             {
-                "className": 'details-control',
+                "className": 'show-data-hide-control',
                 'data': 'id'
             },
             {'data': 'email'},
@@ -186,7 +186,8 @@ $(function () {
     });
 
     // Add event listener for opening and closing details
-    addEventListenerOpenDetailRowDatatable('tblistado', usuarios.datatable, 'td.details-control',
+    addEventListenerOpenDetailRowDatatable('tblistado', usuarios.datatable
+        , 'td.show-data-hide-control',
         function (row, data, dataIndex) {
             updateRowsCallback(row, data, dataIndex);
         });

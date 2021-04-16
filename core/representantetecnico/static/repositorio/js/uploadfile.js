@@ -2,15 +2,15 @@ $(function () {
     $('#myFile').change(function () {
         if ('files' in this) {
             if (this.files.length > 0) {
-                for (var i = 0; i < this.files.length; i++) {
-                    var file = this.files[i];
+                for (let i = 0; i < this.files.length; i++) {
+                    let file = this.files[i];
                     if (verifyExtension(file)) {
                         uploadFile(file)
                     }
                 }
-
             }
         }
+        $('#myFile').val("");
     });
 
     function verifyExtension(file) {
@@ -23,14 +23,11 @@ $(function () {
     }
 
     function uploadFile(file) {
-        var toastProgressBar = createToast();
-        var csrfmiddlewaretoken = document.getElementsByName("csrfmiddlewaretoken");
-        var data = new FormData();
-        if (csrfmiddlewaretoken.length > 0) {
-            data.append("csrfmiddlewaretoken", csrfmiddlewaretoken[0].value);
-        }
-        data.append("file", file);
-        data.append("action", 'newfile');
+        let toastProgressBar = createToast();
+        let data = new FormData();
+        data.append("csrfmiddlewaretoken", repositorio.cookie);
+        data.append("documento", file);
+        data.append("action", 'createfile');
         $.ajax({
             'url': window.location.pathname,
             'type': 'POST',
@@ -65,7 +62,7 @@ $(function () {
             }
         }).done(function (data) {
             if (!data.hasOwnProperty('error')) {
-                proccessData(data);
+                repositorio.datatable.ajax.reload();
             } else {
                 message_error(data.error);
             }
@@ -88,7 +85,11 @@ $(function () {
 
     function uploadStartHandler(event, toastProgressBar, xhr, file) {
         $(toastProgressBar).find('.progress-bar').css("width", "0%").attr('aria-valuenow', 0);
-        $(toastProgressBar).find('strong').text(file.name);
+        let name = file.name;
+        if (name.length > 27){
+            name = `${name.substring(0,26)}...`
+        }
+        $(toastProgressBar).find('strong').text(name);
         $(toastProgressBar).find("button").on('click', function () {
             xhr.abort();
         });

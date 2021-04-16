@@ -12,12 +12,6 @@ class Laboratorio(BaseModel):
     def __str__(self):
         return self.nombre
 
-    def toJSON(self):
-        item = {'id': self.id, 'nombre': self.nombre, 'responsable': ''}
-        if self.responsable is not None:
-            item['responsable'] = self.responsable.get_user_info()
-        return item
-
     @staticmethod
     def get_choices_laboratory_user(user_id):
         choices = [('', '---------')]

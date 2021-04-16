@@ -21,10 +21,16 @@ const sustancias = {
     update_cantiad_total: function () {
         setTimeout(() => {
             let cantidad = 0;
+            let cantidad_bodegas = 0;
+            let cantidad_labs = 0;
             $.each(sustancias.data.desgloses, function (index, item) {
+                if (item.tipo === 'bodega') cantidad_bodegas += item.cantidad_ingreso;
+                else if (item.tipo === 'laboratorio') cantidad_labs += item.cantidad_ingreso;
                 cantidad += item.cantidad_ingreso
             });
             $('#id_cantidad_total').val(cantidad.toFixed(4));
+            $('#id_cantidad_total_bod').val(cantidad_bodegas.toFixed(4));
+            $('#id_cantidad_total_lab').val(cantidad_labs.toFixed(4));
         }, 1);
     }
 }

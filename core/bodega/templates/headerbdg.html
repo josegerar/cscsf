@@ -19,29 +19,29 @@
                 <li class="nav-item">
                     <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% url 'rp:repositorio' %}" class="nav-link">Repositorio</a>
+                </li>
                 <!-- Informes mensuales-->
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                    <li class="nav-item dropdown">
-                        <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
-                           aria-expanded="false" class="nav-link dropdown-toggle">Inventario</a>
-                        <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                            <li>
-                                <a href="{% url 'rp:movimientoinventario' %}" class="dropdown-item">Movimientos </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'rp:sustancias' %}" class="dropdown-item">Stock</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'rp:bodegas' %}" class="dropdown-item">Bodegas</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'rp:estadomensual' %}" class="dropdown-item">Estados mensuales de sustancias</a>
-                            </li>
-                        </ul>
-                    </li>
-                    </li>
-                </ul>
+                <li class="nav-item dropdown">
+                    <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false" class="nav-link dropdown-toggle">Inventario</a>
+                    <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
+                        <li>
+                            <a href="{% url 'rp:movimientoinventario' %}" class="dropdown-item">Movimientos </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'rp:sustancias' %}" class="dropdown-item">Stock</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'rp:bodegas' %}" class="dropdown-item">Bodegas</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'rp:estadomensual' %}" class="dropdown-item">Estados mensuales de
+                                sustancias</a>
+                        </li>
+                    </ul>
+                </li>
 
                 <li class="nav-item dropdown">
                     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"

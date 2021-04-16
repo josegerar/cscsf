@@ -22,11 +22,6 @@ class Persona(BaseModel):
     def __str__(self):
         return "{} {} - {}".format(self.nombre, self.apellido, self.cedula)
 
-    def toJSON(self):
-        item = model_to_dict(self, exclude=['imagen'])
-        item['imagen'] = self.get_imagen()
-        return item
-
     def get_username(self, key=""):
         parts = self.get_names_part()
         if parts is not None:
@@ -168,9 +163,6 @@ class User(AbstractUser, BaseModel):
 
     def __str__(self):
         return self.username
-
-    def toJSON(self):
-        return model_to_dict(self, exclude=['imagen', 'groups'])
 
     @staticmethod
     def get_choices_user():
